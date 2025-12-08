@@ -1,0 +1,25 @@
+{
+  "name": "Makerspace Infrastructure",
+  "image": "mcr.microsoft.com/devcontainers/base:debian",
+  "features": {
+    //"ghcr.io/devcontainers-extra/features/kubectl-asdf:2": {},
+    "ghcr.io/jsburckhardt/devcontainer-features/flux:1": {},
+    "ghcr.io/dhoeric/features/k9s:1": {},
+    //"ghcr.io/devcontainers-extra/features/kubectx-kubens:1": {},
+    "ghcr.io/christophermacgown/devcontainer-features/direnv:1": {},
+    "ghcr.io/jpawlowski/devcontainer-features/cascadia-code:1": {}
+  },
+  "mounts": [
+    "source=${localEnv:HOME}/.kube,target=/home/vscode/.kube,type=bind,consistency=cached"
+  ],
+  "remoteEnv": {
+    "KUBECONFIG": "/home/vscode/.kube/config"
+  },
+  "forwardPorts": [
+    80,
+    443,
+    9000,
+    3000,
+    8080
+  ]
+}
