@@ -1,0 +1,117 @@
+# Sealed Secrets
+# Public key can be regenerated from cluster, but exclude to avoid confusion
+.sealed-secrets-pub.pem
+sealed-secrets-*.pem
+
+# Kubeconfigs (NEVER commit these!)
+kubeconfigs/
+*.kubeconfig
+*.kube
+
+# Age keys (if using SOPS in future)
+age.agekey
+*.agekey
+
+# Environment files with secrets
+.env
+.env.local
+.env.*.local
+*.env.secret
+.envrc
+*.envrc
+.envrc*
+
+# Local development overrides
+local.yaml
+*.local.yaml
+
+# Terraform/OpenTofu state (if using for VM provisioning)
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+*.tfvars
+
+# Ansible vault password files
+.vault_pass
+.vault_password
+*.vault_pass
+
+# IDE and editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Linux
+*~
+.directory
+.Trash-*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+*.bak
+*.backup
+tmp/
+temp/
+logs/
+
+# Build artifacts
+dist/
+build/
+out/
+target/
+
+# Node modules (if using any JS tooling)
+node_modules/
+package-lock.json
+yarn.lock
+
+# Python (if using any Python tools)
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+venv/
+ENV/
+env/
+
+# Helm
+*.tgz
+charts/*.tgz
+
+# Flux v1 (if accidentally created)
+.flux.yaml
+
+# Testing
+coverage/
+.coverage
+htmlcov/
+
+# Personal notes (use for local dev notes)
+NOTES.md
+TODO.md
+SCRATCH.md
+notes/
+scratch/
+
+# Backup files
+*.orig
+*.bak
