@@ -4,4 +4,4 @@ resources:
   - namespace.yaml
   - helmrepository.yaml
   - helmrelease.yaml
-  - ingress-route-dashboard.yaml
+  - ingressroute-dashboard.yaml
