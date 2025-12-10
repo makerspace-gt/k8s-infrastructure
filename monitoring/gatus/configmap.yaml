@@ -17,9 +17,3 @@ data:
         interval: 20s
         conditions:
           - "[STATUS] == 200"
-      
-      - name: Traefik
-        url: "http://traefik.traefik.svc.cluster.local:9100/metrics"
-        interval: 20s
-        conditions:
-          - "[STATUS] == 200"
