@@ -19,7 +19,7 @@ data:
           - "[STATUS] == 200"
       
       - name: Traefik
-        url: "http://traefik.traefik.svc.cluster.local:9000/dashboard"
+        url: "http://traefik.traefik.svc.cluster.local:9000/api/overview"
         interval: 20s
         conditions:
           - "[STATUS] == 200"
