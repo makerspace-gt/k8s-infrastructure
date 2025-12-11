@@ -5,6 +5,9 @@ metadata:
   namespace: zammad
 spec:
   interval: 30m
+  dependsOn:
+    - name: zammad-postgresql
+      namespace: zammad
   chart:
     spec:
       chart: zammad
@@ -18,35 +21,29 @@ spec:
   upgrade:
     timeout: 15m
   values:
-    # Disable built-in PostgreSQL
     postgresql:
       enabled: false
 
-    # Use external PostgreSQL (CloudNativePG)
     zammadConfig:
       postgresql:
-        host: "zammad-db-rw.zammad.svc.cluster.local"
+        host: "zammad-db-rw"
         port: 5432
         db: "zammad"
         user: "zammad"
+        pass:
+          secretName: zammad-db-app
+          secretKey: password
 
-    # Point to CloudNativePG secret for password
-    envFromSecret: zammad-db-app
-
-    # Enable Elasticsearch
     elasticsearch:
       enabled: true
       replicas: 1
 
-    # Enable Redis
     redis:
       enabled: true
 
-    # Enable Memcached
     memcached:
       enabled: true
 
-    # Ingress
     ingress:
       enabled: true
       className: traefik
