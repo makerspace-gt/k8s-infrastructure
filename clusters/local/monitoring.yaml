@@ -29,3 +29,17 @@ spec:
   sourceRef:
     kind: GitRepository
     name: flux-system
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: loki
+  namespace: flux-system
+spec:
+  interval: 10m
+  path: ./monitoring/loki
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  wait: false
