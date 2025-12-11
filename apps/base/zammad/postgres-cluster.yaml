@@ -1,0 +1,13 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: zammad-db
+  namespace: zammad
+spec:
+  instances: 1
+  storage:
+    size: 2Gi
+  bootstrap:
+    initdb:
+      database: zammad
+      owner: zammad

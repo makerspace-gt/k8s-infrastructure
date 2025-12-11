@@ -1,0 +1,55 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: zammad
+  namespace: zammad
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: zammad
+      version: ">=11.0.0"
+      sourceRef:
+        kind: HelmRepository
+        name: zammad
+      interval: 12h
+  install:
+    timeout: 15m
+  upgrade:
+    timeout: 15m
+  values:
+    # Use external PostgreSQL (CloudNativePG)
+    postgresql:
+      enabled: false
+
+    # External PostgreSQL connection
+    zammadConfig:
+      postgresql:
+        host: "zammad-db-rw.zammad.svc.cluster.local"
+        port: 5432
+        db: "zammad"
+        user: "zammad"
+        pass: "" # Will be set via secret
+
+    # Enable Elasticsearch
+    elasticsearch:
+      enabled: true
+      replicas: 1
+
+    # Enable Redis
+    redis:
+      enabled: true
+
+    # Enable Memcached
+    memcached:
+      enabled: true
+
+    # Ingress
+    ingress:
+      enabled: true
+      className: traefik
+      hosts:
+        - host: zammad.localhost
+          paths:
+            - path: /
+              pathType: Prefix
