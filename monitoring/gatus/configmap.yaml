@@ -17,3 +17,9 @@ data:
         interval: 20s
         conditions:
           - "[STATUS] == 200"
+
+      - name: Vikunja
+        url: "http://vikunja.vikunja.svc.cluster.local:3456"
+        interval: 20s
+        conditions:
+          - "[STATUS] == 200"
