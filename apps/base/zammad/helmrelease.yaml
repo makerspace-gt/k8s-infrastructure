@@ -5,9 +5,6 @@ metadata:
   namespace: zammad
 spec:
   interval: 30m
-  dependsOn:
-    - name: zammad-postgresql
-      namespace: zammad
   chart:
     spec:
       chart: zammad
@@ -24,15 +21,21 @@ spec:
     postgresql:
       enabled: false
 
-    zammadConfig:
-      postgresql:
-        host: "zammad-db-rw"
-        port: 5432
-        db: "zammad"
-        user: "zammad"
-        pass:
-          secretName: zammad-db-app
-          secretKey: password
+    # Don't use zammadConfig, use env vars directly
+    env:
+      - name: POSTGRESQL_HOST
+        value: "zammad-db-rw"
+      - name: POSTGRESQL_PORT
+        value: "5432"
+      - name: POSTGRESQL_DB
+        value: "zammad"
+      - name: POSTGRESQL_USER
+        value: "zammad"
+      - name: POSTGRESQL_PASS
+        valueFrom:
+          secretKeyRef:
+            name: zammad-db-app
+            key: password
 
     elasticsearch:
       enabled: true
