@@ -60,3 +60,34 @@ spec:
     kind: GitRepository
     name: flux-system
   wait: false
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: uptime-kuma
+  namespace: flux-system
+spec:
+  interval: 5m
+  dependsOn:
+    - name: traefik
+  path: ./apps/overlays/local/uptime-kuma
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: homepage-wordpress
+  namespace: flux-system
+spec:
+  interval: 5m
+  dependsOn:
+    - name: cloudnative-pg
+    - name: traefik
+  path: ./apps/overlays/local/homepage-wordpress
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system

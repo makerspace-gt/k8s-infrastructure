@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: homepage-wordpress
+  namespace: homepage-wordpress
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: homepage-wordpress
+  template:
+    metadata:
+      labels:
+        app: homepage-wordpress
+    spec:
+      containers:
+        - name: wordpress
+          image: wordpress:6.7-apache
+          ports:
+            - containerPort: 80
+          env:
+            - name: WORDPRESS_DB_HOST
+              value: "homepage-wordpress-db-rw"
+            - name: WORDPRESS_DB_NAME
+              value: "wordpress"
+            - name: WORDPRESS_DB_USER
+              value: "wordpress"
+            - name: WORDPRESS_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: homepage-wordpress-db-app
+                  key: password
+          volumeMounts:
+            - name: wordpress-data
+              mountPath: /var/www/html
+      volumes:
+        - name: wordpress-data
+          emptyDir: {}
