@@ -41,17 +41,17 @@ spec:
     kind: GitRepository
     name: flux-system
   wait: true
----
-apiVersion: kustomize.toolkit.fluxcd.io/v1
-kind: Kustomization
-metadata:
-  name: longhorn
-  namespace: flux-system
-spec:
-  interval: 10m
-  path: ./infrastructure/storage/longhorn
-  prune: true
-  sourceRef:
-    kind: GitRepository
-    name: flux-system
-  wait: false
+#---
+#apiVersion: kustomize.toolkit.fluxcd.io/v1
+#kind: Kustomization
+#metadata:
+#  name: longhorn
+#  namespace: flux-system
+#spec:
+#  interval: 10m
+#  path: ./infrastructure/storage/longhorn
+#  prune: true
+#  sourceRef:
+#    kind: GitRepository
+#    name: flux-system
+#  wait: false
