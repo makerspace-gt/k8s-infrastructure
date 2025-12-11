@@ -18,18 +18,20 @@ spec:
   upgrade:
     timeout: 15m
   values:
-    # Use external PostgreSQL (CloudNativePG)
+    # Disable built-in PostgreSQL
     postgresql:
       enabled: false
 
-    # External PostgreSQL connection
+    # Use external PostgreSQL (CloudNativePG)
     zammadConfig:
       postgresql:
         host: "zammad-db-rw.zammad.svc.cluster.local"
         port: 5432
         db: "zammad"
         user: "zammad"
-        pass: "" # Will be set via secret
+
+    # Point to CloudNativePG secret for password
+    envFromSecret: zammad-db-app
 
     # Enable Elasticsearch
     elasticsearch:
