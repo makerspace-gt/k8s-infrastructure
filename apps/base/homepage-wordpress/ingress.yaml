@@ -14,4 +14,4 @@ spec:
               service:
                 name: homepage-wordpress
                 port:
-                number: 80
+                  number: 80
