@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: vikunja
-          image: vikunja/vikunja:0.24.5
+          image: vikunja/vikunja:0.24.6
           ports:
             - containerPort: 3456
           env:
