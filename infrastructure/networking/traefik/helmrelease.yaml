@@ -23,8 +23,6 @@ spec:
         port: 443
       metrics:
         port: 9100
-        expose: true
-        exposedPort: 9100
     ingressClass:
       enabled: true
       isDefaultClass: true
