@@ -37,10 +37,3 @@ spec:
         ingressClassName: traefik
         hosts:
           - grafana.localhost
-      additionalDataSources:
-        - name: Loki
-          type: loki
-          url: http://loki.loki.svc.cluster.local:3100
-          access: proxy
-          isDefault: false
-          editable: true

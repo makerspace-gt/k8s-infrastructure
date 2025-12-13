@@ -1,0 +1,45 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended"
+  ],
+  "flux": {
+    "fileMatch": ["(^|/).*\\.ya?ml$"]
+  },
+  "helm-values": {
+    "fileMatch": ["(^|/).*\\.ya?ml$"]
+  },
+  "kubernetes": {
+    "fileMatch": ["(^|/).*\\.ya?ml$"]
+  },
+  "packageRules": [
+    {
+      "description": "Group all Helm chart updates",
+      "matchDatasources": ["helm"],
+      "groupName": "Helm charts"
+    },
+    {
+      "description": "Auto-merge patch updates",
+      "matchUpdateTypes": ["patch"],
+      "automerge": true,
+      "automergeType": "pr"
+    },
+    {
+      "description": "Weekly schedule for dependency updates",
+      "matchUpdateTypes": ["minor", "patch"],
+      "schedule": ["before 6am on monday"]
+    },
+    {
+      "description": "Label PRs appropriately",
+      "matchDatasources": ["helm"],
+      "addLabels": ["dependencies", "helm"]
+    }
+  ],
+  "prConcurrentLimit": 3,
+  "prHourlyLimit": 2,
+  "semanticCommits": "enabled",
+  "commitMessagePrefix": "chore(deps):",
+  "commitMessageAction": "update",
+  "commitMessageTopic": "{{depName}}",
+  "commitMessageExtra": "to {{newVersion}}"
+}
