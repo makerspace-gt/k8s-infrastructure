@@ -6,7 +6,7 @@ metadata:
   namespace: flux-system
 spec:
   interval: 5m
-  path: ./apps/overlays/local/vaultwarden/
+  path: ./apps/overlays/local/vaultwarden
   prune: true
   sourceRef:
     kind: GitRepository
@@ -87,6 +87,21 @@ spec:
     - name: cloudnative-pg
     - name: traefik
   path: ./apps/overlays/local/homepage-wordpress
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: postiz
+  namespace: flux-system
+spec:
+  interval: 5m
+  dependsOn:
+    - name: postiz
+  path: ./apps/overlays/local/postiz
   prune: true
   sourceRef:
     kind: GitRepository
