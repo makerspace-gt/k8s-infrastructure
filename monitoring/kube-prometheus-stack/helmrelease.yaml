@@ -42,4 +42,5 @@ spec:
         - name: Loki
           type: loki
           isDefault: false
-          url: http://loki.monitoring.svc.cluster:3100
+          # loki = service name, 2nd loki = namespace?
+          url: http://loki.loki.svc.cluster:3100
