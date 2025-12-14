@@ -31,9 +31,15 @@ spec:
                 requests:
                   storage: 5Gi
     grafana:
+      defaultDashboardsTimezone: Europe/Berlin
       adminPassword: admin
       ingress:
         enabled: true
         ingressClassName: traefik
         hosts:
           - grafana.localhost
+      additionalDataSources:
+        - name: Loki
+          type: loki
+          isDefault: false
+          url: http://loki.monitoring.svc.cluster:3100
