@@ -8,7 +8,7 @@ spec:
   chart:
     spec:
       chart: kube-prometheus-stack
-      version: ">=65.0.0"
+      version: "65.0.0"
       sourceRef:
         kind: HelmRepository
         name: prometheus-community
@@ -42,5 +42,7 @@ spec:
         - name: Loki
           type: loki
           isDefault: false
-          # loki = service name, 2nd loki = namespace?
-          url: http://loki.loki.svc.cluster.local:3100
+          # Gateway service is loki-gateway on port 80
+          url: http://loki-gateway.loki.svc.cluster.local
+          jsonData:
+            maxLines: 1000
