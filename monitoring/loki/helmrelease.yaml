@@ -39,6 +39,7 @@ spec:
         retention_period: 168h # 7 days
       compactor:
         retention_enabled: true
+        delete_request_store: filesystem
 
     deploymentMode: SingleBinary
 
