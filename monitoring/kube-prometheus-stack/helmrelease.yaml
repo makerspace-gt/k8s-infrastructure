@@ -43,4 +43,4 @@ spec:
           type: loki
           isDefault: false
           # loki = service name, 2nd loki = namespace?
-          url: http://loki.loki.svc.cluster:3100
+          url: http://loki.loki.svc.cluster.local:3100
