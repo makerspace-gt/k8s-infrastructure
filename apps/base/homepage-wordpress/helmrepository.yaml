@@ -4,6 +4,5 @@ metadata:
   name: bitnami
   namespace: homepage-wordpress
 spec:
-  interval: 24h
   type: oci
   url: oci://registry-1.docker.io/bitnamicharts
