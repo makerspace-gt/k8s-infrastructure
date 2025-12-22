@@ -6,4 +6,4 @@ metadata:
 spec:
   interval: 24h
   type: oci
-  url: oci://ghcr.io/gitroomhq/postiz-helmchart/charts/postiz-app
+  url: oci://ghcr.io/gitroomhq/postiz-helmchart/charts
