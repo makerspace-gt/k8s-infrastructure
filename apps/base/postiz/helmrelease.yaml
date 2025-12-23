@@ -18,7 +18,17 @@ spec:
   upgrade:
     timeout: 10m
   values:
-#    DATABASE_URL: postgresql://postiz-user:postiz-password@localhost:5432/postiz-db-local
+#    postgresql:
+#      enabled: false
+#      auth:
+#        database: postgresql://posstiz-db-rw
+#    postgresql:
+#      - name: VIKUNJA_DATABASE_PASSWORD
+#        valueFrom:
+#          secretKeyRef:
+#            name: vikunja-db-app
+#            key: password
+##    DATABASE_URL: postgresql://postiz-user:postiz-password@localhost:5432/postiz-db-local
 #    REDIS_URL: redis://localhost:6379
 #    JWT_SECRET: poiae3wu4l;sejrlk;ahwl;haksldjf;lajk
 #    FRONTEND_URL: http://postiz.example.lan:4200
