@@ -17,25 +17,22 @@ spec:
     timeout: 10m
   upgrade:
     timeout: 10m
+  valuesFrom:
+    - kind: Secret
+      name: postiz-helm-values
+      valuesKey: values.yaml
+      optional: false
   values:
+    postgresql:
+      enabled: true
+      auth:
+        username: postiz
+        database: postiz
+
+    redis:
+      enabled: true
+
     env:
-      - name: DATABASE_URL
-        value: postgresql://postiz@postiz-password@localhost:5432/postiz-db-local
-#    postgresql:
-#      enabled: false
-#      auth:
-#        database: postgresql://posstiz-db-rw
-#    postgresql:
-#      - name: VIKUNJA_DATABASE_PASSWORD
-#        valueFrom:
-#          secretKeyRef:
-#            name: vikunja-db-app
-#            key: password
-##    DATABASE_URL: postgresql://postiz-user:postiz-password@localhost:5432/postiz-db-local
-#    REDIS_URL: redis://localhost:6379
-#    JWT_SECRET: poiae3wu4l;sejrlk;ahwl;haksldjf;lajk
-#    FRONTEND_URL: http://postiz.example.lan:4200
-#    NEXT_PUBLIC_BACKEND_URL: http://postiz.example.lan:3000
-#    EMAIL_PROVIDER: "resend|nodemailer"
-#    EMAIL_FROM_NAME: "Postiz Emailer"
-#    EMAIL_FROM_ADDRESS: "postiz@example.com"    BACKEND_INTERNAL_URL: http://localhost:3000
+      FRONTEND_URL: "http://postiz.localhost:4200"
+      NEXT_PUBLIC_BACKEND_URL: "http://postiz.localhost:3000"
+      BACKEND_INTERNAL_URL: "http://postiz-postiz-app:3000"

@@ -21,6 +21,11 @@ age.agekey
 *.envrc
 .envrc*
 
+# Kubernetes Secrets (unencrypted)
+secrets.yaml
+**/secrets.yaml
+*.secrets.yaml
+
 # Local development overrides
 local.yaml
 *.local.yaml
