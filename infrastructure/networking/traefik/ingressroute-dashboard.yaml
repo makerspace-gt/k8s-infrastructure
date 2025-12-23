@@ -5,10 +5,11 @@ metadata:
   namespace: traefik
 spec:
   entryPoints:
-    - web
+    - websecure
   routes:
-    - match: Host(`traefik.localhost`)
-      kind: Rule
+    - kind: Rule
       services:
         - name: api@internal
           kind: TraefikService
+      middlewares:
+        - name: dashboard-auth

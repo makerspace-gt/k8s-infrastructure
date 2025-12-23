@@ -5,8 +5,7 @@ metadata:
   namespace: vikunja
 spec:
   rules:
-    - host: vikunja.localhost
-      http:
+    - http:
         paths:
           - path: /
             pathType: Prefix

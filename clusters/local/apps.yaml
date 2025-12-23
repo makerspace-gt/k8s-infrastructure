@@ -1,3 +1,12 @@
+# NOTE: This local cluster configuration is kept as a template for staging/production
+# These apps point to base configurations and will NOT work without overlays
+# that provide environment-specific values (domains, secrets, etc.)
+
+# When creating staging/production:
+# 1. Copy this file to clusters/staging/apps.yaml or clusters/production/apps.yaml
+# 2. Change paths to ./apps/overlays/staging/<app> or ./apps/overlays/production/<app>
+# 3. Create the overlay kustomizations with environment-specific values
+
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
@@ -6,7 +15,7 @@ metadata:
   namespace: flux-system
 spec:
   interval: 5m
-  path: ./apps/overlays/local/vaultwarden
+  path: ./apps/base/vaultwarden
   prune: true
   sourceRef:
     kind: GitRepository
@@ -22,7 +31,8 @@ spec:
   dependsOn:
     - name: cloudnative-pg
     - name: traefik
-  path: ./apps/overlays/local/wikijs
+    - name: cert-manager
+  path: ./apps/base/wikijs
   prune: true
   sourceRef:
     kind: GitRepository
@@ -38,7 +48,8 @@ spec:
   dependsOn:
     - name: cloudnative-pg
     - name: traefik
-  path: ./apps/overlays/local/vikunja
+    - name: cert-manager
+  path: ./apps/base/vikunja
   prune: true
   sourceRef:
     kind: GitRepository
@@ -54,7 +65,8 @@ spec:
   dependsOn:
     - name: cloudnative-pg
     - name: traefik
-  path: ./apps/overlays/local/zammad
+    - name: cert-manager
+  path: ./apps/base/zammad
   prune: true
   sourceRef:
     kind: GitRepository
@@ -70,7 +82,8 @@ spec:
   interval: 5m
   dependsOn:
     - name: traefik
-  path: ./apps/overlays/local/uptime-kuma
+    - name: cert-manager
+  path: ./apps/base/uptime-kuma
   prune: true
   sourceRef:
     kind: GitRepository
@@ -86,7 +99,8 @@ spec:
   dependsOn:
     - name: cloudnative-pg
     - name: traefik
-  path: ./apps/overlays/local/homepage-wordpress
+    - name: cert-manager
+  path: ./apps/base/homepage-wordpress
   prune: true
   sourceRef:
     kind: GitRepository

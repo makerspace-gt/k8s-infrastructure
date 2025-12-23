@@ -5,8 +5,7 @@ metadata:
   namespace: vaultwarden
 spec:
   rules:
-    - host: vaultwarden.localhost
-      http:
+    - http:
         paths:
           - path: /
             pathType: Prefix

@@ -19,8 +19,8 @@
       "groupName": "Helm charts"
     },
     {
-      "description": "Auto-merge patch updates",
-      "matchUpdateTypes": ["patch"],
+      "description": "Auto-merge patch and minor updates",
+      "matchUpdateTypes": ["patch", "minor"],
       "automerge": true,
       "automergeType": "pr"
     },

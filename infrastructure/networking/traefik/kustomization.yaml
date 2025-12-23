@@ -4,4 +4,5 @@ resources:
   - namespace.yaml
   - helmrepository.yaml
   - helmrelease.yaml
+  - middleware-auth.yaml
   - ingressroute-dashboard.yaml

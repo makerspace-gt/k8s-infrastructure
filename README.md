@@ -129,14 +129,36 @@ Before moving to staging/production, configure required secrets for each applica
 - [ ] Onboarding guide for new makerspace members
 - [ ] Architecture diagrams
 
-### 9. Remaining App Deployments
+### 9. Staging Cluster - Immediate Deployments
 
-- [ ] Deploy Postiz (fix dependency issue)
-- [ ] Deploy Cryptpad
-- [ ] Deploy Netbox
-- [ ] Test all applications thoroughly in local environment
+Once the Talos staging cluster is running, deploy these applications first:
+
+- [ ] Deploy CryptPad - Collaborative document editing
+  - Requires: PostgreSQL (CloudNative-PG), proper TLS, sealed secrets
+  - Helm chart: https://github.com/cryptpad/helm
+- [ ] Deploy Netbox - Infrastructure management and DCIM
+  - Requires: PostgreSQL, Redis, proper TLS, sealed secrets
+  - Helm chart: https://github.com/bootc/netbox-chart
+
+### 10. Remaining App Deployments
+
+- [ ] Deploy Postiz (on hold - see Known Issues)
+- [ ] Test all applications thoroughly in staging environment
 
 ### 10. Known Issues / Tech Debt
+
+#### Postiz Helm Chart Issues
+- **Official chart**: https://github.com/gitroomhq/postiz-helmchart
+- **Issues**:
+  - Not updated in over a year (last update: 2024)
+  - Uses Bitnami PostgreSQL image that has been pulled/deprecated
+  - Questionable secret handling practices
+  - Chart version locked at 1.0.5 with no recent maintenance
+- **Status**: On hold pending manual deployment or updated helm chart
+- **Alternative approach**: Create manual Kubernetes manifests following the pattern used by Wiki.js/Vikunja
+  - Use CloudNative-PG for PostgreSQL
+  - Manual deployment.yaml, service.yaml, ingress.yaml
+  - Proper secret management with SealedSecrets
 
 #### Zammad Database Configuration
 - **Current state (local)**: Uses built-in PostgreSQL from Helm chart

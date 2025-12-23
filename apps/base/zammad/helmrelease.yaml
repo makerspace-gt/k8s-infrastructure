@@ -44,8 +44,3 @@ spec:
     ingress:
       enabled: true
       className: traefik
-      hosts:
-        - host: zammad.localhost
-          paths:
-            - path: /
-              pathType: Prefix

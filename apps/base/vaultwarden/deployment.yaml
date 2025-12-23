@@ -20,12 +20,19 @@ spec:
             - containerPort: 80
           env:
             - name: DOMAIN
-              value: "http://vaultwarden.localhost"
+              valueFrom:
+                configMapKeyRef:
+                  name: vaultwarden-config
+                  key: domain
             - name: SIGNUPS_ALLOWED
-              value: "true"
+              valueFrom:
+                configMapKeyRef:
+                  name: vaultwarden-config
+                  key: signups_allowed
           volumeMounts:
             - name: data
               mountPath: /data
       volumes:
         - name: data
-          emptyDir: {} # Simple for now, no persistence yet
+          persistentVolumeClaim:
+            claimName: vaultwarden-data

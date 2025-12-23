@@ -5,8 +5,7 @@ metadata:
   namespace: wikijs
 spec:
   rules:
-    - host: wiki.localhost
-      http:
+    - http:
         paths:
           - path: /
             pathType: Prefix

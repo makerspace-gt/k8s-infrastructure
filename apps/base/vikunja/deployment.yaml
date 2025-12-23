@@ -20,7 +20,10 @@ spec:
             - containerPort: 3456
           env:
             - name: VIKUNJA_SERVICE_PUBLICURL
-              value: "http://vikunja.localhost"
+              valueFrom:
+                configMapKeyRef:
+                  name: vikunja-config
+                  key: public_url
             - name: VIKUNJA_DATABASE_TYPE
               value: "postgres"
             - name: VIKUNJA_DATABASE_HOST
@@ -35,10 +38,14 @@ spec:
                   name: vikunja-db-app
                   key: password
             - name: VIKUNJA_SERVICE_TIMEZONE
-              value: "Europe/Berlin"
+              valueFrom:
+                configMapKeyRef:
+                  name: vikunja-config
+                  key: timezone
           volumeMounts:
             - name: data
               mountPath: /app/vikunja/files
       volumes:
         - name: data
-          emptyDir: {}
+          persistentVolumeClaim:
+            claimName: vikunja-data

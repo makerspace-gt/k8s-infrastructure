@@ -5,8 +5,7 @@ metadata:
   namespace: uptime-kuma
 spec:
   rules:
-    - host: uptime.localhost
-      http:
+    - http:
         paths:
           - path: /
             pathType: Prefix

@@ -31,13 +31,13 @@ spec:
                 requests:
                   storage: 5Gi
     grafana:
-      defaultDashboardsTimezone: Europe/Berlin
-      adminPassword: admin
+      admin:
+        existingSecret: grafana-admin-credentials
+        userKey: admin-user
+        passwordKey: admin-password
       ingress:
         enabled: true
         ingressClassName: traefik
-        hosts:
-          - grafana.localhost
       additionalDataSources:
         - name: Loki
           type: loki

@@ -1,8 +1,0 @@
-apiVersion: source.toolkit.fluxcd.io/v1
-kind: HelmRepository
-metadata:
-  name: cryptpad
-  namespace: cryptpad
-spec:
-  type: oci
-  url: oci://ghcr.io/cryptpad/helm

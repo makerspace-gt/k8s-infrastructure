@@ -17,12 +17,11 @@ spec:
     timeout: 10m
   upgrade:
     timeout: 10m
+  valuesFrom:
+    - kind: Secret
+      name: homepage-wordpress-config
+      valuesKey: values.yaml
   values:
-    wordpressUsername: admin
-    wordpressPassword: changeme123 # Change this!
-    wordpressEmail: admin@makerspace-gt.de
-    wordpressBlogName: "Makerspace Gütersloh"
-
     # Persistence
     persistence:
       enabled: true
@@ -32,10 +31,9 @@ spec:
     mysql:
       enabled: true
       auth:
-        rootPassword: changeme456 # Change this!
         database: wordpress
         username: wordpress
-        password: changeme789 # Change this!
+        existingSecret: homepage-wordpress-mysql
       primary:
         persistence:
           enabled: true
@@ -45,6 +43,5 @@ spec:
     ingress:
       enabled: true
       ingressClassName: traefik
-      hostname: localhost
       path: /
       pathType: Prefix
