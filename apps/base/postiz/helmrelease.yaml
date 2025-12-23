@@ -18,6 +18,9 @@ spec:
   upgrade:
     timeout: 10m
   values:
+    env:
+      - name: DATABASE_URL
+        value: postgresql://postiz@postiz-password@localhost:5432/postiz-db-local
 #    postgresql:
 #      enabled: false
 #      auth:
