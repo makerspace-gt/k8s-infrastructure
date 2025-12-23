@@ -1,5 +1,5 @@
 {
-  "name": "Makerspace Infrastructure",
+  "name": "Makerspace GT Infrastructure",
   "image": "mcr.microsoft.com/devcontainers/base:debian",
   "features": {
     //"ghcr.io/devcontainers-extra/features/kubectl-asdf:2": {},
@@ -14,12 +14,5 @@
   ],
   "remoteEnv": {
     "KUBECONFIG": "/home/vscode/.kube/config"
-  },
-  "forwardPorts": [
-    80,
-    443,
-    9000,
-    3000,
-    8080
-  ]
+  }
 }
