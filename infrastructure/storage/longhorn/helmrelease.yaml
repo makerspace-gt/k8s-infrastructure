@@ -23,6 +23,8 @@ spec:
     defaultSettings:
       defaultReplicaCount: 3
       defaultDataPath: /var/lib/longhorn
+      # Allow control plane if needed
+      taintToleration: "node-role.kubernetes.io/control-plane:NoSchedule"  
     ingress:
       enabled: true
       ingressClassName: traefik
