@@ -13,10 +13,6 @@ spec:
         kind: HelmRepository
         name: tailscale
       interval: 12h
-  values:
-    oauth:
-      clientId: "" # Loaded from secret
-      clientSecret: "" # Loaded from secret
   valuesFrom:
     - kind: Secret
       name: tailscale-operator-oauth
