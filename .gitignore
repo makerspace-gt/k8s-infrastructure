@@ -14,6 +14,9 @@ talos/*/talosconfig
 talos/*/kubeconfig
 talos/*/*.yaml
 .envrc
+!talos/staging/controlplane-patch.yaml
+!talos/staging/worker-01-patch.yaml
+!talos/staging/worker-02-patch.yaml
 
 # Age keys (if using SOPS in future)
 age.agekey

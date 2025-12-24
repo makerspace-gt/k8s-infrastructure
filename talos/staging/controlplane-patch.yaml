@@ -1,0 +1,29 @@
+machine:
+  install:
+    disk: /dev/vda
+  network:
+    interfaces:
+      - interface: eth0
+        addresses:
+          - 192.168.1.145/24
+        routes:
+          - network: 0.0.0.0/0
+            gateway: 192.168.1.1
+  time:
+    servers:
+      - time.cloudflare.com
+  kubelet:
+    extraMounts:
+      - destination: /var/lib/longhorn
+        type: bind
+        source: /var/lib/longhorn
+        options:
+          - bind
+          - rshared
+          - rw
+cluster:
+  network:
+    cni:
+      name: none
+  proxy:
+    disabled: true

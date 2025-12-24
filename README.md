@@ -19,22 +19,19 @@ GitOps repository for managing the Makerspace GT Kubernetes infrastructure using
   - outdated - 1 year old, using bitnami images still
 
 ##
-[Staging-cluster Talos-Image from generator](https://factory.talos.dev/?arch=amd64&board=undefined&bootloader=auto&cmdline-set=true&extensions=-&extensions=siderolabs%2Fintel-ucode&extensions=siderolabs%2Fiscsi-tools&extensions=siderolabs%2Fqemu-guest-agent&platform=nocloud&secureboot=undefined&target=cloud&version=1.12.0):
-`bb0ba48a52352c699781aeeb4aa1983b80ccc778c2eac94590fe6b4ab3c0fd00`
-
-With:
+Staging-cluster Talos-Image from generator with:
 ```
-customization:
-    systemExtensions:
-        officialExtensions:
-            - siderolabs/intel-ucode
-            - siderolabs/iscsi-tools
-            - siderolabs/qemu-guest-agent
+# or amd-ucode     
+- siderolabs/intel-ucode
+# both are required (!) by Longhorn
+- siderolabs/iscsi-tools
+- siderolabs/util-linux-tools
+# Proxmox/Qemu integration
+- siderolabs/qemu-guest-agent
 ```
-
 
 ## VM Configuration
-Create VMs in Proxmox like so: https://docs.siderolabs.com/talos/v1.8/platform-specific-installations/virtualized-platforms/proxmox#qemu-guest-agent-support
+Create VMs in Proxmox like so: https://docs.siderolabs.com/talos/v1.8/platform-specific-installations/virtualized-platforms/proxmox
 
 Note: as they say in the guide, the patches should use `/dev/vda`, not `sda`, since that's what Proxmox uses here.
 
