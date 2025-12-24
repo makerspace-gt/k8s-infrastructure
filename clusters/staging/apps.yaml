@@ -1,12 +1,3 @@
-# NOTE: This local cluster configuration is kept as a template for staging/production
-# These apps point to base configurations and will NOT work without overlays
-# that provide environment-specific values (domains, secrets, etc.)
-
-# When creating staging/production:
-# 1. Copy this file to clusters/staging/apps.yaml or clusters/production/apps.yaml
-# 2. Change paths to ./apps/overlays/staging/<app> or ./apps/overlays/production/<app>
-# 3. Create the overlay kustomizations with environment-specific values
-
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
