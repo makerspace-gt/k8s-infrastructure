@@ -12,34 +12,20 @@
   "kubernetes": {
     "fileMatch": ["(^|/).*\\.ya?ml$"]
   },
+  "schedule": ["at any time"],
   "packageRules": [
-    {
-      "description": "Group all Helm chart updates",
-      "matchDatasources": ["helm"],
-      "groupName": "Helm charts"
-    },
     {
       "description": "Auto-merge patch and minor updates",
       "matchUpdateTypes": ["patch", "minor"],
-      "automerge": true,
-      "automergeType": "pr"
+      "automerge": true
     },
     {
-      "description": "Weekly schedule for dependency updates",
-      "matchUpdateTypes": ["minor", "patch"],
-      "schedule": ["before 6am on monday"]
-    },
-    {
-      "description": "Label PRs appropriately",
-      "matchDatasources": ["helm"],
-      "addLabels": ["dependencies", "helm"]
+      "description": "Major updates require manual approval",
+      "matchUpdateTypes": ["major"],
+      "dependencyDashboardApproval": true
     }
   ],
-  "prConcurrentLimit": 3,
-  "prHourlyLimit": 2,
-  "semanticCommits": "enabled",
-  "commitMessagePrefix": "chore(deps):",
-  "commitMessageAction": "update",
-  "commitMessageTopic": "{{depName}}",
-  "commitMessageExtra": "to {{newVersion}}"
+  "separateMajorMinor": true,
+  "dependencyDashboard": true,
+  "semanticCommits": "enabled"
 }
