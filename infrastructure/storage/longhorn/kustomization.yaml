@@ -4,4 +4,4 @@ resources:
   - namespace.yaml
   - helmrepository.yaml
   - helmrelease.yaml
-  - defaultBackupTarget.yaml
+  - minio-sealed-secret.yaml
