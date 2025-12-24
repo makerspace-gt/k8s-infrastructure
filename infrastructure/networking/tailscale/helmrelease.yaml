@@ -13,12 +13,6 @@ spec:
         kind: HelmRepository
         name: tailscale
       interval: 12h
-  valuesFrom:
-    - kind: Secret
-      name: tailscale-operator-oauth
-      valuesKey: client_id
-      targetPath: oauth.clientId
-    - kind: Secret
-      name: tailscale-operator-oauth
-      valuesKey: client_secret
-      targetPath: oauth.clientSecret
+  values:
+      operatorConfig:
+        hostname: k8s-staging-operator
