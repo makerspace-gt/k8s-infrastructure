@@ -72,7 +72,7 @@ metadata:
   name: filesystem-trim
   namespace: longhorn-system
 spec:
-  task: snapshot-cleanup
+  task: filesystem-trim
   cron: "0 5 * * *"      
   concurrency: 5
   groups:
