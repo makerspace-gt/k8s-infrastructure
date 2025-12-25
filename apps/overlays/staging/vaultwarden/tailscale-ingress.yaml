@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: vaultwarden-tailscale
+  namespace: vaultwarden
+spec:
+  ingressClassName: tailscale
+  tls:
+    - hosts:
+        - vaultwarden.staging.zebra-alewife.ts.net
+  rules:
+    - host: vaultwarden.staging.zebra-alewife.ts.net
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: vaultwarden
+                port:
+                  number: 80

@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: grafana-tailscale
+  namespace: monitoring
+spec:
+  ingressClassName: tailscale
+  tls:
+    - hosts:
+        - grafana.staging.zebra-alewife.ts.net
+  rules:
+    - host: grafana.staging.zebra-alewife.ts.net
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: kube-prometheus-stack-grafana
+                port:
+                  number: 80

@@ -8,7 +8,7 @@ spec:
   interval: 10m
   dependsOn:
     - name: traefik
-  path: ./monitoring/kube-prometheus-stack
+  path: ./monitoring/overlays/staging/kube-prometheus-stack
   prune: true
   sourceRef:
     kind: GitRepository

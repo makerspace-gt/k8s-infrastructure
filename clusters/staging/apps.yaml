@@ -6,7 +6,7 @@ metadata:
   namespace: flux-system
 spec:
   interval: 5m
-  path: ./apps/base/vaultwarden
+  path: ./apps/overlays/staging/vaultwarden
   prune: true
   sourceRef:
     kind: GitRepository
