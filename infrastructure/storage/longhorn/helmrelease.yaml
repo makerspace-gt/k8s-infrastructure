@@ -21,11 +21,10 @@ spec:
     timeout: 10m
   values:
     defaultSettings:
-      # might want to change to 3 for production cluster..
-      defaultReplicaCount: 2
+      defaultReplicaCount: 3
       defaultDataPath: /var/lib/longhorn
       # Allow control plane if needed
-      taintToleration: "node-role.kubernetes.io/control-plane:NoSchedule"  
+      # might want to change to 3 for production cluster..
       # This might be not that useful - running every two days - 
       # since snapshots are currently every 30min, keep 6
       snapshotDataIntegrity: enabled
@@ -38,3 +37,18 @@ spec:
       # region after the @ here doesn't matter at all
       backupTarget: s3://longhorn-backups@us-east-1/
       backupTargetCredentialSecret: minio-secret
+    longhornManager:
+      tolerations:
+        - key: node-role.kubernetes.io/control-plane
+          operator: Exists
+          effect: NoSchedule
+    longhornDriver:
+      tolerations:
+        - key: node-role.kubernetes.io/control-plane
+          operator: Exists
+          effect: NoSchedule
+    longhornUI:
+      tolerations:
+        - key: node-role.kubernetes.io/control-plane
+          operator: Exists
+          effect: NoSchedule
