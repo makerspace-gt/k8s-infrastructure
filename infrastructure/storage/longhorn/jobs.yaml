@@ -27,7 +27,8 @@ spec:
   task: backup
   retain: 14
   concurrency: 2
-  full-backup-interval: 4
+  parameters:
+    full-backup-interval: 4
   groups:
     - default
   labels:
@@ -44,7 +45,8 @@ spec:
   task: backup
   retain: 4
   concurrency: 1
-  full-backup-interval: 2
+  parameters:
+    full-backup-interval: 2
   groups:
     - default
   labels:
