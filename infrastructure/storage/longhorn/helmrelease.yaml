@@ -25,6 +25,10 @@ spec:
       defaultDataPath: /var/lib/longhorn
       # Allow control plane if needed
       taintToleration: "node-role.kubernetes.io/control-plane:NoSchedule"  
+      # This might be not that useful - running every two days - 
+      # since snapshots are currently every 30min, keep 6
+      snapshotDataIntegrity: enabled
+      snapshotDataIntegrityCronjob: "0 22 * * 2,4,6"
     ingress:
       enabled: true
       ingressClassName: traefik

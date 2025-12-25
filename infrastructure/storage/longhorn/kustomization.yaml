@@ -5,3 +5,4 @@ resources:
   - helmrepository.yaml
   - helmrelease.yaml
   - minio-sealed-secret.yaml
+  - jobs.yaml
