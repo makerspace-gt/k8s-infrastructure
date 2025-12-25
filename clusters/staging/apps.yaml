@@ -12,87 +12,71 @@ spec:
     kind: GitRepository
     name: flux-system
 ---
-apiVersion: kustomize.toolkit.fluxcd.io/v1
-kind: Kustomization
-metadata:
-  name: wikijs
-  namespace: flux-system
-spec:
-  interval: 5m
-  dependsOn:
-    - name: cloudnative-pg
-    - name: traefik
-    - name: cert-manager
-  path: ./apps/base/wikijs
-  prune: true
-  sourceRef:
-    kind: GitRepository
-    name: flux-system
----
-apiVersion: kustomize.toolkit.fluxcd.io/v1
-kind: Kustomization
-metadata:
-  name: vikunja
-  namespace: flux-system
-spec:
-  interval: 5m
-  dependsOn:
-    - name: cloudnative-pg
-    - name: traefik
-    - name: cert-manager
-  path: ./apps/base/vikunja
-  prune: true
-  sourceRef:
-    kind: GitRepository
-    name: flux-system
----
-apiVersion: kustomize.toolkit.fluxcd.io/v1
-kind: Kustomization
-metadata:
-  name: zammad
-  namespace: flux-system
-spec:
-  interval: 5m
-  dependsOn:
-    - name: cloudnative-pg
-    - name: traefik
-    - name: cert-manager
-  path: ./apps/base/zammad
-  prune: true
-  sourceRef:
-    kind: GitRepository
-    name: flux-system
-  wait: false
----
-apiVersion: kustomize.toolkit.fluxcd.io/v1
-kind: Kustomization
-metadata:
-  name: uptime-kuma
-  namespace: flux-system
-spec:
-  interval: 5m
-  dependsOn:
-    - name: traefik
-    - name: cert-manager
-  path: ./apps/base/uptime-kuma
-  prune: true
-  sourceRef:
-    kind: GitRepository
-    name: flux-system
----
-apiVersion: kustomize.toolkit.fluxcd.io/v1
-kind: Kustomization
-metadata:
-  name: homepage-wordpress
-  namespace: flux-system
-spec:
-  interval: 5m
-  dependsOn:
-    - name: cloudnative-pg
-    - name: traefik
-    - name: cert-manager
-  path: ./apps/base/homepage-wordpress
-  prune: true
-  sourceRef:
-    kind: GitRepository
-    name: flux-system
+#apiVersion: kustomize.toolkit.fluxcd.io/v1
+#kind: Kustomization
+#metadata:
+#  name: wikijs
+#  namespace: flux-system
+#spec:
+#  interval: 5m
+#  dependsOn:
+#    - name: cloudnative-pg
+#    - name: traefik
+#    - name: cert-manager
+#  path: ./apps/base/wikijs
+#  prune: true
+#  sourceRef:
+#    kind: GitRepository
+#    name: flux-system
+#---
+#apiVersion: kustomize.toolkit.fluxcd.io/v1
+#kind: Kustomization
+#metadata:
+#  name: vikunja
+#  namespace: flux-system
+#spec:
+#  interval: 5m
+#  dependsOn:
+#    - name: cloudnative-pg
+#    - name: traefik
+#    - name: cert-manager
+#  path: ./apps/base/vikunja
+#  prune: true
+#  sourceRef:
+#    kind: GitRepository
+#    name: flux-system
+#---
+#apiVersion: kustomize.toolkit.fluxcd.io/v1
+#kind: Kustomization
+#metadata:
+#  name: zammad
+#  namespace: flux-system
+#spec:
+#  interval: 5m
+#  dependsOn:
+#    - name: cloudnative-pg
+#    - name: traefik
+#    - name: cert-manager
+#  path: ./apps/base/zammad
+#  prune: true
+#  sourceRef:
+#    kind: GitRepository
+#    name: flux-system
+#  wait: false
+#---
+#apiVersion: kustomize.toolkit.fluxcd.io/v1
+#kind: Kustomization
+#metadata:
+#  name: homepage-wordpress
+#  namespace: flux-system
+#spec:
+#  interval: 5m
+#  dependsOn:
+#    - name: cloudnative-pg
+#    - name: traefik
+#    - name: cert-manager
+#  path: ./apps/base/homepage-wordpress
+#  prune: true
+#  sourceRef:
+#    kind: GitRepository
+#    name: flux-system
