@@ -61,6 +61,8 @@ local.yaml
 .project
 .classpath
 .settings/
+# Claude Code
+.claude
 
 # macOS
 .DS_Store
