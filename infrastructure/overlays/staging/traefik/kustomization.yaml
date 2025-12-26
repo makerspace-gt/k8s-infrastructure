@@ -3,3 +3,4 @@ kind: Kustomization
 resources:
   - ../../../networking/traefik/base
   - dashboard-sealed-secret.yaml
+  - tailscale-ingress.yaml

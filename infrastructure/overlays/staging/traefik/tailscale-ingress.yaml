@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: traefik-dashboard-tailscale
+  namespace: traefik
+spec:
+  ingressClassName: tailscale
+  tls:
+    - hosts:
+        - traefik.zebra-alewife.ts.net
+  rules:
+    - host: traefik.zebra-alewife.ts.net
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: traefik
+                port:
+                  number: 8080
