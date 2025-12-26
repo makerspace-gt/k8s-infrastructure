@@ -7,9 +7,9 @@ spec:
   ingressClassName: tailscale
   tls:
     - hosts:
-        - grafana.staging.zebra-alewife.ts.net
+        - grafana.zebra-alewife.ts.net
   rules:
-    - host: grafana.staging.zebra-alewife.ts.net
+    - host: grafana.zebra-alewife.ts.net
       http:
         paths:
           - path: /

@@ -7,9 +7,9 @@ spec:
   ingressClassName: tailscale
   tls:
     - hosts:
-        - vaultwarden.staging.zebra-alewife.ts.net
+        - vaultwarden.zebra-alewife.ts.net
   rules:
-    - host: vaultwarden.staging.zebra-alewife.ts.net
+    - host: vaultwarden.zebra-alewife.ts.net
       http:
         paths:
           - path: /

@@ -4,15 +4,14 @@ metadata:
   name: traefik-dashboard-tailscale
   namespace: traefik
   annotations:
-    # Enable Traefik dashboard/API
     traefik.ingress.kubernetes.io/router.entrypoints: traefik
 spec:
   ingressClassName: tailscale
   tls:
     - hosts:
-        - traefik.staging.zebra-alewife.ts.net
+        - traefik.zebra-alewife.ts.net
   rules:
-    - host: traefik.staging.zebra-alewife.ts.net
+    - host: traefik.zebra-alewife.ts.net
       http:
         paths:
           - path: /
@@ -21,4 +20,4 @@ spec:
               service:
                 name: traefik
                 port:
-                  number: 9000
+                  number: 8080

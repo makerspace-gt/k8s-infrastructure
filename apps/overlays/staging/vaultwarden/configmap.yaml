@@ -4,5 +4,5 @@ metadata:
   name: vaultwarden-config
   namespace: vaultwarden
 data:
-  domain: "https://vaultwarden.staging.zebra-alewife.ts.net"
+  domain: "https://vaultwarden.zebra-alewife.ts.net"
   signups_allowed: "false"

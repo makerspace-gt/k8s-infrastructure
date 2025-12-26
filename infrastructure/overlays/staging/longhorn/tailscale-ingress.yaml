@@ -3,13 +3,15 @@ kind: Ingress
 metadata:
   name: longhorn-tailscale
   namespace: longhorn-system
+  annotations:
+    traefik.ingress.kubernetes.io/router.middlewares: longhorn-system-longhorn-auth@kubernetescrd
 spec:
   ingressClassName: tailscale
   tls:
     - hosts:
-        - longhorn.staging.zebra-alewife.ts.net
+        - longhorn.zebra-alewife.ts.net
   rules:
-    - host: longhorn.staging.zebra-alewife.ts.net
+    - host: longhorn.zebra-alewife.ts.net
       http:
         paths:
           - path: /
