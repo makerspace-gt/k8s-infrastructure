@@ -8,6 +8,7 @@ spec:
     - websecure
   routes:
     - kind: Rule
+      match: PathPrefix(`/`)
       services:
         - name: api@internal
           kind: TraefikService
