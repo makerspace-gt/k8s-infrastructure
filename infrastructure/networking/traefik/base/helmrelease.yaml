@@ -5,6 +5,10 @@ metadata:
   namespace: traefik
 spec:
   interval: 30m
+  install:
+    timeout: 10m
+  upgrade:
+    timeout: 10m
   chart:
     spec:
       chart: traefik
@@ -15,7 +19,7 @@ spec:
       interval: 12h
   values:
     service:
-      type: LoadBalancer
+      type: ClusterIP
     ports:
       web:
         port: 80

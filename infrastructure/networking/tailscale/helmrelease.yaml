@@ -5,6 +5,10 @@ metadata:
   namespace: tailscale
 spec:
   interval: 30m
+  install:
+    timeout: 10m
+  upgrade:
+    timeout: 10m
   chart:
     spec:
       chart: tailscale-operator
