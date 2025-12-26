@@ -29,6 +29,11 @@ spec:
                 configMapKeyRef:
                   name: vaultwarden-config
                   key: signups_allowed
+            - name: ADMIN_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: vaultwarden-admin-token
+                  key: admin-token
           volumeMounts:
             - name: data
               mountPath: /data

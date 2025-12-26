@@ -4,3 +4,4 @@ resources:
   - ../../../base/vaultwarden
   - tailscale-ingress.yaml
   - configmap.yaml
+  - admin-sealed-secret.yaml
