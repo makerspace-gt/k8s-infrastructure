@@ -43,7 +43,23 @@ spec:
   sourceRef:
     kind: GitRepository
     name: flux-system
-  wait: false
+  wait: true
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: traefik-resources
+  namespace: flux-system
+spec:
+  interval: 10m
+  dependsOn:
+    - name: traefik
+  path: ./infrastructure/networking/traefik/resources
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  wait: true
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
@@ -67,6 +83,23 @@ metadata:
 spec:
   interval: 10m
   path: ./infrastructure/overlays/staging/longhorn
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  wait: true
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: longhorn-resources
+  namespace: flux-system
+spec:
+  interval: 10m
+  dependsOn:
+    - name: traefik-resources
+    - name: longhorn
+  path: ./infrastructure/storage/longhorn/resources
   prune: true
   sourceRef:
     kind: GitRepository

@@ -1,9 +1,8 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-  - ../../../storage/longhorn
+  - ../../../storage/longhorn/base
   - dashboard-sealed-secret.yaml
-  - middleware-auth.yaml
   - tailscale-ingress.yaml
 patches:
   - path: helmrelease-patch.yaml
