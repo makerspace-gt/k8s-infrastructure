@@ -16,6 +16,6 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: zammad  
+                name: zammad-nginx
                 port:
                   number: 8080

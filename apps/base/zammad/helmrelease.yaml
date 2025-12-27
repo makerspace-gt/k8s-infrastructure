@@ -20,7 +20,6 @@ spec:
   values:
     postgresql:
       enabled: false
-
     # Override DATABASE_URL to use CNPG database
     env:
       - name: POSTGRESQL_PASS
@@ -30,17 +29,10 @@ spec:
             key: password
       - name: DATABASE_URL
         value: "postgres://zammad:$(POSTGRESQL_PASS)@zammad-db-rw:5432/zammad?pool=50"
-
     elasticsearch:
       enabled: true
       replicas: 1
-
     redis:
       enabled: true
-
     memcached:
       enabled: true
-
-    ingress:
-      enabled: true
-      className: traefik
