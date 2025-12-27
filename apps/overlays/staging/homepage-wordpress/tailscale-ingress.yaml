@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: homepage-wordpress-tailscale
+  namespace: homepage-wordpress
+spec:
+  ingressClassName: tailscale
+  tls:
+    - hosts:
+        - homepage.zebra-alewife.ts.net
+  rules:
+    - host: homepage.zebra-alewife.ts.net
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: homepage-wordpress
+                port:
+                  number: 80

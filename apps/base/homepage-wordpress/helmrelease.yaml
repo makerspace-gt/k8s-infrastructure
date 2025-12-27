@@ -22,12 +22,9 @@ spec:
       name: homepage-wordpress-config
       valuesKey: values.yaml
   values:
-    # Persistence
     persistence:
       enabled: true
       size: 5Gi
-
-    # MySQL
     mysql:
       enabled: true
       auth:
@@ -38,10 +35,3 @@ spec:
         persistence:
           enabled: true
           size: 2Gi
-
-    # Ingress
-    ingress:
-      enabled: true
-      ingressClassName: traefik
-      path: /
-      pathType: Prefix
