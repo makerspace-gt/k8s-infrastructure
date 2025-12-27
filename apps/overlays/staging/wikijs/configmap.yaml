@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: wikijs-config
+  namespace: wikijs
+data:
+  # Wiki.js doesn't have a standard DOMAIN env var like Vaultwarden,
+  # but you'll configure this in the web UI during first setup
+  # Keeping it here for reference:
+  site_url: "https://wiki.zebra-alewife.ts.net"
