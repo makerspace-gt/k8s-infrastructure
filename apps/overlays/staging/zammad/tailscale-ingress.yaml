@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: zammad-tailscale
+  namespace: zammad
+spec:
+  ingressClassName: tailscale
+  tls:
+    - hosts:
+        - zammad.zebra-alewife.ts.net
+  rules:
+    - host: zammad.zebra-alewife.ts.net
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: zammad  
+                port:
+                  number: 8080

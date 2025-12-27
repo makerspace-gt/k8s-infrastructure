@@ -41,24 +41,22 @@ spec:
   sourceRef:
     kind: GitRepository
     name: flux-system
-#---
-#apiVersion: kustomize.toolkit.fluxcd.io/v1
-#kind: Kustomization
-#metadata:
-#  name: zammad
-#  namespace: flux-system
-#spec:
-#  interval: 5m
-#  dependsOn:
-#    - name: cloudnative-pg
-#    - name: traefik
-#    - name: cert-manager
-#  path: ./apps/base/zammad
-#  prune: true
-#  sourceRef:
-#    kind: GitRepository
-#    name: flux-system
-#  wait: false
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: zammad
+  namespace: flux-system
+spec:
+  interval: 5m
+  dependsOn:
+    - name: cloudnative-pg
+  path: ./apps/overlays/staging/zammad
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  wait: false
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
