@@ -1,0 +1,6 @@
+apiVersion: config.k8s
+kind: Kustomization
+resources:
+  - ../../../base/vikunja
+  - tailscale-ingress.yaml
+  - configmap.yaml

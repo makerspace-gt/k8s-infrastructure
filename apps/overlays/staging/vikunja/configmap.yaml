@@ -1,0 +1,9 @@
+apps/overlays/staging/vikunja/configmap.yaml:
+  apiVersion: v1
+  kind: ConfigMap
+  metadata:
+    name: vikunja-config
+    namespace: vikunja
+  data:
+    public_url: "https://vikunja.zebra-alewife.ts.net"
+    timezone: "Europe/Berlin"
