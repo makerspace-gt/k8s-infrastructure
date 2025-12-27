@@ -29,10 +29,6 @@ spec:
       # since snapshots are currently every 30min, keep 6
       snapshotDataIntegrity: enabled
       snapshotDataIntegrityCronjob: "0 22 * * 2,4,6"
-    ingress:
-      enabled: true
-      ingressClassName: traefik
-      host: longhorn.localhost
     defaultBackupStore:
       # region after the @ here doesn't matter at all
       backupTarget: s3://longhorn-backups@us-east-1/
