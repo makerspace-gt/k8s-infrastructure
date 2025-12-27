@@ -4,4 +4,7 @@ resources:
   - ../../../base/zammad
   - tailscale-ingress.yaml
 patches:
-  - helm-values-patch.yaml
+  - path: helm-values-patch.yaml
+    target:
+      kind: HelmRelease
+      name: zammad
