@@ -21,7 +21,7 @@ spec:
   interval: 5m
   dependsOn:
     - name: cloudnative-pg
-  path: ./apps/overlays/wikijs
+  path: ./apps/overlays/staging/wikijs
   prune: true
   sourceRef:
     kind: GitRepository
