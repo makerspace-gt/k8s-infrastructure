@@ -27,13 +27,6 @@ spec:
         port: 443
       metrics:
         port: 9100
-      traefik:
-        port: 8080
-        expose:
-          default: true
-    api:
-      dashboard: true
-      insecure: true
     ingressClass:
       enabled: true
       isDefaultClass: true

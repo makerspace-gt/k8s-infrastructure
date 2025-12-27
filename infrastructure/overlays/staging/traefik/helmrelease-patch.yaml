@@ -1,0 +1,14 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: traefik
+  namespace: traefik
+spec:
+  values:
+    ports:
+      traefik:
+        port: 8080
+        expose:
+          default: true
+    additionalArguments:
+      - --api.insecure=true
