@@ -15,3 +15,5 @@ spec:
         requests:
           memory: 512Mi
           cpu: 250m
+    volumePermissions:
+      enabled: false

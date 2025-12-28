@@ -23,8 +23,6 @@ spec:
     defaultSettings:
       defaultReplicaCount: 2
       defaultDataPath: /var/lib/longhorn
-      # Allow control plane if needed
-      # might want to change to 3 for production cluster..
       # This might be not that useful - running every two days - 
       # since snapshots are currently every 30min, keep 6
       snapshotDataIntegrity: enabled
