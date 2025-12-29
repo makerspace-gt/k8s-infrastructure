@@ -2,13 +2,14 @@
 GitOps repository for managing the Makerspace GT Kubernetes infrastructure using FluxCD.
 
 ## Todo for Staging
-- add secrets with sealed-secrets as required per app
-- Zammad needs email SMTP setup - the other apps too, configure
-- configure Longhorn w/ backups and define PVC sizes
-- setup traefik & cert-manager with domain
 - add Authelia for SSO
 - define RBAC - [setup access and permissions via Tailscale operator mapping to RBAC](https://youtu.be/3VpOYn_GfAY?si=AJBxcYTgCbwWxqwE&t=1926)
+- make UptimeKuma available with Tailscale Funnel (running for production on staging-cluster)
 - finish monitoring and observability (dashboards, loki, alerts, add UptimeKuma on raspberry)
+- Cilium - use Hubble and setup basic firewall rules:
+  - [Basic Guide](https://datavirke.dk/posts/bare-metal-kubernetes-part-2-cilium-and-firewalls/) (also see next part!)
+  - [Talos Install Cilium Docs](https://docs.siderolabs.com/kubernetes-guides/cni/deploying-cilium)
+- Use Tetragon
 
 ## Apps to add later
 - CryptPad
