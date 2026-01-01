@@ -4,25 +4,39 @@
     "config:recommended"
   ],
   "platformAutomerge": true,
+  "ignoreTests": true,
   "flux": {
-    "fileMatch": ["(^|/).*\\.ya?ml$"]
+    "fileMatch": [
+      "(^|/).*\\.ya?ml$"
+    ]
   },
   "helm-values": {
-    "fileMatch": ["(^|/).*\\.ya?ml$"]
+    "fileMatch": [
+      "(^|/).*\\.ya?ml$"
+    ]
   },
   "kubernetes": {
-    "fileMatch": ["(^|/).*\\.ya?ml$"]
+    "fileMatch": [
+      "(^|/).*\\.ya?ml$"
+    ]
   },
-  "schedule": ["at any time"],
+  "schedule": [
+    "at any time"
+  ],
   "packageRules": [
     {
       "description": "Auto-merge patch and minor updates",
-      "matchUpdateTypes": ["patch", "minor"],
+      "matchUpdateTypes": [
+        "patch",
+        "minor"
+      ],
       "automerge": true
     },
     {
       "description": "Major updates require manual approval",
-      "matchUpdateTypes": ["major"],
+      "matchUpdateTypes": [
+        "major"
+      ],
       "dependencyDashboardApproval": true
     }
   ],
