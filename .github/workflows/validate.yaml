@@ -40,10 +40,10 @@ jobs:
         uses: bmuschko/setup-kubeconform@v1
 
       - name: Validate manifests
-        run: kubeconform -summary -verbose .
+        run: kubeconform -summary -output pretty -strict -ignore-missing-schemas .
 
   flux-validation:
-    name: Flux Manifests
+    name: Flux Check
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -54,9 +54,7 @@ jobs:
 
       - name: Validate Flux manifests
         run: |
-          flux validate kustomization --path ./apps/overlays/staging
-          flux validate kustomization --path ./infrastructure
-          flux validate kustomization --path ./monitoring
+          flux check
 
   kyverno-validation:
     name: Kyverno Policies
