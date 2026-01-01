@@ -14,11 +14,11 @@ spec:
       match:
         any:
           - resources:
-            kinds:
-              - Pod
-              - Deployment
-              - StatefulSet
-              - DaemonSet
+              kinds:
+                - Pod
+                - Deployment
+                - StatefulSet
+                - DaemonSet
       validate:
         message: "Images must come from approved registries: ghcr.io, docker.io, quay.io, registry.k8s.io"
         pattern:

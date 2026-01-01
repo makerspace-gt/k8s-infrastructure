@@ -20,16 +20,16 @@ spec:
           image: louislam/uptime-kuma:2
           ports:
             - containerPort: 3001
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
           volumeMounts:
             - name: data
               mountPath: /app/data
-          resources:
-            requests:
-              memory: 128Mi
-              cpu: 100m
-            limits:
-              memory: 512Mi
-              cpu: 500m
       volumes:
         - name: data
           persistentVolumeClaim:

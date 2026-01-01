@@ -18,6 +18,13 @@ spec:
           image: vikunja/vikunja:0.24.6
           ports:
             - containerPort: 3456
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
           env:
             - name: VIKUNJA_SERVICE_PUBLICURL
               valueFrom:
