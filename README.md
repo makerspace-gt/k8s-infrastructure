@@ -4,12 +4,10 @@ GitOps repository for managing the Makerspace GT Kubernetes infrastructure using
 ## Todo for Staging
 - add Authelia for SSO
 - define RBAC - [setup access and permissions via Tailscale operator mapping to RBAC](https://youtu.be/3VpOYn_GfAY?si=AJBxcYTgCbwWxqwE&t=1926)
-- make UptimeKuma available with Tailscale Funnel (running for production on staging-cluster)
-- finish monitoring and observability (dashboards, loki, alerts, add UptimeKuma on raspberry)
+- finish monitoring and observability (dashboards, loki, alerts)
 - Cilium - use Hubble and setup basic firewall rules:
   - [Basic Guide](https://datavirke.dk/posts/bare-metal-kubernetes-part-2-cilium-and-firewalls/) (also see next part!)
   - [Talos Install Cilium Docs](https://docs.siderolabs.com/kubernetes-guides/cni/deploying-cilium)
-- Use Tetragon
 
 ## Apps to add later
 - CryptPad

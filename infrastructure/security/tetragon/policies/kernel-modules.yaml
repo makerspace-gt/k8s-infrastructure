@@ -1,38 +1,36 @@
-# This tracing policy monitors kernel modules operations.
 apiVersion: cilium.io/v1alpha1
 kind: TracingPolicy
 metadata:
-  name: "monitor-kernel-modules"
+  name: monitor-kernel-modules
   annotations:
-    description: "Monitor kernel modules operations"
+    description: Monitor kernel modules operations
 spec:
   kprobes:
-  - call: "security_kernel_module_request"
-    message: "Kernel module requested and is being loaded automatically"
+  - call: security_kernel_module_request
+    message: Kernel module requested and is being loaded automatically
     syscall: false
     return: true
     args:
     - index: 0
-      type: "string"
+      type: string
     returnArg:
       index: 0
-      type: "int"
-  - call: "security_kernel_read_file"
-    message: "Kernel module is being loaded"
-    # Explicit module loading using file descriptor finit_module() to print module full path
+      type: int
+  - call: security_kernel_read_file
+    message: Kernel module is being loaded
     syscall: false
     return: true
     args:
     - index: 0
-      type: "file"
+      type: file
     - index: 1
-      type: "int"
+      type: int
     returnArg:
       index: 0
-      type: "int"
+      type: int
     selectors:
     - matchArgs:
       - index: 1
-        operator: "Equal"
+        operator: Equal
         values:
-        - "2"  # READING_MODULE
+        - '2'
