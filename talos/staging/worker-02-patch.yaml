@@ -1,14 +1,10 @@
 machine:
   install:
-    disk: /dev/vda
+    disk: /dev/sda
   network:
     interfaces:
       - interface: eth0
-        addresses:
-          - 192.168.1.147/24
-        routes:
-          - network: 0.0.0.0/0
-            gateway: 192.168.1.1
+        dhcp: true
   kubelet:
     extraMounts:
       - destination: /var/lib/longhorn

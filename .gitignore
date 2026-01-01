@@ -39,6 +39,7 @@ secrets.yaml
 # Local development overrides
 local.yaml
 *.local.yaml
+*.local.md
 
 # Terraform/OpenTofu state (if using for VM provisioning)
 *.tfstate
