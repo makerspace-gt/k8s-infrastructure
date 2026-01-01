@@ -19,5 +19,5 @@
     "ghcr.io/jpawlowski/devcontainer-features/cascadia-code:1": {},
     "ghcr.io/devcontainers-extra/features/neovim-homebrew:1": {}
   },
-  "postCreateCommand": "direnv allow"
+  "postCreateCommand": "bash .devcontainer/post-install.sh && direnv allow"
 }
