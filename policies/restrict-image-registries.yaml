@@ -13,7 +13,7 @@ spec:
     - name: validate-registries
       match:
         any:
-        - resources:
+          - resources:
             kinds:
               - Pod
               - Deployment
@@ -24,8 +24,8 @@ spec:
         pattern:
           spec:
             =(ephemeralContainers):
-            - image: "ghcr.io/* | docker.io/* | quay.io/* | registry.k8s.io/*"
-            =(initContainers):
-            - image: "ghcr.io/* | docker.io/* | quay.io/* | registry.k8s.io/*"
-            containers:
-            - image: "ghcr.io/* | docker.io/* | quay.io/* | registry.k8s.io/*"
+              - image: "ghcr.io/* | docker.io/* | quay.io/* | registry.k8s.io/*"
+              =(initContainers):
+              - image: "ghcr.io/* | docker.io/* | quay.io/* | registry.k8s.io/*"
+              containers:
+              - image: "ghcr.io/* | docker.io/* | quay.io/* | registry.k8s.io/*"
