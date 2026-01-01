@@ -1,0 +1,29 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: require-labels
+  annotations:
+    policies.kyverno.io/title: Require Common Labels
+    policies.kyverno.io/severity: medium
+    policies.kyverno.io/description: Require all resources to have app and owner labels for tracking
+spec:
+  validationFailureAction: Enforce
+  background: true
+  rules:
+    - name: check-for-labels
+      match:
+        any:
+          - resources:
+              kinds:
+                - Deployment
+                - StatefulSet
+                - DaemonSet
+                - Service
+                - ConfigMap
+      validate:
+        message: "Resources must have 'app' and 'owner' labels"
+        pattern:
+          metadata:
+            labels:
+              app: "?*"
+              owner: "?*"

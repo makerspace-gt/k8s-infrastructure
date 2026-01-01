@@ -10,6 +10,8 @@
     "ghcr.io/jsburckhardt/devcontainer-features/flux:1": {},
     "ghcr.io/dhoeric/features/k9s:1": {},
     "ghcr.io/rio/features/kustomize:1": {},
+    "ghcr.io/jsburckhardt/devcontainer-features/kyverno:1": {},
+    "ghcr.io/dhoeric/features/trivy:1": {},
     "ghcr.io/devcontainers-extra/features/talosctl:1": {},
     "ghcr.io/devcontainers-extra/features/kubectx-kubens:1": {},
     "ghcr.io/christophermacgown/devcontainer-features/direnv:1": {},
