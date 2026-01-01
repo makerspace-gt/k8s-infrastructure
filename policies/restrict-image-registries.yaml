@@ -25,7 +25,7 @@ spec:
           spec:
             =(ephemeralContainers):
               - image: "ghcr.io/* | docker.io/* | quay.io/* | registry.k8s.io/*"
-              =(initContainers):
+                =(initContainers):
               - image: "ghcr.io/* | docker.io/* | quay.io/* | registry.k8s.io/*"
-              containers:
-              - image: "ghcr.io/* | docker.io/* | quay.io/* | registry.k8s.io/*"
+                containers:
+                  - image: "ghcr.io/* | docker.io/* | quay.io/* | registry.k8s.io/*"

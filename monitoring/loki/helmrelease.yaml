@@ -37,7 +37,7 @@ spec:
           chunks_directory: /var/loki/chunks
           rules_directory: /var/loki/rules
       limits_config:
-        retention_period: 168h # 7 days
+        retention_period: 168h
       compactor:
         retention_enabled: true
         delete_request_store: filesystem

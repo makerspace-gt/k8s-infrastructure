@@ -23,7 +23,7 @@ spec:
     defaultSettings:
       defaultReplicaCount: 2
       defaultDataPath: /var/lib/longhorn
-      # This might be not that useful - running every two days - 
+      # This might be not that useful - running every two days -
       # since snapshots are currently every 30min, keep 6
       snapshotDataIntegrity: enabled
       snapshotDataIntegrityCronjob: "0 22 * * 2,4,6"

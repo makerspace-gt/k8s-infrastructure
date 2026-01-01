@@ -13,11 +13,11 @@ spec:
     - name: require-image-tag
       match:
         any:
-        - resources:
-            kinds:
-              - Deployment
-              - StatefulSet
-              - DaemonSet
+          - resources:
+              kinds:
+                - Deployment
+                - StatefulSet
+                - DaemonSet
       validate:
         message: "Images must not use 'latest' tag. Use specific version tags."
         pattern:
@@ -25,8 +25,8 @@ spec:
             template:
               spec:
                 =(ephemeralContainers):
-                - image: "!*:latest"
+                  - image: "!*:latest"
                 =(initContainers):
-                - image: "!*:latest"
+                  - image: "!*:latest"
                 containers:
-                - image: "!*:latest"
+                  - image: "!*:latest"

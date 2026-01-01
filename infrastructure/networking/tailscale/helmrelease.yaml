@@ -18,5 +18,5 @@ spec:
         name: tailscale
       interval: 12h
   values:
-      operatorConfig:
-        hostname: k8s-staging-operator
+    operatorConfig:
+      hostname: k8s-staging-operator
