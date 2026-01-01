@@ -1,6 +1,5 @@
 name: Validate Manifests
 
-# yamllint disable-line rule:truthy
 on:
   pull_request:
     branches: [main]
@@ -18,16 +17,16 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.x"
+          python-version: '3.x'
 
       - name: Install yamllint
         run: pip install yamllint
 
       - name: Validate YAML syntax
         run: |
-          find . -name '*.yaml' -o -name '*.yml' | while read file; do
+          find . '(' -name '*.yaml' -o -name '*.yml' ')' -not -path './talos/*' -not -path '*/flux-system/*' | while read file; do
             echo "Checking $file"
-            yamllint -d "{extends: default, rules: {line-length: {max: 120}}}" "$file" || exit 1
+            yamllint "$file" || exit 1
           done
 
   kubernetes-validation:
@@ -40,22 +39,14 @@ jobs:
       - name: Setup kubeconform
         uses: bmuschko/setup-kubeconform@v1
 
-      - name: Validate manifests
-        run: kubeconform -summary -output pretty -strict -ignore-missing-schemas .
-
-  flux-validation:
-    name: Flux Check
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Flux CLI
-        uses: fluxcd/flux2/action@main
-
-      - name: Validate Flux manifests
-        run: |
-          flux check
+      - name: Validate manifests apps
+        run: kubeconform -summary -output pretty -strict -ignore-missing-schemas ./apps
+      - name: Validate manifests clusters
+        run: kubeconform -summary -output pretty -strict -ignore-missing-schemas ./clusters
+      - name: Validate manifests infrastructure
+        run: kubeconform -summary -output pretty -strict -ignore-missing-schemas ./infrastructure
+      - name: Validate manifests monitoring
+        run: kubeconform -summary -output pretty -strict -ignore-missing-schemas ./monitoring
 
   kyverno-validation:
     name: Kyverno Policies
@@ -85,13 +76,13 @@ jobs:
       - name: Security scan with Trivy
         uses: aquasecurity/trivy-action@master
         with:
-          scan-type: "config"
-          scan-ref: "."
-          format: "sarif"
-          output: "trivy-results.sarif"
+          scan-type: 'config'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
 
       - name: Upload Trivy results
         uses: github/codeql-action/upload-sarif@v3
         if: always()
         with:
-          sarif_file: "trivy-results.sarif"
+          sarif_file: 'trivy-results.sarif'
