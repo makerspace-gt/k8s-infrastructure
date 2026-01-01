@@ -18,14 +18,14 @@ jobs:
 
       - name: Setup Kyverno CLI
         run: |
-          curl -LO https://github.com/kyverno/kyverno/releases/download/v1.12.1/kyverno-cli_v1.12.1_linux_x86-64.tar.gz
+          curl -LO https://github.com/kyverno/kyverno/releases/download/v1.16.1/kyverno-cli-1.16.1.tar.gz
           tar -xzf kyverno-cli_v1.12.1_linux_x86-64.tar.gz
           sudo mv kyverno /usr/local/bin/
           kyverno version
 
       - name: Setup kubeconform
         run: |
-          curl -LO https://github.com/yannh/kubeconform/releases/download/v0.6.4/kubeconform-linux-amd64.tar.gz
+          curl -LO https://github.com/yannh/kubeconform/releases/download/v0.7.0/kubeconform-linux-amd64.tar.gz
           tar -xzf kubeconform-linux-amd64.tar.gz
           sudo mv kubeconform /usr/local/bin/
           kubeconform -v
