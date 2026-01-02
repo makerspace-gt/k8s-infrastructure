@@ -6,31 +6,31 @@ metadata:
     description: Monitor kernel modules operations
 spec:
   kprobes:
-  - call: security_kernel_module_request
-    message: Kernel module requested and is being loaded automatically
-    syscall: false
-    return: true
-    args:
-    - index: 0
-      type: string
-    returnArg:
-      index: 0
-      type: int
-  - call: security_kernel_read_file
-    message: Kernel module is being loaded
-    syscall: false
-    return: true
-    args:
-    - index: 0
-      type: file
-    - index: 1
-      type: int
-    returnArg:
-      index: 0
-      type: int
-    selectors:
-    - matchArgs:
-      - index: 1
-        operator: Equal
-        values:
-        - '2'
+    - call: security_kernel_module_request
+      message: Kernel module requested and is being loaded automatically
+      syscall: false
+      return: true
+      args:
+        - index: 0
+          type: string
+      returnArg:
+        index: 0
+        type: int
+    - call: security_kernel_read_file
+      message: Kernel module is being loaded
+      syscall: false
+      return: true
+      args:
+        - index: 0
+          type: file
+        - index: 1
+          type: int
+      returnArg:
+        index: 0
+        type: int
+      selectors:
+        - matchArgs:
+            - index: 1
+              operator: Equal
+              values:
+                - "2"

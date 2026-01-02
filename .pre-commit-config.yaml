@@ -1,0 +1,41 @@
+# See https://pre-commit.com for more information
+repos:
+  # General file checks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+        exclude: ^(talos/|clusters/.*/flux-system/)
+      - id: end-of-file-fixer
+        exclude: ^(talos/|clusters/.*/flux-system/)
+      - id: check-added-large-files
+        args: ["--maxkb=1000"]
+      - id: check-merge-conflict
+      - id: mixed-line-ending
+
+  # Secret detection
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.5.0
+    hooks:
+      - id: detect-secrets
+        args: ["--baseline", ".secrets.baseline"]
+        exclude: ^(talos/secrets\.yaml|\.sealed-secrets-pub\.pem)
+
+  # YAML validation
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.37.0
+    hooks:
+      - id: yamllint
+        exclude: ^(talos/|clusters/.*/flux-system/)
+        args: ["-c", ".yamllint"]
+
+  # Kubernetes manifest validation with kubeconform
+  - repo: local
+    hooks:
+      - id: kubeconform
+        name: Validate Kubernetes manifests
+        entry: kubeconform -strict -ignore-missing-schemas
+        language: system
+        files: \.(yaml|yml)$
+        exclude: ^(talos/|clusters/.*/flux-system/|\.pre-commit-config\.yaml|\.yamllint|\.github/)
+        pass_filenames: true

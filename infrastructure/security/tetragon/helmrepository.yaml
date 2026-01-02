@@ -5,4 +5,4 @@ metadata:
   namespace: tetragon
 spec:
   interval: 24h
-  url: https://helm.cilium.io 
+  url: https://helm.cilium.io

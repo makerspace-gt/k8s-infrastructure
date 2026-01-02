@@ -13,7 +13,6 @@ talos/*/secrets.yaml
 talos/*/talosconfig
 talos/*/kubeconfig
 talos/*/*.yaml
-.envrc
 !talos/staging/controlplane-patch.yaml
 !talos/staging/worker-01-patch.yaml
 !talos/staging/worker-02-patch.yaml
@@ -27,9 +26,6 @@ age.agekey
 .env.local
 .env.*.local
 *.env.secret
-.envrc
-*.envrc
-.envrc*
 
 # Kubernetes Secrets (unencrypted)
 secrets.yaml

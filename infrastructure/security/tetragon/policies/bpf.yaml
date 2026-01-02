@@ -4,90 +4,90 @@ metadata:
   name: "bpf-library-policy"
 spec:
   kprobes:
-  - call: "bpf_check"
-    syscall: false
-    args:
-    - index: 1
-      type: "bpf_attr"
-  - call: "security_perf_event_alloc"
-    syscall: false
-    args:
-    - index: 0
-      type: "perf_event"
-  - call: "security_bpf_map_alloc"
-    syscall: false
-    args:
-    - index: 0
-      type: "bpf_map"
-  - call: "security_file_permission"
-    syscall: false
-    return: true
-    args:
-    - index: 0
-      type: "file" 
-    - index: 1
-      type: "int" 
-    returnArg:
-      index: 0
-      type: "int"
-    returnArgAction: "Post"
-    selectors:
-      - matchArgs:
-          - index: 0
-            operator: "Prefix"
-            values:
-              - "/sys/fs/bpf"
-          - index: 1
-            operator: "Equal"
-            values:
-              - "4"  # MAY_READ
-      - matchArgs:
-          - index: 0
-            operator: "Prefix"
-            values:
-              - "/sys/fs/bpf"
-          - index: 1
-            operator: "Equal"
-            values:
-              - "2"  # MAY_WRITE 
-  - call: "security_mmap_file"
-    syscall: false
-    return: true
-    args:
-    - index: 0
-      type: "file" 
-    - index: 1
-      type: "uint32" 
-    - index: 2
-      type: "uint32"
-    returnArg:
-      index: 0
-      type: "int"
-    returnArgAction: "Post"
-    selectors:
-      - matchArgs:
-          - index: 0
-            operator: "Prefix"
-            values:
-              - "/sys/fs/bpf"  # Reads to BPFFS
-          - index: 1
-            operator: "Equal"
-            values:
-              - "1"  # MAY_READ
-          - index: 2
-            operator: "Mask"
-            values:
-              - "1"  # MAP_SHARED
-      - matchArgs:
-          - index: 0
-            operator: "Prefix"
-            values:
-              - "/sys/fs/bpf"  # Reads to BPFFS
-          - index: 1
-            operator: "Mask"
-            values:
-              - "2"  # PROT_WRITE
-          - index: 2
-            operator: "Mask"
-            values:
-              - "1"  # MAP_SHARED 
+    - call: "bpf_check"
+      syscall: false
+      args:
+        - index: 1
+          type: "bpf_attr"
+    - call: "security_perf_event_alloc"
+      syscall: false
+      args:
+        - index: 0
+          type: "perf_event"
+    - call: "security_bpf_map_alloc"
+      syscall: false
+      args:
+        - index: 0
+          type: "bpf_map"
+    - call: "security_file_permission"
+      syscall: false
+      return: true
+      args:
+        - index: 0
+          type: "file"
+        - index: 1
+          type: "int"
+      returnArg:
+        index: 0
+        type: "int"
+      returnArgAction: "Post"
+      selectors:
+        - matchArgs:
+            - index: 0
+              operator: "Prefix"
+              values:
+                - "/sys/fs/bpf"
+            - index: 1
+              operator: "Equal"
+              values:
+                - "4" # MAY_READ
+        - matchArgs:
+            - index: 0
+              operator: "Prefix"
+              values:
+                - "/sys/fs/bpf"
+            - index: 1
+              operator: "Equal"
+              values:
+                - "2" # MAY_WRITE
+    - call: "security_mmap_file"
+      syscall: false
+      return: true
+      args:
+        - index: 0
+          type: "file"
+        - index: 1
+          type: "uint32"
+        - index: 2
+          type: "uint32"
+      returnArg:
+        index: 0
+        type: "int"
+      returnArgAction: "Post"
+      selectors:
+        - matchArgs:
+            - index: 0
+              operator: "Prefix"
+              values:
+                - "/sys/fs/bpf" # Reads to BPFFS
+            - index: 1
+              operator: "Equal"
+              values:
+                - "1" # MAY_READ
+            - index: 2
+              operator: "Mask"
+              values:
+                - "1" # MAP_SHARED
+        - matchArgs:
+            - index: 0
+              operator: "Prefix"
+              values:
+                - "/sys/fs/bpf" # Reads to BPFFS
+            - index: 1
+              operator: "Mask"
+              values:
+                - "2" # PROT_WRITE
+            - index: 2
+              operator: "Mask"
+              values:
+                - "1" # MAP_SHARED

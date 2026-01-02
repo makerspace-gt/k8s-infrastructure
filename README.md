@@ -2,7 +2,6 @@
 GitOps repository for managing the Makerspace GT Kubernetes infrastructure using FluxCD.
 
 ## Todo for Staging
-- add Authelia for SSO
 - define RBAC - [setup access and permissions via Tailscale operator mapping to RBAC](https://youtu.be/3VpOYn_GfAY?si=AJBxcYTgCbwWxqwE&t=1926)
 - finish monitoring and observability (dashboards, loki, alerts)
 - Cilium - use Hubble and setup basic firewall rules:
@@ -10,6 +9,7 @@ GitOps repository for managing the Makerspace GT Kubernetes infrastructure using
   - [Talos Install Cilium Docs](https://docs.siderolabs.com/kubernetes-guides/cni/deploying-cilium)
 
 ## Apps to add later
+- Authelia
 - CryptPad
 - [Stirling PDF](https://github.com/Stirling-Tools/Stirling-PDF)
 - Netbox
@@ -20,7 +20,7 @@ GitOps repository for managing the Makerspace GT Kubernetes infrastructure using
 ##
 Staging-cluster Talos-Image from generator with:
 ```
-# or amd-ucode     
+# or amd-ucode
 - siderolabs/intel-ucode
 # both are required (!) by Longhorn
 - siderolabs/iscsi-tools
