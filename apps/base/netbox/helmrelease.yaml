@@ -28,9 +28,5 @@ spec:
       existingSecretName: netbox-db-app
       existingSecretKey: password
 
+    # Only secret_key is required - superuser configured via web UI after startup
     existingSecret: netbox-secrets
-    secretKey: ""
-    superuser:
-      name: admin
-      existingSecret: netbox-secrets
-      existingSecretKey: superuser-password
