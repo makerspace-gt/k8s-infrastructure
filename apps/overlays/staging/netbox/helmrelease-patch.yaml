@@ -18,9 +18,6 @@ spec:
     cachingRedis:
       host: netbox-redis-master
 
-    superuser:
-      email: admin@makerspace.local
-
     resources:
       requests:
         cpu: 100m
