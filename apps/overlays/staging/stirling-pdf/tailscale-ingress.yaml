@@ -16,6 +16,6 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: stirling-pdf
+                name: stirling-pdf-stirling-pdf-chart
                 port:
                   number: 8080
