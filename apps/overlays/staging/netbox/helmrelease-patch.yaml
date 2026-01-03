@@ -7,6 +7,12 @@ spec:
   values:
     redis:
       enabled: true
+      master:
+        persistence:
+          size: 1Gi
+      replica:
+        persistence:
+          size: 1Gi
     tasksRedis:
       host: netbox-redis-master
     cachingRedis:

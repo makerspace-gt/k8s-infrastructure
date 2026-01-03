@@ -7,7 +7,7 @@ spec:
   interval: 30m
   chart:
     spec:
-      chart: stirling-pdf
+      chart: stirling-pdf-chart
       version: "2.2.0"
       sourceRef:
         kind: HelmRepository
