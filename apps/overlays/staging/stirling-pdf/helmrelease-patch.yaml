@@ -12,3 +12,12 @@ spec:
       limits:
         cpu: 1000m
         memory: 1Gi
+    probes:
+      liveness:
+        initialDelaySeconds: 60
+        periodSeconds: 10
+        failureThreshold: 6
+      readiness:
+        initialDelaySeconds: 30
+        periodSeconds: 10
+        failureThreshold: 6
