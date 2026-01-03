@@ -118,3 +118,18 @@ spec:
     kind: GitRepository
     name: flux-system
   wait: true
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: tetragon-policies
+  namespace: flux-system
+spec:
+  interval: 10m
+  dependsOn:
+    - name: tetragon
+  path: ./infrastructure/security/tetragon/policies
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
