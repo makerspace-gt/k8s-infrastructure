@@ -1,0 +1,12 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: loki
+  namespace: loki
+spec:
+  values:
+    # Disable caches for staging (default requests ~10GB which is too much)
+    chunksCache:
+      enabled: false
+    resultsCache:
+      enabled: false
