@@ -9,6 +9,9 @@ machine:
     servers:
       - time.cloudflare.com
   kubelet:
+    nodeIP:
+      validSubnets:
+        - 192.168.0.0/24
     extraMounts:
       - destination: /var/lib/longhorn
         type: bind

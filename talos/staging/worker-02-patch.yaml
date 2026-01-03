@@ -6,6 +6,9 @@ machine:
       - interface: eth0
         dhcp: true
   kubelet:
+    nodeIP:
+      validSubnets:
+        - 192.168.0.0/24
     extraMounts:
       - destination: /var/lib/longhorn
         type: bind

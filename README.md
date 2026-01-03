@@ -39,37 +39,38 @@ talosctl gen secrets -o secrets.yaml
 ```
 
 ```bash
-talosctl gen config talos-proxmox-cluster https://192.168.1.145:6443 \
-  --with-secrets secrets.yaml \
-  --install-image <installer-link>
+talosctl gen config talos-proxmox-cluster https://<CP_IP>:6443 \
+  --with-secrets secrets.yaml --install-image <installer-link>
 ```
 
-Create the patches with network and the `/dev/vda`-disk-part, then apply them like `talosctl machineconfig patch controlplane.yaml \
-  --patch @controlplane-patch.yaml -o controlplane-01.yaml`
-
-Next, apply them with `--insecure`, wait ~3-5min until rebooted, then:
-
+Create patches with network and disk (check disk name based on Proxmox storage: VirtIO Block = `/dev/vda`, SCSI = `/dev/sda`):
+```bash
+talosctl machineconfig patch controlplane.yaml --patch @controlplane-patch.yaml -o controlplane-01.yaml
 ```
-talosctl config endpoint 192.168.1.145
-talosctl config node 192.168.1.145
+
+Apply configs with `--insecure`, wait ~3-5min until rebooted, then:
+```bash
+talosctl config endpoint <CP_IP>
+talosctl config node <CP_IP>
 talosctl bootstrap
-
 talosctl kubeconfig .
 kubectl get nodes  # Should show NotReady (no CNI yet)
 
+# Install Cilium CNI
+# - ipam.mode=kubernetes: Use podCIDRs from Talos config (10.244.0.0/16)
+# - k8sServiceHost=localhost:7445: KubePrism - Talos local API proxy on every node
 cilium install \
-  --version 1.16.5 \
+  --set ipam.mode=kubernetes \
   --set kubeProxyReplacement=true \
-  --set k8sServiceHost=192.168.1.145 \
-  --set k8sServicePort=6443 \
+  --set k8sServiceHost=localhost \
+  --set k8sServicePort=7445 \
   --set securityContext.capabilities.ciliumAgent="{CHOWN,KILL,NET_ADMIN,NET_RAW,IPC_LOCK,SYS_ADMIN,SYS_RESOURCE,DAC_OVERRIDE,FOWNER,SETGID,SETUID}" \
   --set securityContext.capabilities.cleanCiliumState="{NET_ADMIN,SYS_ADMIN,SYS_RESOURCE}" \
   --set cgroup.autoMount.enabled=false \
   --set cgroup.hostRoot=/sys/fs/cgroup
-```
 
-cilium status --watch
-kubectl get nodes
+cilium status --wait
+kubectl get nodes  # Should show Ready
 ```
 
 ## Security Notes

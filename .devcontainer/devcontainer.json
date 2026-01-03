@@ -8,12 +8,13 @@
     "ghcr.io/devcontainers/features/python:1": {
       "version": "3.12"
     },
+    "ghcr.io/devcontainers/features/node:1": {},
     "ghcr.io/audacioustux/devcontainers/cilium:1": {},
     "ghcr.io/gickis/devcontainer-features/kubeseal:1": {},
     "ghcr.io/jsburckhardt/devcontainer-features/flux:1": {},
     "ghcr.io/dhoeric/features/k9s:1": {},
     "ghcr.io/rio/features/kustomize:1": {},
-    "ghcr.io/devcontainers-extra/features/claude-code:1": {},
+    "ghcr.io/anthropics/devcontainer-features/claude-code:1.0": {},
     "ghcr.io/jsburckhardt/devcontainer-features/kyverno:1": {},
     "ghcr.io/dhoeric/features/trivy:1": {},
     "ghcr.io/devcontainers-extra/features/yamllint:2": {},
@@ -23,5 +24,6 @@
     "ghcr.io/jpawlowski/devcontainer-features/cascadia-code:1": {},
     "ghcr.io/devcontainers-extra/features/neovim-homebrew:1": {}
   },
-  "postCreateCommand": "bash .devcontainer/post-install.sh && direnv allow"
+  "postCreateCommand": "bash .devcontainer/post-install.sh && direnv allow",
+  "postAttachCommand": "direnv allow"
 }
