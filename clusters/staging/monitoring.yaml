@@ -22,7 +22,7 @@ metadata:
   namespace: flux-system
 spec:
   interval: 10m
-  path: ./monitoring/loki
+  path: ./monitoring/overlays/staging/loki
   prune: true
   sourceRef:
     kind: GitRepository
