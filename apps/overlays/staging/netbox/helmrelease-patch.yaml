@@ -5,19 +5,6 @@ metadata:
   namespace: netbox
 spec:
   values:
-    redis:
-      enabled: true
-      master:
-        persistence:
-          size: 1Gi
-      replica:
-        persistence:
-          size: 1Gi
-    tasksRedis:
-      host: netbox-redis-master
-    cachingRedis:
-      host: netbox-redis-master
-
     resources:
       requests:
         cpu: 100m
