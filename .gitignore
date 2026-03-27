@@ -9,10 +9,10 @@ kubeconfigs/
 *.kube
 .kube
 
-talos/*/secrets.yaml
-talos/*/talosconfig
-talos/*/kubeconfig
-talos/*/*.yaml
+talos/**/secrets.yaml
+talos/**/talosconfig
+talos/**/kubeconfig
+talos/**/*.yaml
 !talos/staging/controlplane-patch.yaml
 !talos/staging/worker-01-patch.yaml
 !talos/staging/worker-02-patch.yaml

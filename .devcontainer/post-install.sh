@@ -1,8 +1,7 @@
 #!/bin/bash
 set -e
 
-sudo apt-get update
-sudo apt-get install -y --no-install-recommends iputils-ping iproute2 dnsutils
+sudo apt-get update && sudo apt-get install -y --no-install-recommends iputils-ping iproute2 dnsutils || true
 sudo rm -rf /var/lib/apt/lists/*
 
 # Install Tetragon CLI (tetra)
@@ -34,6 +33,7 @@ echo "kubeconform installed successfully"
 # Install pre-commit and detect-secrets
 echo "Installing pre-commit and detect-secrets..."
 pip install --user pre-commit detect-secrets
+pip install pre-commit detect-secrets
 
 # Install pre-commit hooks
 if [ -f .pre-commit-config.yaml ]; then
