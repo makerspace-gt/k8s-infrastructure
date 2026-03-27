@@ -3,5 +3,5 @@ kind: Kustomization
 resources:
   - namespace.yaml
   - helmrepository.yaml
-  - helmrelease.yaml
-  - minio-sealed-secret.yaml
+  - helmrelease-operator.yaml
+  - helmrelease-cluster.yaml
