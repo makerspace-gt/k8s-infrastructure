@@ -1,6 +1,10 @@
 #!/bin/bash
 set -e
 
+sudo apt-get update
+sudo apt-get install -y --no-install-recommends iputils-ping iproute2 dnsutils
+sudo rm -rf /var/lib/apt/lists/*
+
 # Install Tetragon CLI (tetra)
 echo "Installing Tetragon CLI..."
 ARCH=$(uname -m)

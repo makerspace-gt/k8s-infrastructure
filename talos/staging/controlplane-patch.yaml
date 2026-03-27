@@ -13,9 +13,9 @@ machine:
       validSubnets:
         - 192.168.0.0/24
     extraMounts:
-      - destination: /var/lib/longhorn
+      - destination: /var/lib/rook
         type: bind
-        source: /var/lib/longhorn
+        source: /var/lib/rook
         options:
           - bind
           - rshared
