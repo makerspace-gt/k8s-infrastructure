@@ -4,6 +4,5 @@ resources:
   - ../../../base/homepage-wordpress
   - wordpress-config-sealed-secret.yaml
   - mysql-sealed-secret.yaml
-  - tailscale-ingress.yaml
 patchesStrategicMerge:
   - helm-values-patch.yaml

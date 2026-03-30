@@ -3,6 +3,5 @@ kind: Kustomization
 resources:
   - ../../../kube-prometheus-stack
   - grafana-sealed-secret.yaml
-  - tailscale-ingress.yaml
 patches:
   - path: helmrelease-patch.yaml
