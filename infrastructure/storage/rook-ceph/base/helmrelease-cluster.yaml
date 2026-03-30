@@ -34,6 +34,31 @@ spec:
             - key: node-role.kubernetes.io/control-plane
               operator: Exists
               effect: NoSchedule
+      resources:
+        mon:
+          requests:
+            cpu: "500m"
+            memory: "512Mi"
+        osd:
+          requests:
+            cpu: "500m"
+            memory: "2Gi"
+        mgr:
+          requests:
+            cpu: "200m"
+            memory: "256Mi"
+        crashcollector:
+          requests:
+            cpu: "10m"
+            memory: "60Mi"
+        exporter:
+          requests:
+            cpu: "10m"
+            memory: "50Mi"
+        logcollector:
+          requests:
+            cpu: "10m"
+            memory: "100Mi"
 
     cephBlockPools:
       - name: ceph-blockpool
