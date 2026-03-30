@@ -31,10 +31,19 @@ spec:
           cpu: 500m
           memory: 512Mi
 
-    livenessProbe:
-      httpGet:
-        path: /login/
-        port: http
-      failureThreshold: 3
-      periodSeconds: 10
-      timeoutSeconds: 10
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              kind: Deployment
+              name: netbox
+            patch: |
+              - op: replace
+                path: /spec/template/spec/containers/0/livenessProbe
+                value:
+                  httpGet:
+                    path: /login/
+                    port: http
+                  failureThreshold: 3
+                  periodSeconds: 10
+                  timeoutSeconds: 10
