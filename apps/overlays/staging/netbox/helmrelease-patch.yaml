@@ -30,3 +30,11 @@ spec:
         limits:
           cpu: 500m
           memory: 512Mi
+
+    livenessProbe:
+      httpGet:
+        path: /login/
+        port: http
+      failureThreshold: 3
+      periodSeconds: 10
+      timeoutSeconds: 10
