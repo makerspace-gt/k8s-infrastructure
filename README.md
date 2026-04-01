@@ -6,7 +6,7 @@ See [docs/setup.md](docs/setup.md) for cluster setup instructions (Talos image, 
 
 ## Todo for Staging
 
-- Define RBAC - [setup access and permissions via Tailscale operator mapping to RBAC](https://youtu.be/3VpOYn_GfAY?si=AJBxcYTgCbwWxqwE&t=1926)
+- Define RBAC
 - Finish monitoring and observability (dashboards, Loki, alerts)
 - Cilium - use Hubble and setup basic firewall rules:
   - [Basic Guide](https://datavirke.dk/posts/bare-metal-kubernetes-part-2-cilium-and-firewalls/) (also see next part!)
