@@ -5,7 +5,7 @@ metadata:
   name: vaultwarden
   namespace: flux-system
 spec:
-  suspend: true
+  suspend: false
   interval: 5m
   path: ./apps/overlays/staging/vaultwarden
   prune: true
@@ -19,7 +19,7 @@ metadata:
   name: wikijs
   namespace: flux-system
 spec:
-  suspend: true
+  suspend: false
   interval: 5m
   dependsOn:
     - name: cloudnative-pg
@@ -35,7 +35,7 @@ metadata:
   name: vikunja
   namespace: flux-system
 spec:
-  suspend: true
+  suspend: false
   interval: 5m
   dependsOn:
     - name: cloudnative-pg
@@ -51,7 +51,7 @@ metadata:
   name: zammad
   namespace: flux-system
 spec:
-  suspend: true
+  suspend: false
   interval: 5m
   dependsOn:
     - name: cloudnative-pg
@@ -68,7 +68,7 @@ metadata:
   name: homepage-wordpress
   namespace: flux-system
 spec:
-  suspend: true
+  suspend: false
   interval: 5m
   dependsOn:
     - name: sealed-secrets
@@ -84,7 +84,7 @@ metadata:
   name: stirling-pdf
   namespace: flux-system
 spec:
-  suspend: true
+  suspend: false
   interval: 5m
   path: ./apps/overlays/staging/stirling-pdf
   prune: true
