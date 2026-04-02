@@ -38,6 +38,8 @@ spec:
       ingress:
         enabled: true
         ingressClassName: traefik
+        hosts:
+          - grafana.staging.local
       additionalDataSources:
         - name: Loki
           type: loki
