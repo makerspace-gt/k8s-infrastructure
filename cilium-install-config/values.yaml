@@ -39,3 +39,10 @@ externalIPs:
 # Have Cilium use Talos KubePrism-announced API IP
 k8sServiceHost: localhost
 k8sServicePort: 7445
+
+hubble:
+  relay:
+    enabled: true
+  ui:
+    enabled:
+      true

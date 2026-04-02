@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-sudo apt-get update && sudo apt-get install -y --no-install-recommends iputils-ping iproute2 dnsutils || true
+sudo apt-get update && sudo apt-get install -y --no-install-recommends iputils-ping iproute2 dnsutils apache2-utils || true
 sudo rm -rf /var/lib/apt/lists/*
 
 # Install Tetragon CLI (tetra)
