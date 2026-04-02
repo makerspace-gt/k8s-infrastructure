@@ -5,8 +5,13 @@ metadata:
   namespace: kube-system
   annotations:
     traefik.ingress.kubernetes.io/router.middlewares: kube-system-hubble-ui-basic-auth@kubernetescrd
+    cert-manager.io/cluster-issuer: staging-ca-issuer
 spec:
   ingressClassName: traefik
+  tls:
+    - hosts:
+        - hubble.staging.local
+      secretName: hubble-ui-tls
   rules:
     - host: hubble.staging.local
       http:

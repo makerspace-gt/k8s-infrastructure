@@ -3,8 +3,14 @@ kind: Ingress
 metadata:
   name: rook-ceph-dashboard
   namespace: rook-ceph
+  annotations:
+    cert-manager.io/cluster-issuer: staging-ca-issuer
 spec:
   ingressClassName: traefik
+  tls:
+    - hosts:
+        - ceph.staging.local
+      secretName: ceph-dashboard-tls
   rules:
     - host: ceph.staging.local
       http:

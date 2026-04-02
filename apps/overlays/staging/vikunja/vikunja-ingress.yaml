@@ -3,8 +3,14 @@ kind: Ingress
 metadata:
   name: vikunja-ingress
   namespace: vikunja
+  annotations:
+    cert-manager.io/cluster-issuer: staging-ca-issuer
 spec:
   ingressClassName: traefik
+  tls:
+    - hosts:
+        - vikunja.staging.local
+      secretName: vikunja-tls
   rules:
     - host: vikunja.staging.local
       http:

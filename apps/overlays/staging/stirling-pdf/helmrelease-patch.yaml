@@ -15,8 +15,14 @@ spec:
     ingress:
       enabled: true
       ingressClassName: traefik
+      annotations:
+        cert-manager.io/cluster-issuer: staging-ca-issuer
       hosts:
         - name: pdf.staging.local
+      tls:
+        - hosts:
+            - pdf.staging.local
+          secretName: stirling-pdf-tls
     probes:
       liveness:
         initialDelaySeconds: 60

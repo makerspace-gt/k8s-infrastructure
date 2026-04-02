@@ -12,6 +12,9 @@ spec:
         port: 8080
         expose:
           default: true
+      web:
+        redirectTo:
+          port: websecure
     additionalArguments:
       # secured via middleware basic auth
       - --api.insecure=true

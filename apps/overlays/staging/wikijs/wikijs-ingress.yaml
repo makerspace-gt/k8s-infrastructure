@@ -3,8 +3,14 @@ kind: Ingress
 metadata:
   name: wikijs-ingress
   namespace: wikijs
+  annotations:
+    cert-manager.io/cluster-issuer: staging-ca-issuer
 spec:
   ingressClassName: traefik
+  tls:
+    - hosts:
+        - wiki.staging.local
+      secretName: wikijs-tls
   rules:
     - host: wiki.staging.local
       http:

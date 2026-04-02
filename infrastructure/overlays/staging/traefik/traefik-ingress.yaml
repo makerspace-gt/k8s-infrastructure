@@ -5,8 +5,13 @@ metadata:
   name: traefik-dashboard-ingress
   annotations:
     traefik.ingress.kubernetes.io/router.middlewares: traefik-traefik-dashboard-basic-auth@kubernetescrd
+    cert-manager.io/cluster-issuer: staging-ca-issuer
 spec:
   ingressClassName: traefik
+  tls:
+    - hosts:
+        - traefik.staging.local
+      secretName: traefik-dashboard-tls
   rules:
     - host: traefik.staging.local
       http:

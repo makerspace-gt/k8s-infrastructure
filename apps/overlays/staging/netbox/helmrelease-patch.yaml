@@ -16,10 +16,16 @@ spec:
     ingress:
       enabled: true
       className: traefik
+      annotations:
+        cert-manager.io/cluster-issuer: staging-ca-issuer
       hosts:
         - host: netbox.staging.local
           paths:
             - /
+      tls:
+        - hosts:
+            - netbox.staging.local
+          secretName: netbox-tls
 
     housekeeping:
       resources:

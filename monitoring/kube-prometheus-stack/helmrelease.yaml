@@ -38,8 +38,14 @@ spec:
       ingress:
         enabled: true
         ingressClassName: traefik
+        annotations:
+          cert-manager.io/cluster-issuer: staging-ca-issuer
         hosts:
           - grafana.staging.local
+        tls:
+          - hosts:
+              - grafana.staging.local
+            secretName: grafana-tls
       additionalDataSources:
         - name: Loki
           type: loki
