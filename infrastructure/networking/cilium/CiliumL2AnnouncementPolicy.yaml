@@ -1,7 +1,7 @@
 apiVersion: "cilium.io/v2alpha1"
 kind: CiliumL2AnnouncementPolicy
 metadata:
-  name: defaultL2announcementpolicy
+  name: defaultl2announcementpolicy
 spec:
   nodeSelector:
     matchExpressions:
