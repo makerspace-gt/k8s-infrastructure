@@ -13,8 +13,10 @@ spec:
         expose:
           default: true
       web:
-        redirectTo:
-          port: websecure
+        redirections:
+          entryPoint:
+            to: websecure
+            scheme: https
     additionalArguments:
       # secured via middleware basic auth
       - --api.insecure=true
