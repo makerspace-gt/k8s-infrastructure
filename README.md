@@ -8,14 +8,9 @@ See [docs/setup.md](docs/setup.md) for cluster setup instructions (Talos image, 
 
 - Define RBAC
 - Finish monitoring and observability (dashboards, Loki, alerts)
-- Cilium - use Hubble and setup basic firewall rules:
-  - Enable Hubble relay + UI in `cilium-install-config/values.yaml` (`hubble.relay.enabled`, `hubble.ui.enabled`) and add Traefik ingress
+- Cilium - setup basic firewall rules:
   - [Basic Guide](https://datavirke.dk/posts/bare-metal-kubernetes-part-2-cilium-and-firewalls/) (also see next part!)
   - [Talos Install Cilium Docs](https://docs.siderolabs.com/kubernetes-guides/cni/deploying-cilium)
-- Configure Traefik ingress for remaining apps:
-  - Netbox: enable ingress in Helm values
-  - Stirling PDF: enable ingress in Helm values
-  - Wiki.js: add Traefik ingress
 - TLS for ingresses: create a cert-manager self-signed `ClusterIssuer`, then annotate ingresses to request certs (basic auth sends credentials in plaintext without TLS)
 - Backup/snapshot configuration (Velero, CephObjectStore, etc.)
 
@@ -36,5 +31,5 @@ Right now, apps are accessible through the traffic service, which has a LoadBala
 Edit your `/etc/hosts` to resolve the hosts:
 ```
 <...>
-192.168.0.202 ceph.staging.local vault.staging.local vikunja.staging.local grafana.staging.local staging.local hubble.staging.local traefik.staging.local
+192.168.0.202 staging.local ceph.staging.local vault.staging.local vikunja.staging.local grafana.staging.local hubble.staging.local traefik.staging.local netbox.staging.local pdf.staging.local wiki.staging.local
 ```
