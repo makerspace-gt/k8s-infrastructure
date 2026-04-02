@@ -5,10 +5,13 @@ metadata:
   namespace: traefik
 spec:
   values:
+    service:
+      type: LoadBalancer
     ports:
       traefik:
         port: 8080
         expose:
           default: true
     additionalArguments:
+      # secured via ingress
       - --api.insecure=true

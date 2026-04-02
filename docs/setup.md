@@ -82,18 +82,8 @@ talosctl bootstrap
 talosctl kubeconfig .
 kubectl get nodes  # Should show NotReady (no CNI yet)
 
-# Install Cilium CNI
-# - ipam.mode=kubernetes: Use podCIDRs from Talos config (10.244.0.0/16)
-# - k8sServiceHost=localhost:7445: KubePrism - Talos local API proxy on every node
-cilium install \
-  --set ipam.mode=kubernetes \
-  --set kubeProxyReplacement=true \
-  --set k8sServiceHost=localhost \
-  --set k8sServicePort=7445 \
-  --set securityContext.capabilities.ciliumAgent="{CHOWN,KILL,NET_ADMIN,NET_RAW,IPC_LOCK,SYS_ADMIN,SYS_RESOURCE,DAC_OVERRIDE,FOWNER,SETGID,SETUID}" \
-  --set securityContext.capabilities.cleanCiliumState="{NET_ADMIN,SYS_ADMIN,SYS_RESOURCE}" \
-  --set cgroup.autoMount.enabled=false \
-  --set cgroup.hostRoot=/sys/fs/cgroup
+# Install Cilium CNI (values include L2 announcements for LoadBalancer services)
+cilium install -f ./cilium-install-config/values.yaml
 
 cilium status --wait
 kubectl get nodes  # Should show Ready

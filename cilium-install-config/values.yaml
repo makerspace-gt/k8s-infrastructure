@@ -1,0 +1,41 @@
+# Cilium needs these to run
+kubeProxyReplacement: true
+ipam:
+  mode: kubernetes
+securityContext:
+  capabilities:
+    ciliumAgent:
+      - CHOWN
+      - KILL
+      - NET_ADMIN
+      - NET_RAW
+      - IPC_LOCK
+      - SYS_ADMIN
+      - SYS_RESOURCE
+      - DAC_OVERRIDE
+      - FOWNER
+      - SETGID
+      - SETUID
+    cleanCiliumState:
+      - NET_ADMIN
+      - SYS_ADMIN
+      - SYS_RESOURCE
+cgroup:
+  autoMount:
+    enabled: false
+  hostRoot: /sys/fs/cgroup
+
+# For Cilium L2 announcement-feature
+# https://docs.cilium.io/en/latest/network/l2-announcements/#l2-announcements-leader-election
+k8sClientRateLimit:
+  k8sApi:
+    qps: 10
+    burst: 20
+l2announcements:
+  enabled: true
+externalIPs:
+  enabled: true
+
+# Have Cilium use Talos KubePrism-announced API IP
+k8sServiceHost: localhost
+k8sServicePort: 7445
