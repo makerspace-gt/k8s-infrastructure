@@ -7,5 +7,7 @@ spec:
   values:
     ingress:
       enabled: false
+    service:
+      type: LoadBalancer
     persistence:
       size: 10Gi
