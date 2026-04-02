@@ -5,7 +5,8 @@ metadata:
   namespace: vaultwarden
 spec:
   rules:
-    - http:
+    - host: vault.staging.local
+      http:
         paths:
           - path: /
             pathType: Prefix
