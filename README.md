@@ -20,8 +20,10 @@ See [docs/setup.md](docs/setup.md) for cluster setup instructions (Talos image, 
 
 - Authelia
 - CryptPad
-- [Stirling PDF](https://github.com/Stirling-Tools/Stirling-PDF)
-- Netbox
 - Postiz - official helm-chart has issues:
   - bad secret handling
   - outdated - 1 year old, using bitnami images still
+- Zammad - needs rework:
+  - Chart bundles its own PostgreSQL; to use CNPG instead, set `postgresql.enabled: false` and configure `zammadConfig.postgresql.*` values (host, user, db) + wire CNPG secret
+  - Do NOT use raw `DATABASE_URL` env override — chart entrypoint builds its own from `POSTGRESQL_*` vars
+  - Fresh DB might require the `zammad-init` Job to run `rake db:migrate db:seed` against the correct DB
