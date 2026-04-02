@@ -11,10 +11,8 @@ See [docs/setup.md](docs/setup.md) for cluster setup instructions (Talos image, 
 - Cilium - use Hubble and setup basic firewall rules:
   - [Basic Guide](https://datavirke.dk/posts/bare-metal-kubernetes-part-2-cilium-and-firewalls/) (also see next part!)
   - [Talos Install Cilium Docs](https://docs.siderolabs.com/kubernetes-guides/cni/deploying-cilium)
-- Rook Ceph dashboard authentication
 - Backup/snapshot configuration (Velero, CephObjectStore, etc.)
 - Ceph performance tuning (sysctls, file limits)
-- Talos image rebuild (upgrade to 1.12.6, remove unused Longhorn extensions)
 
 ## Apps to add later
 
