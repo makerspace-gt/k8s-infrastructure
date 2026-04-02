@@ -31,4 +31,5 @@ Right now, apps are accessible through the traffic service, which has a LoadBala
 Edit your `/etc/hosts` to resolve the hosts:
 ```
 <...>
-192.168.0.202 ceph.staging.local vault.staging.local vikunja.staging.local # etc.
+192.168.0.202 ceph.staging.local vault.staging.local vikunja.staging.local grafana.staging.local staging.local # etc.
+```
