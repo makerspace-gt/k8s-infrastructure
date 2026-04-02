@@ -4,5 +4,5 @@ metadata:
   name: vikunja-config
   namespace: vikunja
 data:
-  public_url: "https://vikunja.zebra-alewife.ts.net"
+  public_url: "https://vikunja.staging.local"
   timezone: "Europe/Berlin"

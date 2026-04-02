@@ -3,3 +3,4 @@ kind: Kustomization
 resources:
   - ../../../base/vikunja
   - configmap.yaml
+  - vikunja-ingress.yaml

@@ -13,15 +13,11 @@ See [docs/setup.md](docs/setup.md) for cluster setup instructions (Talos image, 
   - [Basic Guide](https://datavirke.dk/posts/bare-metal-kubernetes-part-2-cilium-and-firewalls/) (also see next part!)
   - [Talos Install Cilium Docs](https://docs.siderolabs.com/kubernetes-guides/cni/deploying-cilium)
 - Configure Traefik ingress for remaining apps:
-  - Grafana: set hostname in monitoring HelmRelease values (currently `*`)
   - Netbox: enable ingress in Helm values
   - Stirling PDF: enable ingress in Helm values
-  - Vikunja: fix existing ingress (add `ingressClassName: traefik`)
   - Wiki.js: add Traefik ingress
-  - Traefik dashboard: add ingress (auth via existing sealed secret)
 - TLS for ingresses: create a cert-manager self-signed `ClusterIssuer`, then annotate ingresses to request certs (basic auth sends credentials in plaintext without TLS)
 - Backup/snapshot configuration (Velero, CephObjectStore, etc.)
-- Ceph performance tuning (sysctls, file limits)
 
 ## Apps to add later
 
