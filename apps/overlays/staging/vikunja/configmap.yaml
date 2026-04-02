@@ -4,5 +4,5 @@ metadata:
   name: vikunja-config
   namespace: vikunja
 data:
-  public_url: "https://vikunja.staging.local"
+  public_url: "http://vikunja.staging.local"
   timezone: "Europe/Berlin"

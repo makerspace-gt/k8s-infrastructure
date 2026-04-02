@@ -13,6 +13,12 @@ spec:
         cpu: 1000m
         memory: 1Gi
 
+    ingress:
+      enabled: true
+      className: traefik
+      hosts:
+        - host: netbox.staging.local
+
     housekeeping:
       resources:
         requests:

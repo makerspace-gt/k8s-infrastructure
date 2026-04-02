@@ -62,3 +62,5 @@ detect-secrets scan --baseline .secrets.baseline
 ```
 
 This rescans and marks the new entries as known/expected.
+
+**Warning:** The baseline is a blind whitelist — `detect-secrets` cannot distinguish encrypted data from plaintext passwords. When updating the baseline, review what was flagged before accepting it. Use `detect-secrets audit .secrets.baseline` to interactively review each entry. Never blindly run `scan --baseline` after adding non-sealed-secret files.
