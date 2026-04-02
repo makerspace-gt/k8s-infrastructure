@@ -18,6 +18,8 @@ spec:
       className: traefik
       hosts:
         - host: netbox.staging.local
+          paths:
+            - /
 
     housekeeping:
       resources:
