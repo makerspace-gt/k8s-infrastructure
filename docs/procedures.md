@@ -63,4 +63,38 @@ detect-secrets scan --baseline .secrets.baseline
 
 This rescans and marks the new entries as known/expected.
 
+## TLS — Trusting the Staging CA
+
+The staging cluster uses a self-signed CA (managed by cert-manager) to issue TLS certs for all `*.staging.local` services. To avoid browser warnings, install the CA cert on your machine.
+
+### Export the CA cert
+
+From the devcontainer or any machine with kubectl access:
+
+```bash
+kubectl get secret staging-ca-secret -n cert-manager -o jsonpath='{.data.tls\.crt}' | base64 -d > staging-ca.crt
+```
+
+### Install on your host machine
+
+**Arch Linux:**
+```bash
+sudo trust anchor staging-ca.crt
+```
+
+**Ubuntu/Debian:**
+```bash
+sudo cp staging-ca.crt /usr/local/share/ca-certificates/staging-ca.crt
+sudo update-ca-certificates
+```
+
+**macOS:**
+```bash
+sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain staging-ca.crt
+```
+
+Then **restart your browser** — it caches the trust store.
+
+---
+
 **Warning:** The baseline is a blind whitelist — `detect-secrets` cannot distinguish encrypted data from plaintext passwords. When updating the baseline, review what was flagged before accepting it. Use `detect-secrets audit .secrets.baseline` to interactively review each entry. Never blindly run `scan --baseline` after adding non-sealed-secret files.

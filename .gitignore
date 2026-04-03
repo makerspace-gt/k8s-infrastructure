@@ -3,6 +3,9 @@
 .sealed-secrets-pub.pem
 sealed-secrets-*.pem
 
+# Exported certificates (e.g. staging CA for local trust)
+*.crt
+
 # Kubeconfigs (NEVER commit these!)
 kubeconfigs/
 *.kubeconfig
