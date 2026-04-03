@@ -4,3 +4,4 @@ resources:
   - ../../../base/vaultwarden
   - configmap.yaml
   - admin-sealed-secret.yaml
+  - network-policy.yaml
