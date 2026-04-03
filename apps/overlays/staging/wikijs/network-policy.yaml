@@ -4,15 +4,14 @@ metadata:
   name: wikijs-ingress
   namespace: wikijs
 spec:
-  endpointSelector:
-    matchLabels:
-      app: wikijs
+  endpointSelector: {}
   ingress:
+    # Allow all intra-namespace traffic (wikijs <-> cnpg db)
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: wikijs
+    # Allow Traefik to reach the wikijs pod
     - fromEndpoints:
         - matchLabels:
             k8s:io.kubernetes.pod.namespace: traefik
             k8s:app.kubernetes.io/name: traefik
-      toPorts:
-        - ports:
-            - port: "3000"
-              protocol: TCP

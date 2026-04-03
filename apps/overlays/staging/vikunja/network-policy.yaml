@@ -4,15 +4,14 @@ metadata:
   name: vikunja-ingress
   namespace: vikunja
 spec:
-  endpointSelector:
-    matchLabels:
-      app: vikunja
+  endpointSelector: {}
   ingress:
+    # Allow all intra-namespace traffic (vikunja <-> cnpg db)
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: vikunja
+    # Allow Traefik to reach the vikunja pod
     - fromEndpoints:
         - matchLabels:
             k8s:io.kubernetes.pod.namespace: traefik
             k8s:app.kubernetes.io/name: traefik
-      toPorts:
-        - ports:
-            - port: "3456"
-              protocol: TCP
