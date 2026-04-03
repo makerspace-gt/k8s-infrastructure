@@ -1,0 +1,17 @@
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: netbox-ingress
+  namespace: netbox
+spec:
+  endpointSelector: {}
+  ingress:
+    # Allow all intra-namespace traffic (netbox <-> valkey <-> db <-> worker <-> housekeeping)
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: netbox
+    # Allow Traefik to reach the netbox web pod
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: traefik
+            k8s:app.kubernetes.io/name: traefik

@@ -1,0 +1,17 @@
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: homepage-wordpress-ingress
+  namespace: homepage-wordpress
+spec:
+  endpointSelector: {}
+  ingress:
+    # Allow all intra-namespace traffic (wordpress <-> mariadb)
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: homepage-wordpress
+    # Allow Traefik to reach the wordpress pod
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: traefik
+            k8s:app.kubernetes.io/name: traefik
