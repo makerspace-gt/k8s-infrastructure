@@ -3,3 +3,6 @@ extends: default
 rules:
     document-start: disable
     line-length: disable
+    braces:
+        min-spaces-inside: 0
+        max-spaces-inside: 1

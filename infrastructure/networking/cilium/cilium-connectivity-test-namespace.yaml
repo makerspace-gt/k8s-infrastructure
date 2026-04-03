@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  # cilium connectivity test --help | grep -i concu
+  #      --test-concurrency int
+  #         Count of namespaces to perform the connectivity tests in parallel (value <= 0 will be treated as 1) (default 1)
+  #      --test-namespace string
+  #         Namespace to perform the connectivity in (always suffixed with a sequence number to be compliant with test-concurrency param,
+  #         e.g.: cilium-test-1) (default "cilium-test")
+  name: cilium-test-1
+  labels: { pod-security.kubernetes.io/enforce=privileged }

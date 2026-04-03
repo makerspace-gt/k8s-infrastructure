@@ -3,3 +3,4 @@ kind: Kustomization
 resources:
   - CiliumL2AnnouncementPolicy.yaml
   - CiliumLoadBalancerIPPool.yaml
+  - cilium-connectivity-test-namespace.yaml
