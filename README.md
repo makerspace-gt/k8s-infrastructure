@@ -12,7 +12,6 @@ See [docs/setup.md](docs/setup.md) for cluster setup instructions (Talos image, 
   - [Basic Guide](https://datavirke.dk/posts/bare-metal-kubernetes-part-2-cilium-and-firewalls/) (also see next part!)
   - [Talos Install Cilium Docs](https://docs.siderolabs.com/kubernetes-guides/cni/deploying-cilium)
 - Backup/snapshot configuration (Velero, CephObjectStore, etc.)
-- Ceph performance tuning (sysctls, file limits)
 
 ## Apps to add later
 

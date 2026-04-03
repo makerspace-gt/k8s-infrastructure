@@ -5,7 +5,15 @@ metadata:
   namespace: rook-ceph
 spec:
   values:
+    toolbox:
+      enabled: true
+    monitoring:
+      enabled: true
+      createPrometheusRules: true
     cephClusterSpec:
       dashboard:
         enabled: true
         ssl: false
+    cephConfig:
+      global:
+        mon_clock_drift_allowed: "1"
