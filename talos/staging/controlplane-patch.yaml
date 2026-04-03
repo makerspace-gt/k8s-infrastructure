@@ -9,6 +9,8 @@ machine:
     servers:
       - time.cloudflare.com
   kubelet:
+    extraArgs:
+      rotate-server-certificates: true
     nodeIP:
       validSubnets:
         - 192.168.0.0/24
@@ -21,6 +23,9 @@ machine:
           - rshared
           - rw
 cluster:
+  etcd:
+    extraArgs:
+      listen-metrics-urls: http://0.0.0.0:2381
   network:
     cni:
       name: none

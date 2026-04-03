@@ -7,6 +7,7 @@ resources:
   - cnpg-podmonitor.yaml
   - alertmanager-discord-sealed-secret.yaml
   - alertmanager-config.yaml
+  - etcd-endpoints.yaml
 patches:
   - path: helmrelease-patch.yaml
 configMapGenerator:

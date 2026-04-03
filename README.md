@@ -7,10 +7,6 @@ See [docs/setup.md](docs/setup.md) for cluster setup instructions (Talos image, 
 ## Todo for Staging
 
 - Define RBAC
-- Finish monitoring and observability (dashboards, Loki, alerts)
-- Cilium - setup basic firewall rules:
-  - [Basic Guide](https://datavirke.dk/posts/bare-metal-kubernetes-part-2-cilium-and-firewalls/) (also see next part!)
-  - [Talos Install Cilium Docs](https://docs.siderolabs.com/kubernetes-guides/cni/deploying-cilium)
 - Backup/snapshot configuration (Velero, CephObjectStore, etc.)
 
 ## Apps to add later

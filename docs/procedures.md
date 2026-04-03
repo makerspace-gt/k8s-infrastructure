@@ -97,4 +97,54 @@ Then **restart your browser** — it caches the trust store.
 
 ---
 
+## Etcd Metrics
+
+Exposes etcd's Prometheus metrics on port 2381 (control plane only). See [Talos docs](https://docs.siderolabs.com/kubernetes-guides/monitoring-and-observability/etcd-metrics).
+
+**Config change** in `controlplane-patch.yaml`:
+```yaml
+cluster:
+  etcd:
+    extraArgs:
+      listen-metrics-urls: http://0.0.0.0:2381
+```
+
+**Apply and reboot:**
+```bash
+talosctl apply-config --file talos/staging/controlplane-01.yaml --nodes 192.168.0.22 --mode staged
+talosctl reboot --nodes 192.168.0.22 --wait
+```
+
+**Verify:** `curl 192.168.0.22:2381/metrics`
+
+## Metrics Server
+
+Enables `kubectl top` and HPA. Requires kubelet cert rotation on all nodes. See [Talos docs](https://docs.siderolabs.com/kubernetes-guides/monitoring-and-observability/deploy-metrics-server).
+
+**Config change** in all patch files (`controlplane-patch.yaml`, `worker-*-patch.yaml`):
+```yaml
+machine:
+  kubelet:
+    extraArgs:
+      rotate-server-certificates: true
+```
+
+**Apply, reboot one at a time, then deploy:**
+```bash
+talosctl apply-config --file talos/staging/controlplane-01.yaml --nodes 192.168.0.22 --mode staged
+talosctl apply-config --file talos/staging/worker-01.yaml --nodes 192.168.0.40 --mode staged
+talosctl apply-config --file talos/staging/worker-02.yaml --nodes 192.168.0.71 --mode staged
+
+talosctl reboot --nodes 192.168.0.22 --wait
+talosctl reboot --nodes 192.168.0.40 --wait
+talosctl reboot --nodes 192.168.0.71 --wait
+
+kubectl apply -f https://raw.githubusercontent.com/alex1989hu/kubelet-serving-cert-approver/main/deploy/standalone-install.yaml
+kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+```
+
+**Verify:** `kubectl top nodes`
+
+---
+
 **Warning:** The baseline is a blind whitelist — `detect-secrets` cannot distinguish encrypted data from plaintext passwords. When updating the baseline, review what was flagged before accepting it. Use `detect-secrets audit .secrets.baseline` to interactively review each entry. Never blindly run `scan --baseline` after adding non-sealed-secret files.
