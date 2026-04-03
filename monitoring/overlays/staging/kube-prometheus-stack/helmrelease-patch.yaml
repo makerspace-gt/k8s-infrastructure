@@ -13,6 +13,29 @@ spec:
         limits:
           cpu: 500m
           memory: 512Mi
+    alertmanager:
+      alertmanagerSpec:
+        secrets:
+          - alertmanager-discord-webhook
+      config:
+        global:
+          resolve_timeout: 5m
+        route:
+          receiver: discord
+          group_by: ['namespace', 'alertname']
+          group_wait: 30s
+          group_interval: 5m
+          repeat_interval: 4h
+          routes:
+            # Silence Watchdog — it fires continuously to prove alerting works
+            - match:
+                alertname: Watchdog
+              receiver: "null"
+        receivers:
+          - name: "null"
+          - name: discord
+            discord_configs:
+              - webhook_url_file: /etc/alertmanager/secrets/alertmanager-discord-webhook/webhook-url
     prometheus:
       prometheusSpec:
         serviceMonitorSelectorNilUsesHelmValues: false

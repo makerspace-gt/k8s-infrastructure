@@ -4,5 +4,6 @@ resources:
   - ../../../kube-prometheus-stack
   - grafana-sealed-secret.yaml
   - cnpg-podmonitor.yaml
+  - alertmanager-discord-sealed-secret.yaml
 patches:
   - path: helmrelease-patch.yaml
