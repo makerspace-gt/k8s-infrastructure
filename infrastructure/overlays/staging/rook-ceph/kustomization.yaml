@@ -3,6 +3,7 @@ kind: Kustomization
 resources:
   - ../../../storage/rook-ceph/base
   - ceph-dashboard-ingress.yaml
+  - servicemonitor.yaml
 patches:
   - path: helmrelease-cluster-patch.yaml
     target:

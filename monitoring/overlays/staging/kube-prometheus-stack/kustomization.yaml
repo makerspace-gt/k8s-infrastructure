@@ -3,5 +3,6 @@ kind: Kustomization
 resources:
   - ../../../kube-prometheus-stack
   - grafana-sealed-secret.yaml
+  - cnpg-podmonitor.yaml
 patches:
   - path: helmrelease-patch.yaml

@@ -17,6 +17,10 @@ spec:
           entryPoint:
             to: websecure
             scheme: https
+    metrics:
+      prometheus:
+        serviceMonitor:
+          enabled: true
     additionalArguments:
       # secured via middleware basic auth
       - --api.insecure=true
