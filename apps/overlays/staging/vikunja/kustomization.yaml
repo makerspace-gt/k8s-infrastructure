@@ -4,3 +4,4 @@ resources:
   - ../../../base/vikunja
   - configmap.yaml
   - vikunja-ingress.yaml
+  - network-policy.yaml
