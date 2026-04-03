@@ -10,3 +10,17 @@ metadata:
   name: cilium-test-1
   labels:
     pod-security.kubernetes.io/enforce: privileged
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: cilium-test-ccnp1
+  labels:
+    pod-security.kubernetes.io/enforce: privileged
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: cilium-test-ccnp2
+  labels:
+    pod-security.kubernetes.io/enforce: privileged
