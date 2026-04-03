@@ -28,3 +28,19 @@ spec:
     kind: GitRepository
     name: flux-system
   wait: false
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: alloy
+  namespace: flux-system
+spec:
+  interval: 10m
+  dependsOn:
+    - name: loki
+  path: ./monitoring/overlays/staging/alloy
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  wait: false
