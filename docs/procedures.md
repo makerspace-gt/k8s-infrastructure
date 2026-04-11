@@ -117,6 +117,8 @@ talosctl reboot --nodes 192.168.0.22 --wait
 
 **Verify:** `curl 192.168.0.22:2381/metrics`
 
+> **Security note:** Port 2381 listens on `0.0.0.0`, so it's reachable from the local network. Acceptable for staging; for production, restrict via Talos `networkRules` or Cilium host firewall.
+
 ## Metrics Server
 
 Enables `kubectl top` and HPA. Requires kubelet cert rotation on all nodes. See [Talos docs](https://docs.siderolabs.com/kubernetes-guides/monitoring-and-observability/deploy-metrics-server).
