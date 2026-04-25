@@ -2,7 +2,7 @@
 
 ## Sealed Secrets
 
-All secrets in this repo are encrypted using [Sealed Secrets](https://github.com/bitnami-labs/sealed-secrets). The public cert is at `clusters/staging/certs/staging-sealed-secrets-public-cert.pem`.
+All secrets in this repo are encrypted using [Sealed Secrets](https://github.com/bitnami-labs/sealed-secrets). The public cert is at `cluster/certs/sealed-secrets-public-cert.pem`.
 
 ### Creating a Sealed Secret
 
@@ -15,7 +15,7 @@ kubectl create secret generic my-secret \
 
 # 2. Seal it using the cluster's public cert
 kubeseal \
-  --cert clusters/staging/certs/staging-sealed-secrets-public-cert.pem \
+  --cert cluster/certs/sealed-secrets-public-cert.pem \
   --controller-name=sealed-secrets \
   --controller-namespace=sealed-secrets \
   --format yaml < secret.yaml > sealed-secret.yaml
@@ -63,34 +63,34 @@ detect-secrets scan --baseline .secrets.baseline
 
 This rescans and marks the new entries as known/expected.
 
-## TLS — Trusting the Staging CA
+## TLS — Trusting the Cluster CA
 
-The staging cluster uses a self-signed CA (managed by cert-manager) to issue TLS certs for all `*.staging.local` services. To avoid browser warnings, install the CA cert on your machine.
+The cluster uses a self-signed CA (managed by cert-manager) to issue TLS certs for all `*.makerspace.local` services. To avoid browser warnings, install the CA cert on your machine.
 
 ### Export the CA cert
 
 From the devcontainer or any machine with kubectl access:
 
 ```bash
-kubectl get secret staging-ca-secret -n cert-manager -o jsonpath='{.data.tls\.crt}' | base64 -d > staging-ca.crt
+kubectl get secret cluster-ca-secret -n cert-manager -o jsonpath='{.data.tls\.crt}' | base64 -d > cluster-ca.crt
 ```
 
 ### Install on your host machine
 
 **Arch Linux:**
 ```bash
-sudo trust anchor staging-ca.crt
+sudo trust anchor cluster-ca.crt
 ```
 
 **Ubuntu/Debian:**
 ```bash
-sudo cp staging-ca.crt /usr/local/share/ca-certificates/staging-ca.crt
+sudo cp cluster-ca.crt /usr/local/share/ca-certificates/cluster-ca.crt
 sudo update-ca-certificates
 ```
 
 **macOS:**
 ```bash
-sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain staging-ca.crt
+sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain cluster-ca.crt
 ```
 
 Then **restart your browser** — it caches the trust store.
@@ -111,13 +111,13 @@ cluster:
 
 **Apply and reboot:**
 ```bash
-talosctl apply-config --file talos/staging/controlplane-01.yaml --nodes 192.168.0.22 --mode staged
-talosctl reboot --nodes 192.168.0.22 --wait
+talosctl apply-config --file talos/controlplane-01.yaml --nodes <cp-ip> --mode staged
+talosctl reboot --nodes <cp-ip> --wait
 ```
 
-**Verify:** `curl 192.168.0.22:2381/metrics`
+**Verify:** `curl <cp-ip>:2381/metrics`
 
-> **Security note:** Port 2381 listens on `0.0.0.0`, so it's reachable from the local network. Acceptable for staging; for production, restrict via Talos `networkRules` or Cilium host firewall.
+> **Security note:** Port 2381 listens on `0.0.0.0`, so it's reachable from the local network. Acceptable here; if exposing more broadly, restrict via Talos `networkRules` or Cilium host firewall.
 
 ## Metrics Server
 
@@ -133,13 +133,13 @@ machine:
 
 **Apply, reboot one at a time, then deploy:**
 ```bash
-talosctl apply-config --file talos/staging/controlplane-01.yaml --nodes 192.168.0.22 --mode staged
-talosctl apply-config --file talos/staging/worker-01.yaml --nodes 192.168.0.40 --mode staged
-talosctl apply-config --file talos/staging/worker-02.yaml --nodes 192.168.0.71 --mode staged
+talosctl apply-config --file talos/controlplane-01.yaml --nodes <cp-ip> --mode staged
+talosctl apply-config --file talos/worker-01.yaml --nodes <worker-01-ip> --mode staged
+talosctl apply-config --file talos/worker-02.yaml --nodes <worker-02-ip> --mode staged
 
-talosctl reboot --nodes 192.168.0.22 --wait
-talosctl reboot --nodes 192.168.0.40 --wait
-talosctl reboot --nodes 192.168.0.71 --wait
+talosctl reboot --nodes <cp-ip> --wait
+talosctl reboot --nodes <worker-01-ip> --wait
+talosctl reboot --nodes <worker-02-ip> --wait
 
 kubectl apply -f https://raw.githubusercontent.com/alex1989hu/kubelet-serving-cert-approver/main/deploy/standalone-install.yaml
 kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml

@@ -2,9 +2,9 @@
 
 GitOps repository for managing the Makerspace GT Kubernetes infrastructure using FluxCD.
 
-See [docs/setup.md](docs/setup.md) for cluster setup instructions (Talos image, Proxmox VM config, bootstrap).
+See [docs/setup.md](docs/setup.md) for cluster setup instructions (Talos image, VM config, bootstrap).
 
-## Todo for Staging
+## Todo
 
 - Define RBAC
 - Backup/snapshot configuration (Velero, CephObjectStore, etc.)
@@ -26,5 +26,5 @@ Right now, apps are accessible through the traffic service, which has a LoadBala
 Edit your `/etc/hosts` to resolve the hosts:
 ```
 <...>
-192.168.0.202 staging.local ceph.staging.local vault.staging.local vikunja.staging.local grafana.staging.local hubble.staging.local traefik.staging.local netbox.staging.local pdf.staging.local wiki.staging.local
+<lb-ip> makerspace.local ceph.makerspace.local vault.makerspace.local vikunja.makerspace.local grafana.makerspace.local hubble.makerspace.local traefik.makerspace.local netbox.makerspace.local pdf.makerspace.local wiki.makerspace.local
 ```
