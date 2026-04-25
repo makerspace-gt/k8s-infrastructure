@@ -47,7 +47,7 @@ jobs:
       - name: Validate manifests infrastructure
         run: kubeconform -summary -output pretty -strict -ignore-missing-schemas ./infrastructure
       - name: Validate manifests monitoring
-        run: kubeconform -summary -output pretty -strict -ignore-missing-schemas ./monitoring
+        run: kubeconform -summary -output pretty -strict -ignore-missing-schemas -ignore-filename-pattern 'dashboards/.*\.json' ./monitoring
 
   kyverno-validation:
     name: Kyverno Policies
