@@ -4,7 +4,7 @@
 sealed-secrets-*.pem
 !cluster/certs/sealed-secrets-public-cert.pem
 
-# Exported certificates (e.g. staging CA for local trust)
+# Exported certificates (e.g. cluster CA for local trust)
 *.crt
 
 # Kubeconfigs (NEVER commit these!)

@@ -1,0 +1,46 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: homepage-wordpress
+  namespace: homepage-wordpress
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: wordpress
+      version: "28.1.9"
+      sourceRef:
+        kind: HelmRepository
+        name: bitnami
+      interval: 12h
+  install:
+    timeout: 10m
+  upgrade:
+    timeout: 10m
+  valuesFrom:
+    - kind: Secret
+      name: homepage-wordpress-config
+      valuesKey: values.yaml
+  values:
+    persistence:
+      enabled: true
+      size: 10Gi
+    mysql:
+      enabled: true
+      auth:
+        database: wordpress
+        username: wordpress
+        existingSecret: homepage-wordpress-mysql
+      primary:
+        persistence:
+          enabled: true
+          size: 2Gi
+    ingress:
+      enabled: true
+      ingressClassName: traefik
+      hostname: makerspace.local
+      tls: true
+      annotations:
+        cert-manager.io/cluster-issuer: cluster-ca-issuer
+    service:
+      type: ClusterIP

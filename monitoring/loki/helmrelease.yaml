@@ -70,3 +70,9 @@ spec:
       replicas: 0
     write:
       replicas: 0
+
+    # Caches default to ~10GB requests; not worth it on this cluster
+    chunksCache:
+      enabled: false
+    resultsCache:
+      enabled: false

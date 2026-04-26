@@ -8,7 +8,7 @@ spec:
   interval: 10m
   dependsOn:
     - name: traefik
-  path: ./monitoring/overlays/staging/kube-prometheus-stack
+  path: ./monitoring/kube-prometheus-stack
   prune: true
   sourceRef:
     kind: GitRepository
@@ -22,7 +22,7 @@ metadata:
   namespace: flux-system
 spec:
   interval: 10m
-  path: ./monitoring/overlays/staging/loki
+  path: ./monitoring/loki
   prune: true
   sourceRef:
     kind: GitRepository
@@ -38,7 +38,7 @@ spec:
   interval: 10m
   dependsOn:
     - name: kube-prometheus-stack
-  path: ./monitoring/overlays/staging/etcd-metrics
+  path: ./monitoring/etcd-metrics
   prune: true
   sourceRef:
     kind: GitRepository
@@ -54,7 +54,7 @@ spec:
   interval: 10m
   dependsOn:
     - name: loki
-  path: ./monitoring/overlays/staging/alloy
+  path: ./monitoring/alloy
   prune: true
   sourceRef:
     kind: GitRepository

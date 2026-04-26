@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: hubble-ingress
+  namespace: kube-system
+  annotations:
+    traefik.ingress.kubernetes.io/router.middlewares: kube-system-hubble-ui-basic-auth@kubernetescrd
+    cert-manager.io/cluster-issuer: cluster-ca-issuer
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - hubble.makerspace.local
+      secretName: hubble-ui-tls
+  rules:
+    - host: hubble.makerspace.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: hubble-ui
+                port:
+                  number: 80

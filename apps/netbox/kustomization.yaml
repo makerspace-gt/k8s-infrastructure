@@ -4,4 +4,5 @@ resources:
   - namespace.yaml
   - helmrepository.yaml
   - helmrelease.yaml
-  - self-signed-cluster-setup.yaml
+  - postgres-cluster.yaml
+  - network-policy.yaml

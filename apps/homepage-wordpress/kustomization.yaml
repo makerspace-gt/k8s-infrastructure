@@ -3,5 +3,7 @@ kind: Kustomization
 resources:
   - namespace.yaml
   - helmrepository.yaml
+  - wordpress-config-sealed-secret.yaml
+  - mysql-sealed-secret.yaml
   - helmrelease.yaml
-  - self-signed-cluster-setup.yaml
+  - network-policy.yaml

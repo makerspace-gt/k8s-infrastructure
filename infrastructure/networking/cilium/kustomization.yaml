@@ -4,3 +4,6 @@ resources:
   - CiliumL2AnnouncementPolicy.yaml
   - CiliumLoadBalancerIPPool.yaml
   - cilium-connectivity-test-namespace.yaml
+  - hubble-ingress.yaml
+  - hubble-ui-sealed-secret.yaml
+  - hubble-basicauth-middleware.yaml

@@ -7,7 +7,7 @@ metadata:
 spec:
   suspend: false
   interval: 5m
-  path: ./apps/overlays/staging/vaultwarden
+  path: ./apps/vaultwarden
   prune: true
   sourceRef:
     kind: GitRepository
@@ -23,7 +23,7 @@ spec:
   interval: 5m
   dependsOn:
     - name: cloudnative-pg
-  path: ./apps/overlays/staging/wikijs
+  path: ./apps/wikijs
   prune: true
   sourceRef:
     kind: GitRepository
@@ -39,7 +39,7 @@ spec:
   interval: 5m
   dependsOn:
     - name: cloudnative-pg
-  path: ./apps/overlays/staging/vikunja
+  path: ./apps/vikunja
   prune: true
   sourceRef:
     kind: GitRepository
@@ -55,7 +55,7 @@ spec:
   interval: 5m
   dependsOn:
     - name: sealed-secrets
-  path: ./apps/overlays/staging/homepage-wordpress
+  path: ./apps/homepage-wordpress
   prune: true
   sourceRef:
     kind: GitRepository
@@ -69,7 +69,7 @@ metadata:
 spec:
   suspend: false
   interval: 5m
-  path: ./apps/overlays/staging/stirling-pdf
+  path: ./apps/stirling-pdf
   prune: true
   sourceRef:
     kind: GitRepository
@@ -85,7 +85,7 @@ spec:
   dependsOn:
     - name: cloudnative-pg
     - name: sealed-secrets
-  path: ./apps/overlays/staging/netbox
+  path: ./apps/netbox
   prune: true
   sourceRef:
     kind: GitRepository

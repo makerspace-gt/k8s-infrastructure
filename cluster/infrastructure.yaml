@@ -21,23 +21,7 @@ spec:
   interval: 10m
   dependsOn:
     - name: sealed-secrets
-  path: ./infrastructure/certificates
-  prune: true
-  sourceRef:
-    kind: GitRepository
-    name: flux-system
-  wait: true
----
-apiVersion: kustomize.toolkit.fluxcd.io/v1
-kind: Kustomization
-metadata:
-  name: cert-manager-selfsigned
-  namespace: flux-system
-spec:
-  interval: 10m
-  dependsOn:
-    - name: cert-manager
-  path: ./infrastructure/overlays/staging/cert-manager
+  path: ./infrastructure/certificates/cert-manager
   prune: true
   sourceRef:
     kind: GitRepository
@@ -51,7 +35,7 @@ metadata:
   namespace: flux-system
 spec:
   interval: 10m
-  path: ./infrastructure/overlays/staging/cilium
+  path: ./infrastructure/networking/cilium
   prune: true
   sourceRef:
     kind: GitRepository
@@ -69,7 +53,7 @@ spec:
     - name: sealed-secrets
     - name: cert-manager
     - name: cilium
-  path: ./infrastructure/overlays/staging/traefik
+  path: ./infrastructure/networking/traefik
   prune: true
   sourceRef:
     kind: GitRepository
@@ -97,7 +81,7 @@ metadata:
   namespace: flux-system
 spec:
   interval: 10m
-  path: ./infrastructure/storage/snapshot-controller/base
+  path: ./infrastructure/storage/snapshot-controller
   prune: true
   sourceRef:
     kind: GitRepository
@@ -113,7 +97,7 @@ spec:
   interval: 10m
   dependsOn:
     - name: snapshot-controller
-  path: ./infrastructure/overlays/staging/rook-ceph
+  path: ./infrastructure/storage/rook-ceph
   prune: true
   sourceRef:
     kind: GitRepository

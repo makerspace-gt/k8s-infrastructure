@@ -23,6 +23,8 @@ spec:
     prometheus:
       prometheusSpec:
         retention: 7d
+        serviceMonitorSelectorNilUsesHelmValues: false
+        podMonitorSelectorNilUsesHelmValues: false
         storageSpec:
           volumeClaimTemplate:
             spec:
@@ -30,6 +32,13 @@ spec:
               resources:
                 requests:
                   storage: 5Gi
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 1Gi
     grafana:
       admin:
         existingSecret: grafana-admin-credentials
@@ -39,12 +48,12 @@ spec:
         enabled: true
         ingressClassName: traefik
         annotations:
-          cert-manager.io/cluster-issuer: staging-ca-issuer
+          cert-manager.io/cluster-issuer: cluster-ca-issuer
         hosts:
-          - grafana.staging.local
+          - grafana.makerspace.local
         tls:
           - hosts:
-              - grafana.staging.local
+              - grafana.makerspace.local
             secretName: grafana-tls
       additionalDataSources:
         - name: Loki
@@ -54,3 +63,29 @@ spec:
           url: http://loki-gateway.loki.svc.cluster.local
           jsonData:
             maxLines: 1000
+      resources:
+        requests:
+          cpu: 100m
+          memory: 128Mi
+        limits:
+          cpu: 500m
+          memory: 512Mi
+    alertmanager:
+      alertmanagerSpec:
+        alertmanagerConfigSelector:
+          matchLabels:
+            alertmanagerConfig: enabled
+        alertmanagerConfigNamespaceSelector: {}
+        alertmanagerConfigMatcherStrategy:
+          type: None
+      config:
+        global:
+          resolve_timeout: 5m
+        route:
+          receiver: "null"
+          routes:
+            - match:
+                alertname: Watchdog
+              receiver: "null"
+        receivers:
+          - name: "null"
