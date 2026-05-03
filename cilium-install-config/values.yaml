@@ -36,6 +36,10 @@ l2announcements:
 externalIPs:
   enabled: true
 
+encryption:
+  enabled: true
+  type: wireguard
+
 # Have Cilium use Talos KubePrism-announced API IP
 k8sServiceHost: localhost
 k8sServicePort: 7445
