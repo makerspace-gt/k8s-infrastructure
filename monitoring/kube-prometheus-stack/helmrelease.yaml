@@ -22,7 +22,7 @@ spec:
   values:
     prometheus:
       prometheusSpec:
-        retention: 7d
+        retention: 14d
         serviceMonitorSelectorNilUsesHelmValues: false
         podMonitorSelectorNilUsesHelmValues: false
         storageSpec:
@@ -31,7 +31,7 @@ spec:
               accessModes: ["ReadWriteOnce"]
               resources:
                 requests:
-                  storage: 5Gi
+                  storage: 50Gi
         resources:
           requests:
             cpu: 100m

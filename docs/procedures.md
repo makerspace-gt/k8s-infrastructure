@@ -63,38 +63,6 @@ detect-secrets scan --baseline .secrets.baseline
 
 This rescans and marks the new entries as known/expected.
 
-## TLS — Trusting the Cluster CA
-
-The cluster uses a self-signed CA (managed by cert-manager) to issue TLS certs for all `*.makerspace.local` services. To avoid browser warnings, install the CA cert on your machine.
-
-### Export the CA cert
-
-From the devcontainer or any machine with kubectl access:
-
-```bash
-kubectl get secret cluster-ca-secret -n cert-manager -o jsonpath='{.data.tls\.crt}' | base64 -d > cluster-ca.crt
-```
-
-### Install on your host machine
-
-**Arch Linux:**
-```bash
-sudo trust anchor cluster-ca.crt
-```
-
-**Ubuntu/Debian:**
-```bash
-sudo cp cluster-ca.crt /usr/local/share/ca-certificates/cluster-ca.crt
-sudo update-ca-certificates
-```
-
-**macOS:**
-```bash
-sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain cluster-ca.crt
-```
-
-Then **restart your browser** — it caches the trust store.
-
 ---
 
 ## Etcd Metrics

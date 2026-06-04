@@ -4,9 +4,9 @@ metadata:
   name: vikunja-db
   namespace: vikunja
 spec:
-  instances: 1
+  instances: 2
   storage:
-    size: 1Gi
+    size: 5Gi
   bootstrap:
     initdb:
       database: vikunja

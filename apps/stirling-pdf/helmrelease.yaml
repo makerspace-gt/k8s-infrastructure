@@ -27,7 +27,7 @@ spec:
         memory: 256Mi
       limits:
         cpu: 1000m
-        memory: 2Gi
+        memory: 1500Mi
     ingress:
       enabled: true
       ingressClassName: traefik

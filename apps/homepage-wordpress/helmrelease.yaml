@@ -22,6 +22,14 @@ spec:
       name: homepage-wordpress-config
       valuesKey: values.yaml
   values:
+    resourcesPreset: "none"
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 1000m
+        memory: 1Gi
     persistence:
       enabled: true
       size: 10Gi
@@ -32,6 +40,14 @@ spec:
         username: wordpress
         existingSecret: homepage-wordpress-mysql
       primary:
+        resourcesPreset: "none"
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 1000m
+            memory: 1Gi
         persistence:
           enabled: true
           size: 2Gi

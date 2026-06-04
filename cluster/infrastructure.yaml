@@ -35,6 +35,9 @@ metadata:
   namespace: flux-system
 spec:
   interval: 10m
+  dependsOn:
+    - name: traefik
+    - name: cert-manager
   path: ./infrastructure/networking/cilium
   prune: true
   sourceRef:

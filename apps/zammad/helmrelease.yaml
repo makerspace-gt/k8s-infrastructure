@@ -31,11 +31,11 @@ spec:
         value: "postgres://zammad:$(POSTGRESQL_PASS)@zammad-db-rw:5432/zammad?pool=50"
     elasticsearch:
       enabled: true
-      replicas: 1
+      replicas: 2
       resources:
         requests:
-          memory: 512Mi
-          cpu: 250m
+          memory: 2Gi
+          cpu: 500m
     redis:
       enabled: true
     memcached:
