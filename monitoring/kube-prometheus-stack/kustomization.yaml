@@ -27,12 +27,3 @@ configMapGenerator:
       annotations:
         grafana.com/dashboard-id: "20417"
         grafana.com/dashboard-url: "https://grafana.com/grafana/dashboards/20417"
-  - name: grafana-dashboard-ceph-2842
-    files:
-      - dashboards/ceph.json
-    options:
-      labels:
-        grafana_dashboard: "1"
-      annotations:
-        grafana.com/dashboard-id: "2842"
-        grafana.com/dashboard-url: "https://grafana.com/grafana/dashboards/2842"

@@ -23,7 +23,7 @@ metadata:
 spec:
   interval: 10m
   dependsOn:
-    - name: rook-ceph
+    - name: longhorn
   path: ./monitoring/loki
   prune: true
   sourceRef:

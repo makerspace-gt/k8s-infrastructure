@@ -1,6 +1,11 @@
 machine:
   install:
-    disk: /dev/sda
+    # OS on the 80 GB Intel SSD, pinned by WWID (stable across reboots).
+    diskSelector:
+      wwid: naa.5001517959454aa6
+    # Metal installer schematic incl. iscsi-tools + util-linux-tools (Longhorn),
+    # nfs-utils (RWX), intel/amd ucode. Built at factory.talos.dev.
+    image: factory.talos.dev/metal-installer/cc6abef19f4a24ca6c2fdf9e51fbc66a5c43350670f0660c77a6909d0c0c6479:v1.13.3
   network:
     interfaces:
       - interface: eth0
@@ -14,15 +19,20 @@ machine:
     nodeIP:
       validSubnets:
         - 192.168.0.0/24
+    # Longhorn data path; backed by the 2 TB array via UserVolumeConfig
+    # (see controlplane-longhorn-volume.yaml).
     extraMounts:
-      - destination: /var/lib/rook
+      - destination: /var/mnt/longhorn
         type: bind
-        source: /var/lib/rook
+        source: /var/mnt/longhorn
         options:
           - bind
           - rshared
           - rw
 cluster:
+  # 2-node start: single CP runs workloads too. Remove the taint when a
+  # dedicated worker pool exists (3rd machine — see README scaling notes).
+  allowSchedulingOnControlPlanes: true
   etcd:
     extraArgs:
       listen-metrics-urls: http://0.0.0.0:2381
@@ -31,3 +41,19 @@ cluster:
       name: none
   proxy:
     disabled: true
+---
+# Dedicated Longhorn data volume on the 2 TB array (CP only — the laptop has no
+# such disk). The aacraid array exposes no WWID/serial, so it's selected by
+# transport (the only aacraid disk in the box). Mounts automatically at
+# /var/mnt/longhorn — matches Longhorn defaultDataPath and the kubelet extraMount
+# above. Added as a second config document via --config-patch-control-plane.
+apiVersion: v1alpha1
+kind: UserVolumeConfig
+name: longhorn
+provisioning:
+  diskSelector:
+    match: disk.transport == "aacraid"
+  minSize: 100GiB
+  grow: true
+filesystem:
+  type: xfs

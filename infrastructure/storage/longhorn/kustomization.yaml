@@ -3,7 +3,4 @@ kind: Kustomization
 resources:
   - namespace.yaml
   - helmrepository.yaml
-  - helmrelease-operator.yaml
-  - helmrelease-cluster.yaml
-  - ceph-dashboard-ingress.yaml
-  - servicemonitor.yaml
+  - helmrelease.yaml

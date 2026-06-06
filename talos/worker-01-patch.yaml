@@ -1,6 +1,9 @@
 machine:
   install:
-    disk: /dev/sda
+    # TODO(laptop): replace with the worker's OS disk WWID once cabled and
+    # `talosctl get disks --insecure` confirms it (likely an nvme WWID).
+    disk: /dev/nvme0n1
+    image: factory.talos.dev/metal-installer/cc6abef19f4a24ca6c2fdf9e51fbc66a5c43350670f0660c77a6909d0c0c6479:v1.13.3
   network:
     interfaces:
       - interface: eth0
@@ -11,10 +14,13 @@ machine:
     nodeIP:
       validSubnets:
         - 192.168.0.0/24
+    # Longhorn data path. The laptop is single-disk, so a UserVolumeConfig must
+    # carve /var/mnt/longhorn from its OS disk (TODO once disk + free space known
+    # — see controlplane-longhorn-volume.yaml for the pattern).
     extraMounts:
-      - destination: /var/lib/rook
+      - destination: /var/mnt/longhorn
         type: bind
-        source: /var/lib/rook
+        source: /var/mnt/longhorn
         options:
           - bind
           - rshared
