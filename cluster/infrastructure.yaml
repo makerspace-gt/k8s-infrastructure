@@ -28,6 +28,25 @@ spec:
     name: flux-system
   wait: true
 ---
+# Issuers/Certificates are split from the cert-manager chart: they use CRDs the
+# chart provides, so they can't live in the same Kustomization (the CR dry-run
+# fails before the chart installs the CRD). dependsOn cert-manager + wait.
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: cert-manager-issuers
+  namespace: flux-system
+spec:
+  interval: 10m
+  dependsOn:
+    - name: cert-manager
+  path: ./infrastructure/certificates/cert-manager-issuers
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  wait: true
+---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:

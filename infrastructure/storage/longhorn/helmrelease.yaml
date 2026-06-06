@@ -18,6 +18,11 @@ spec:
         name: longhorn
       interval: 12h
   values:
+    # Talos: Longhorn can't auto-detect the kubelet root dir (its detection reads
+    # the kubelet cmdline via the kubelet API, which is fragile here), so set it
+    # explicitly — otherwise longhorn-driver-deployer crashloops on startup.
+    csi:
+      kubeletRootDir: /var/lib/kubelet
     # Data lives on the dedicated 2 TB array, mounted by Talos UserVolumeConfig
     # at /var/mnt/longhorn (see talos/controlplane-patch.yaml).
     defaultSettings:

@@ -7,6 +7,10 @@ machine:
     # nfs-utils (RWX), intel/amd ucode. Built at factory.talos.dev.
     image: factory.talos.dev/metal-installer/cc6abef19f4a24ca6c2fdf9e51fbc66a5c43350670f0660c77a6909d0c0c6479:v1.13.3
   network:
+    # Explicit hostname — never rely on DHCP for it. Without this, a DHCP outage
+    # makes Talos fall back to an auto name (talos-xxxx-xxxx), the node
+    # re-registers under a new identity, and pods strand on the ghost node.
+    hostname: towercp01
     interfaces:
       - interface: eth0
         dhcp: true

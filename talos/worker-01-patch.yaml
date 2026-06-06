@@ -5,6 +5,8 @@ machine:
     disk: /dev/nvme0n1
     image: factory.talos.dev/metal-installer/cc6abef19f4a24ca6c2fdf9e51fbc66a5c43350670f0660c77a6909d0c0c6479:v1.13.3
   network:
+    # Explicit hostname (see controlplane-patch.yaml) — rename to taste for the laptop.
+    hostname: worker01
     interfaces:
       - interface: eth0
         dhcp: true
