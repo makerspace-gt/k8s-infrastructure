@@ -1,9 +1,10 @@
 # Sealed Secrets
-# Public key can be regenerated from cluster, but exclude to avoid confusion
+# Private keys must never be committed. Public cert at cluster/certs/ is committed (whitelisted below).
 .sealed-secrets-pub.pem
 sealed-secrets-*.pem
+!cluster/certs/sealed-secrets-public-cert.pem
 
-# Exported certificates (e.g. staging CA for local trust)
+# Exported certificates (e.g. cluster CA for local trust)
 *.crt
 
 # Kubeconfigs (NEVER commit these!)
@@ -16,9 +17,7 @@ talos/**/secrets.yaml
 talos/**/talosconfig
 talos/**/kubeconfig
 talos/**/*.yaml
-!talos/staging/controlplane-patch.yaml
-!talos/staging/worker-01-patch.yaml
-!talos/staging/worker-02-patch.yaml
+!talos/*-patch.yaml
 
 # Age keys (if using SOPS in future)
 age.agekey

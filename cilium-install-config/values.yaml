@@ -25,16 +25,9 @@ cgroup:
     enabled: false
   hostRoot: /sys/fs/cgroup
 
-# For Cilium L2 announcement-feature
-# https://docs.cilium.io/en/latest/network/l2-announcements/#l2-announcements-leader-election
-k8sClientRateLimit:
-  k8sApi:
-    qps: 10
-    burst: 20
-l2announcements:
+encryption:
   enabled: true
-externalIPs:
-  enabled: true
+  type: wireguard
 
 # Have Cilium use Talos KubePrism-announced API IP
 k8sServiceHost: localhost

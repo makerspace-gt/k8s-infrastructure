@@ -4,4 +4,4 @@ resources:
   - namespace.yaml
   - helmrepository.yaml
   - helmrelease.yaml
-  - self-signed-cluster-setup.yaml
+  - network-policy.yaml

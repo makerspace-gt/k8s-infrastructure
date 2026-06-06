@@ -4,4 +4,6 @@ resources:
   - namespace.yaml
   - helmrepository.yaml
   - helmrelease.yaml
-  - self-signed-cluster-setup.yaml
+  - traefik-ingress.yaml
+  - traefik-basicauth-middleware.yaml
+  - dashboard-sealed-secret.yaml

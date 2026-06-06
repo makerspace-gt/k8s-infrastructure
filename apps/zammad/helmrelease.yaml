@@ -1,0 +1,46 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: zammad
+  namespace: zammad
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: zammad
+      version: "15.7.0"
+      sourceRef:
+        kind: HelmRepository
+        name: zammad
+      interval: 12h
+  install:
+    timeout: 15m
+  upgrade:
+    timeout: 15m
+  values:
+    postgresql:
+      enabled: false
+    # Override DATABASE_URL to use CNPG database
+    env:
+      - name: POSTGRESQL_PASS
+        valueFrom:
+          secretKeyRef:
+            name: zammad-db-app
+            key: password
+      - name: DATABASE_URL
+        value: "postgres://zammad:$(POSTGRESQL_PASS)@zammad-db-rw:5432/zammad?pool=50"
+    elasticsearch:
+      enabled: true
+      replicas: 2
+      resources:
+        requests:
+          memory: 2Gi
+          cpu: 500m
+    redis:
+      enabled: true
+    memcached:
+      enabled: true
+    ingress:
+      enabled: false
+    volumePermissions:
+      enabled: false
