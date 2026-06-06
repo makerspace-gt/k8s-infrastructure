@@ -4,7 +4,7 @@ Living plan for the move from the OpenNebula/Ceph testing setup to the new bare-
 
 ## Decisions locked in
 
-- **Hardware**: 3 local bare-metal machines, single cluster. All three nodes run **both** control-plane and worker (CP taint removed).
+- **Hardware**: 2 local bare-metal machines to start, single cluster. Scaling to 3+ is a follow-up discussion — see *Scaling and 2-node trade-offs* below.
 - **OS**: Talos, installed via PXE from a separate repo (treat as opaque here — image + schematic in `docs/setup.md`).
 - **Storage**: Longhorn replaces Rook Ceph. Lighter footprint, fits bare-metal scale.
 - **Networking**: Cilium installed out-of-band via `cilium install -f`. WireGuard encryption stays on.
@@ -14,9 +14,17 @@ Living plan for the move from the OpenNebula/Ceph testing setup to the new bare-
 ## Open questions (need values before the rebuild)
 
 - **LAN subnet** for the new cluster — currently `192.168.0.0/24` is baked into `talos/*-patch.yaml` (`kubelet.nodeIP.validSubnets`) and the Cilium LB IP pool.
-- **Hostnames + static IPs** for the three machines (or commit to DHCP + reservations).
-- **Per-machine specs**: CPU cores / RAM / disks. Drives the sizing table in README and informs Longhorn replica count (default 3) and whether to dedicate a data disk vs share OS disk.
+- **Hostnames + static IPs** for the two machines (or commit to DHCP + reservations).
+- **Per-machine specs**: CPU cores / RAM / disks. Drives the sizing table in README and whether to dedicate a data disk vs share OS disk for Longhorn.
 - **Install disk**: bare-metal is most likely `/dev/sda` or `/dev/nvme0n1`; verify before `talosctl apply-config`.
+
+## Scaling and 2-node trade-offs
+
+Discuss after the cluster is up. Two machines means no real HA on either the control plane or storage; both come into play when a 3rd machine arrives.
+
+- **Control plane**: 2 etcd members is a worst-of-both — no quorum survival if either node fails, vs. 1 CP where a single node failure just means the cluster is down (no split-brain risk). Recommend 1 CP + 1 worker for now; promote the worker to CP-also when the 3rd machine joins (target: 3 CPs for proper HA).
+- **Longhorn**: replica count must be ≤ node count. Run with 2 replicas now (one per node); bump to 3 after the 3rd machine joins. Until then, losing a node means volumes lose redundancy until the node is back.
+- **Compute**: any node loss means surviving node must hold everything — sizing should account for this if uptime through reboots matters.
 
 ## Work remaining (in rough order)
 
@@ -46,7 +54,7 @@ WIP diff from before the break — these are good to commit:
 
 ### 4. Storage: Ceph → Longhorn (separate branch, after the above lands)
 
-- Add `infrastructure/storage/longhorn/` HelmRelease; set its StorageClass as cluster default.
+- Add `infrastructure/storage/longhorn/` HelmRelease; set its StorageClass as cluster default. Set `defaultSettings.defaultReplicaCount: 2` for the 2-node start (raise to 3 when the 3rd machine joins — see scaling notes).
 - Delete `infrastructure/storage/rook-ceph/` (operator + cluster charts).
 - Update `cluster/infrastructure.yaml`: drop the `rook-ceph` Kustomization, add `longhorn`.
 - Update `cluster/monitoring.yaml`: switch the `loki` `dependsOn` from `rook-ceph` → `longhorn`.
@@ -62,9 +70,9 @@ WIP diff from before the break — these are good to commit:
   - Drop `extraMounts: /var/lib/rook` (after Longhorn swap).
   - Update `kubelet.nodeIP.validSubnets` to the new LAN CIDR.
   - Verify/update `install.disk`.
-  - 3-node mixed CP+worker: either single patch with `cluster.allowSchedulingOnControlPlanes: true`, or `kubelet.registerWithTaints: []` on each CP.
+  - 2-node layout (per scaling notes): 1 CP + 1 worker recommended. Untaint the CP so workloads can run on it (`cluster.allowSchedulingOnControlPlanes: true` or `kubelet.registerWithTaints: []`).
   - Decide DHCP vs static; if static, add `interfaces.addresses` + `routes`.
-- Update `monitoring/etcd-metrics/etcd-endpoints.yaml` to list all 3 new CP IPs.
+- Update `monitoring/etcd-metrics/etcd-endpoints.yaml` to list the CP IP(s) for whatever topology lands.
 
 ### 6. Networking re-add (separate branch)
 
@@ -96,10 +104,3 @@ WIP diff from before the break — these are good to commit:
 - kube-prometheus-stack: cross-namespace resources (e.g. etcd Endpoints in `kube-system`) need a separate Flux Kustomization (see `monitoring/etcd-metrics/`).
 - Grafana dashboards: provisioned via ConfigMaps with `grafana_dashboard: "1"` label — sidecar discovers from all namespaces.
 - Talos upgrade flow: `talosctl apply-config --mode=staged` + `talosctl upgrade --image` = one reboot.
-
-## After the devcontainer is gone
-
-1. Install CLIs from `docs/setup-guide.md`.
-2. Re-run `pre-commit install` to restore hooks.
-3. `direnv allow` in the repo root if any `.envrc` is added.
-4. The Claude memory under `~/.claude/projects/-workspaces-k8s-infrastructure/memory/` will not survive — this file is the canonical handoff.
