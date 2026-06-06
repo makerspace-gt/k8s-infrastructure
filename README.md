@@ -15,4 +15,6 @@ Services are reachable via public DNS at `*.makerspace-gt.de`, served by Traefik
 
 Operational follow-ups, not blocking day-to-day use:
 
+- **Cilium LoadBalancer IP pool + L2 announcement** — removed during simplification; without it Traefik's `LoadBalancer` service has no external IP. Re-add `CiliumLoadBalancerIPPool` (`192.168.0.201–210`) + `CiliumL2AnnouncementPolicy`, and re-enable `l2announcements`/`externalIPs` in `cilium-install-config/values.yaml` (Traefik target `.202`). Needed before apps are reachable on the LAN.
+- **Traefik ServiceMonitor** — the chart's inline ServiceMonitor is disabled (it hard-fails without the Prometheus operator CRD, which kube-prometheus-stack provides *after* traefik). Re-add a standalone `ServiceMonitor` in `monitoring/kube-prometheus-stack-config/` (CRD present there) with the label kube-prometheus-stack's `serviceMonitorSelector` expects.
 - **kubelet-csr-approver** — kubelets use `rotate-server-certificates`, so each node's `kubernetes.io/kubelet-serving` CSR must be approved by hand (it recurs on reboots/cert rotation; see `docs/setup.md` step 4). Deploy [kubelet-csr-approver](https://github.com/postfinance/kubelet-csr-approver) to auto-approve them with node-name/IP checks.

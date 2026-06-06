@@ -40,8 +40,13 @@ spec:
       isDefaultClass: true
     metrics:
       prometheus:
+        # Inline ServiceMonitor disabled: the chart hard-fails ("deploy
+        # monitoring.coreos.com/v1 first") when the Prometheus operator CRD is
+        # absent, but kube-prometheus-stack (which provides it) dependsOn traefik.
+        # The /metrics endpoint stays on; re-add a standalone ServiceMonitor via
+        # kube-prometheus-stack-config (has the CRD) — see README roadmap.
         serviceMonitor:
-          enabled: true
+          enabled: false
     additionalArguments:
       # secured via middleware basic auth
       - --api.insecure=true
