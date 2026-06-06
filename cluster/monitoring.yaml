@@ -15,6 +15,24 @@ spec:
     name: flux-system
   wait: false
 ---
+# AlertmanagerConfig + PodMonitor are operator CRs, split from the chart that
+# provides their CRDs. dependsOn kube-prometheus-stack (retries until CRDs exist).
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: kube-prometheus-stack-config
+  namespace: flux-system
+spec:
+  interval: 10m
+  dependsOn:
+    - name: kube-prometheus-stack
+  path: ./monitoring/kube-prometheus-stack-config
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  wait: false
+---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
