@@ -155,6 +155,33 @@ talosctl upgrade \
   --nodes <node-ip>
 ```
 
+## Upgrading Longhorn
+
+**Longhorn does not support skipping minor versions** — upgrade one minor at a time
+(1.9 → 1.10 → 1.11 → …), waiting for healthy between each. A multi-minor jump makes
+the chart's `longhorn-pre-upgrade` hook job fail, which leaves the Flux HelmRelease
+`Stalled` (the running Longhorn keeps working on the old version; only the *upgrade*
+fails). This bit us when Renovate bumped the chart 1.9.0 → 1.12.0 in one PR (#134).
+
+Renovate is now pinned to **patch-only auto-bumps for Longhorn** (minor/major need
+manual approval via the dependency dashboard) so it can't leapfrog minors again —
+see the `longhorn` rule in `renovate.json`.
+
+To move one minor:
+1. Bump `version:` in `infrastructure/storage/longhorn/helmrelease.yaml` by **one**
+   minor (latest patch of that minor), commit, push.
+2. `flux reconcile kustomization longhorn --with-source`.
+3. Verify before the next minor: `kubectl -n longhorn-system get helmrelease longhorn`
+   → `Ready=True`, and `kubectl -n longhorn-system get volumes.longhorn.io` → all
+   `healthy`.
+
+Recovering a `Stalled` HR from a bad jump: set `version:` back to the **deployed**
+minor (`kubectl -n longhorn-system get ds longhorn-manager -o jsonpath='{..image}'`)
+and reconcile — the spec change resets the stalled retry and helm-controller
+succeeds. Note the `longhorn` Kustomization `dependsOn snapshot-controller`, so
+snapshot-controller must reach the current Git revision first; reconcile it
+(`flux reconcile kustomization snapshot-controller --with-source`) if it lags.
+
 ## Security Notes
 
 - `talos/secrets.yaml` — **CRITICAL** — all cluster CAs/keys. Gitignored. Back it up.

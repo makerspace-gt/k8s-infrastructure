@@ -38,6 +38,18 @@
         "major"
       ],
       "dependencyDashboardApproval": true
+    },
+    {
+      "description": "Longhorn: never auto-bump minor/major. Longhorn forbids skipping minor versions, so upgrades must be done one minor at a time by hand (see docs/setup.md). Patch bumps within the deployed minor stay auto-merged.",
+      "matchPackageNames": [
+        "longhorn"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "major"
+      ],
+      "automerge": false,
+      "dependencyDashboardApproval": true
     }
   ],
   "separateMajorMinor": true,
