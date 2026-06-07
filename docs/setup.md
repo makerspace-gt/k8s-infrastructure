@@ -40,7 +40,10 @@ talosctl get disk <id> --insecure --nodes <node-ip> -o yaml   # full spec incl. 
 - OS: 80 GB Intel SSD, `install.diskSelector.wwid: naa.5001517959454aa6`
 - Longhorn data: 2 TB aacraid array. It exposes **no WWID/serial**, so it's selected by `disk.transport == "aacraid"` (unique in the box). This lives as a `UserVolumeConfig` document (second doc) inside `controlplane-patch.yaml`, mounted at `/var/mnt/longhorn`.
 
-**Laptop (worker)** — TODO once cabled: read its OS-disk WWID and create a matching `UserVolumeConfig` carving `/var/mnt/longhorn` from its single disk (Longhorn's `defaultDataPath` is global).
+**Laptop (worker)** — confirmed:
+- OS **and** Longhorn share the single 512 GB NVMe, `install.diskSelector.wwid: eui.ace42e00053e630c2ee4ac0000000001`.
+- Single disk ⇒ EPHEMERAL must be capped so a user volume fits (see **Single-disk node** under Gotchas). EPHEMERAL is capped at 100 GiB; the `UserVolumeConfig` (`grow: true`, pinned by the same WWID) carves `/var/mnt/longhorn` from the ~400 GB remainder. All in `worker-01-patch.yaml`.
+- NIC is a **USB ethernet adapter** (UGREEN AX88179A on the USB-C port), not `eth0` — see **USB NIC** under Gotchas.
 
 ### Reused disks with old data
 
@@ -175,6 +178,33 @@ Hard-won during the bare-metal bring-up. Read this before touching Talos config 
 - **`apply-config` validates the entire config atomically.** One bad field (e.g. the hostname conflict above) aborts the *whole* apply — including unrelated documents like `UserVolumeConfig` — before any diff is shown.
 - **Applying a config that omits a `UserVolumeConfig` destroys that user volume.** Talos user volumes are declarative; if the doc isn't in the applied config, Talos tears the volume down (unmounts `/var/mnt/longhorn`), which faults every Longhorn volume on it. Always apply the full `controlplane.yaml` that includes the `UserVolumeConfig`.
 - **Recovering a Longhorn disk after the volume was torn down:** re-apply the config (volume returns), then if `nodes.longhorn.io` shows `DiskFilesystemChanged` (fresh filesystem UUID ≠ recorded), re-adopt the disk (remove/re-add it in `spec.disks` of `kubectl -n longhorn-system edit nodes.longhorn.io <node>`) and delete the empty faulted PVCs so apps recreate them.
+- **USB ethernet adapter, not `eth0`.** The laptop worker's NIC is a USB dongle; Talos names it from the USB bus path (e.g. `enp58s0u1u1u3`), and that name **changes** when you swap the adapter or move ports. Don't hardcode an interface name — select the single physical NIC:
+  ```yaml
+  machine:
+    network:
+      interfaces:
+        - deviceSelector:
+            physical: true
+          dhcp: true
+  ```
+  Talos ships every mainstream USB-NIC driver **in-kernel** (`r8152`, `ax88179_178a`, `cdc_ether`/`cdc_ncm`, …) — no extension needed; only CH9200 and RTL8150 are not compiled (verify against the running node: `talosctl -n <ip> read /proc/config.gz | gunzip | grep -iE 'RTL8152|AX88179|CDCETHER'`). If a USB NIC never enumerates (`new SuperSpeed USB device …` with **no** following `New USB device found, idVendor=…`), it's a USB3 link/power problem, not a driver one — try a USB2 port, a different cable, or the USB-C port. AX88179A (driverless CDC-NCM) is the safe adapter; avoid anything with a bundled "driver CD" (USB mode-switch, which Talos lacks).
+- **Single-disk node (OS + Longhorn on one disk): cap EPHEMERAL or it eats the whole disk.** `EPHEMERAL` (`/var`) grows to fill all free space by default, leaving nothing for a user volume. **Volume layout is applied only at first provision** — get it right on install or wipe + reinstall. Cap EPHEMERAL and let the user volume grow into the remainder (system volumes provision first; `grow: true` volumes provision last):
+  ```yaml
+  ---
+  apiVersion: v1alpha1
+  kind: VolumeConfig
+  name: EPHEMERAL
+  provisioning:
+    maxSize: 100GiB
+  ---
+  apiVersion: v1alpha1
+  kind: UserVolumeConfig
+  name: longhorn
+  provisioning:
+    diskSelector:
+      match: disk.wwid == "<nvme-wwid>"
+    grow: true        # takes whatever EPHEMERAL's cap leaves
+  ```
 
 ### Flux
 
