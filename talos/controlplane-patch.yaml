@@ -29,9 +29,15 @@ machine:
           - bind
           - rshared
           - rw
+  # Keep regular workloads OFF this node — it is the weakest of the three CPs.
+  # PreferNoSchedule = soft: the scheduler avoids it but can still place here if
+  # towercp02/laptopcp03 cannot fit a pod. Control-plane static pods + DaemonSets
+  # tolerate it and keep running. Pair with a one-time rollout/drain to relocate
+  # the existing single-node-era pile.
+  nodeTaints:
+    workload: avoid:PreferNoSchedule
 cluster:
-  # 2-node start: single CP runs workloads too. Remove the taint when a
-  # dedicated worker pool exists (3rd machine — see README scaling notes).
+  # 3-CP cluster: all control planes also run workloads (no dedicated workers).
   allowSchedulingOnControlPlanes: true
   etcd:
     extraArgs:

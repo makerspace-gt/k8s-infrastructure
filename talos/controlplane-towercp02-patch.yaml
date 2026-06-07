@@ -1,0 +1,65 @@
+machine:
+  install:
+    # OS on the FIRST 1 TB NVMe (nvme0n1), pinned by WWID. The box has two identical
+    # Lexar NM710 disks, so /dev/nvmeXn1 ordering is NOT stable — WWID is mandatory.
+    diskSelector:
+      wwid: eui.0000000624042128caf25b03100005b3
+    image: factory.talos.dev/metal-installer/cc6abef19f4a24ca6c2fdf9e51fbc66a5c43350670f0660c77a6909d0c0c6479:v1.13.3
+  network:
+    # Single onboard wired NIC (eno1). Select the physical NIC by attribute rather
+    # than hardcoding a name (consistent with the other nodes).
+    interfaces:
+      - deviceSelector:
+          physical: true
+        dhcp: true
+  time:
+    servers:
+      - time.cloudflare.com
+  kubelet:
+    extraArgs:
+      rotate-server-certificates: true
+    nodeIP:
+      validSubnets:
+        - 192.168.0.0/24
+    # Longhorn data path; backed by the UserVolumeConfig (nvme1n1) below.
+    extraMounts:
+      - destination: /var/mnt/longhorn
+        type: bind
+        source: /var/mnt/longhorn
+        options:
+          - bind
+          - rshared
+          - rw
+cluster:
+  # 3-CP HA: all control planes also run workloads (incl. future GPU on this box).
+  allowSchedulingOnControlPlanes: true
+  etcd:
+    extraArgs:
+      listen-metrics-urls: http://0.0.0.0:2381
+  network:
+    cni:
+      name: none
+  proxy:
+    disabled: true
+---
+# Explicit hostname via the HostnameConfig DOCUMENT (not machine.network.hostname).
+# auto: "off" avoids the auto-name ghost-node failure mode. See docs/setup.md.
+apiVersion: v1alpha1
+kind: HostnameConfig
+auto: "off"
+hostname: towercp02
+---
+# Dedicated Longhorn data volume on the SECOND 1 TB NVMe (nvme1n1) — a separate disk
+# from the OS, so NO EPHEMERAL cap is needed (unlike the single-disk laptop). Pinned
+# by WWID (the two NVMes are identical). Mounts at /var/mnt/longhorn (matches the
+# kubelet extraMount above and Longhorn's defaultDataPath).
+apiVersion: v1alpha1
+kind: UserVolumeConfig
+name: longhorn
+provisioning:
+  diskSelector:
+    match: disk.wwid == "eui.0000000624042128caf25b038a000392"
+  minSize: 100GiB
+  grow: true
+filesystem:
+  type: xfs

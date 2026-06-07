@@ -1,0 +1,72 @@
+machine:
+  install:
+    # OS on the single 512 GB NVMe, pinned by WWID. Same disk as the old worker
+    # config — the laptop is being converted worker -> control plane.
+    diskSelector:
+      wwid: eui.ace42e00053e630c2ee4ac0000000001
+    image: factory.talos.dev/metal-installer/cc6abef19f4a24ca6c2fdf9e51fbc66a5c43350670f0660c77a6909d0c0c6479:v1.13.3
+  network:
+    # USB ethernet adapter (AX88179A on USB-C); bus-path name is unstable, so select
+    # the single physical NIC by attribute. NOTE: this USB NIC is now an etcd member's
+    # link — keep it on the reliable USB-C port.
+    interfaces:
+      - deviceSelector:
+          physical: true
+        dhcp: true
+  time:
+    servers:
+      - time.cloudflare.com
+  kubelet:
+    extraArgs:
+      rotate-server-certificates: true
+    nodeIP:
+      validSubnets:
+        - 192.168.0.0/24
+    extraMounts:
+      - destination: /var/mnt/longhorn
+        type: bind
+        source: /var/mnt/longhorn
+        options:
+          - bind
+          - rshared
+          - rw
+cluster:
+  # 3-CP HA: this node now runs etcd + control plane, and still schedules workloads.
+  allowSchedulingOnControlPlanes: true
+  etcd:
+    extraArgs:
+      listen-metrics-urls: http://0.0.0.0:2381
+  network:
+    cni:
+      name: none
+  proxy:
+    disabled: true
+---
+# Explicit hostname via the HostnameConfig DOCUMENT. Renamed worker01 -> laptopcp03
+# to reflect its new control-plane role. See docs/setup.md.
+apiVersion: v1alpha1
+kind: HostnameConfig
+auto: "off"
+hostname: laptopcp03
+---
+# Single-disk node: OS + Longhorn share the one 512 GB NVMe, so EPHEMERAL must be
+# capped or it fills the disk and leaves no room for the user volume (etcd data also
+# lives on EPHEMERAL — 100 GiB is ample for etcd + images + ephemeral). Layout is
+# applied only at first provision. See docs/setup.md "Single-disk node".
+apiVersion: v1alpha1
+kind: VolumeConfig
+name: EPHEMERAL
+provisioning:
+  maxSize: 100GiB
+---
+# Longhorn data volume from the remaining NVMe space (grow:true provisions last).
+apiVersion: v1alpha1
+kind: UserVolumeConfig
+name: longhorn
+provisioning:
+  diskSelector:
+    match: disk.wwid == "eui.ace42e00053e630c2ee4ac0000000001"
+  minSize: 50GiB
+  grow: true
+filesystem:
+  type: xfs

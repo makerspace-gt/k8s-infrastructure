@@ -232,6 +232,7 @@ Hard-won during the bare-metal bring-up. Read this before touching Talos config 
       match: disk.wwid == "<nvme-wwid>"
     grow: true        # takes whatever EPHEMERAL's cap leaves
   ```
+- **`talosctl reset --wipe-mode all` (the default) scrubs the whole system disk, including the bootloader** — the node then can't boot and needs install media/PXE to get back to maintenance mode (learned converting the laptop worker→CP). To reprovision a node *in place* while keeping it bootable straight into maintenance, wipe only the config + data partitions: `talosctl reset --system-labels-to-wipe STATE,EPHEMERAL --graceful=false --reboot`. Reserve `--wipe-mode all` for when you actually want the disk fully scrubbed and will boot from media afterward.
 
 ### Flux
 
