@@ -157,3 +157,33 @@ talosctl upgrade \
 - `talos/secrets.yaml` — **CRITICAL** — all cluster CAs/keys. Gitignored. Back it up.
 - `talos/talosconfig` — admin access to Talos nodes.
 - `kubeconfig` — admin access to Kubernetes.
+
+## Gotchas / lessons learned
+
+Hard-won during the bare-metal bring-up. Read this before touching Talos config or Flux.
+
+### Talos
+
+- **Hostname: use the `HostnameConfig` document, not `machine.network.hostname`.** `talosctl gen config` already emits a `HostnameConfig` (default `auto: stable`). Also setting the legacy v1alpha1 `machine.network.hostname` makes the whole apply fail validation with `static hostname is already set in v1alpha1 config`. Pin it like this (`auto: "off"` overrides the default; quoted so YAML/yamllint doesn't read `off` as a boolean):
+  ```yaml
+  apiVersion: v1alpha1
+  kind: HostnameConfig
+  auto: "off"
+  hostname: towercp01
+  ```
+  `auto: stable` is what caused a **ghost node**: with DHCP up the router name was used, but during a DHCP outage Talos fell back to an auto name (`talos-xxxx-xxxx`), the node re-registered under a new identity, and pods stranded on the dead one.
+- **`apply-config` validates the entire config atomically.** One bad field (e.g. the hostname conflict above) aborts the *whole* apply — including unrelated documents like `UserVolumeConfig` — before any diff is shown.
+- **Applying a config that omits a `UserVolumeConfig` destroys that user volume.** Talos user volumes are declarative; if the doc isn't in the applied config, Talos tears the volume down (unmounts `/var/mnt/longhorn`), which faults every Longhorn volume on it. Always apply the full `controlplane.yaml` that includes the `UserVolumeConfig`.
+- **Recovering a Longhorn disk after the volume was torn down:** re-apply the config (volume returns), then if `nodes.longhorn.io` shows `DiskFilesystemChanged` (fresh filesystem UUID ≠ recorded), re-adopt the disk (remove/re-add it in `spec.disks` of `kubectl -n longhorn-system edit nodes.longhorn.io <node>`) and delete the empty faulted PVCs so apps recreate them.
+
+### Flux
+
+- **Never put custom resources in the same Kustomization as the Helm chart that provides their CRDs.** On a fresh cluster the CRD doesn't exist at apply time, the CR fails the dry-run (`no matches for kind "X"`), and because apply is atomic it *also* blocks the HelmRelease → permanent deadlock. Split the CRs into their own Kustomization with `dependsOn` the chart's. Done here for `cert-manager-issuers`, `traefik-config`, `kube-prometheus-stack-config` (and the pre-existing `etcd-metrics`).
+- **A chart that renders a `ServiceMonitor` can hard-fail if the Prometheus-operator CRD is absent** (`You have to deploy monitoring.coreos.com/v1 first`). If that chart is a dependency *of* kube-prometheus-stack, disable its inline ServiceMonitor and add a standalone one in `kube-prometheus-stack-config`.
+- **`flux reconcile` "hanging" = the CLI is waiting for `Ready=True`, not the work hanging.** With `wait: true` it blocks on resource health (up to the timeout). When stuck, read the controller logs (`kubectl -n flux-system logs deploy/kustomize-controller|helm-controller | grep <name>`) — the real error lives there, not in the Kustomization status.
+- **Parent vs child:** reconciling `flux-system` (or the Git source) only re-applies the *Kustomization objects*. To re-apply a component's resources, reconcile **that** Kustomization (`flux reconcile kustomization <name> --with-source`).
+
+### Discovering resources
+
+- **Talos:** `talosctl -n <ip> get rd` lists every queryable resource type (that's how you find `mountstatus`, `volumestatus`, `hostnamestatus`, …).
+- **Kubernetes:** `kubectl api-resources` (all types incl. CRDs), `kubectl get crd | grep <x>`. For `explain` on a CRD whose name collides with a built-in (e.g. `nodes`), disambiguate with `--api-version`: `kubectl explain nodes.status.diskStatus --api-version=longhorn.io/v1beta2` (plain `explain nodes.longhorn.io` fails — `explain` treats dots after the first as a field path).

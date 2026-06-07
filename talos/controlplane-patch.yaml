@@ -7,10 +7,6 @@ machine:
     # nfs-utils (RWX), intel/amd ucode. Built at factory.talos.dev.
     image: factory.talos.dev/metal-installer/cc6abef19f4a24ca6c2fdf9e51fbc66a5c43350670f0660c77a6909d0c0c6479:v1.13.3
   network:
-    # Explicit hostname — never rely on DHCP for it. Without this, a DHCP outage
-    # makes Talos fall back to an auto name (talos-xxxx-xxxx), the node
-    # re-registers under a new identity, and pods strand on the ghost node.
-    hostname: towercp01
     interfaces:
       - interface: eth0
         dhcp: true
@@ -23,8 +19,8 @@ machine:
     nodeIP:
       validSubnets:
         - 192.168.0.0/24
-    # Longhorn data path; backed by the 2 TB array via UserVolumeConfig
-    # (see controlplane-longhorn-volume.yaml).
+    # Longhorn data path; backed by the 2 TB array via the UserVolumeConfig
+    # document below.
     extraMounts:
       - destination: /var/mnt/longhorn
         type: bind
@@ -45,6 +41,15 @@ cluster:
       name: none
   proxy:
     disabled: true
+---
+# Explicit hostname via the HostnameConfig DOCUMENT — NOT machine.network.hostname,
+# which conflicts with the gen-default HostnameConfig ("static hostname is already
+# set in v1alpha1 config" + aborts the whole apply). auto: "off" overrides the
+# default auto: stable that ghosted the node on a DHCP outage. See docs/setup.md.
+apiVersion: v1alpha1
+kind: HostnameConfig
+auto: "off"
+hostname: towercp01
 ---
 # Dedicated Longhorn data volume on the 2 TB array (CP only — the laptop has no
 # such disk). The aacraid array exposes no WWID/serial, so it's selected by
