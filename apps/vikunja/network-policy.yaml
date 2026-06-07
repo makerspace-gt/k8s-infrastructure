@@ -20,3 +20,9 @@ spec:
         - matchLabels:
             k8s:io.kubernetes.pod.namespace: monitoring
             k8s:app.kubernetes.io/name: prometheus
+    # Allow the CloudNativePG operator to reach the DB instance manager (status
+    # extraction on :8000) — without this the Cluster shows "Instance Status
+    # Extraction Error: HTTP communication issue" and failover/rolling updates break.
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: cnpg-system
