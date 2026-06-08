@@ -43,6 +43,61 @@ kubectl create secret generic <name> \
 # 3. Seal and clean up as above
 ```
 
+### Restoring the controller key (all SealedSecrets fail to decrypt)
+
+**Symptom:** every SealedSecret shows `SYNCED=False` and the controller logs
+`no key could decrypt secret`. Apps that depend on a SealedSecret get stuck
+(`CreateContainerConfigError`, missing-secret); apps that don't (e.g. CNPG, which
+generates its own secrets) are unaffected.
+
+**Cause:** the running controller's key no longer matches the cert the repo's
+secrets were sealed with. This happens after a cluster rebuild — a fresh
+controller generates a brand-new key instead of the original. Confirm by
+comparing fingerprints:
+
+```bash
+# what the repo's secrets were sealed with
+openssl x509 -in cluster/certs/sealed-secrets-public-cert.pem -noout -fingerprint -sha256
+# what the live controller actually holds (active key)
+kubeseal --fetch-cert --controller-namespace sealed-secrets --controller-name sealed-secrets \
+  | openssl x509 -noout -fingerprint -sha256
+```
+
+If they differ, the original signing key is missing. The fix is to **restore it,
+not re-seal everything** — the controller holds multiple keys and tries them all,
+so adding the old key back is additive and non-destructive.
+
+```bash
+# 1. From your password-manager backup (the kubernetes.io/tls key Secret), get the
+#    cert + key into real PEM files. If stored as escaped strings, strip quotes and
+#    un-escape newlines:
+yq '."tls.crt"' backup-key.yaml | tr -d '"' | sed 's/\\n/\n/g' > /tmp/sealed.crt
+yq '."tls.key"' backup-key.yaml | tr -d '"' | sed 's/\\n/\n/g' > /tmp/sealed.key
+
+# 2. Verify it's the right key: fingerprint must match the repo cert above, and the
+#    cert/key modulus md5s must be equal.
+openssl x509 -in /tmp/sealed.crt -noout -fingerprint -sha256
+openssl x509 -in /tmp/sealed.crt -noout -modulus | openssl md5
+openssl rsa  -in /tmp/sealed.key -noout -modulus | openssl md5
+
+# 3. Recreate the key Secret with the label the controller scans for, then restart it.
+kubectl -n sealed-secrets create secret tls sealed-secrets-key-restored \
+  --cert=/tmp/sealed.crt --key=/tmp/sealed.key
+kubectl -n sealed-secrets label secret sealed-secrets-key-restored \
+  sealedsecrets.bitnami.com/sealed-secrets-key=active
+kubectl -n sealed-secrets rollout restart deployment sealed-secrets
+
+# 4. All SealedSecrets flip to SYNCED=True; dependent pods recover on their own
+#    (CreateContainerConfigError auto-retries once the Secret exists).
+kubectl get sealedsecret -A
+rm -f /tmp/sealed.crt /tmp/sealed.key
+```
+
+The backup key is the only thing that can decrypt the repo's secrets — keep it in
+the password manager, never in the repo. Re-sealing onto a new controller key is
+the fallback **only** if the original is truly lost (requires every secret's
+plaintext, and updating `cluster/certs/sealed-secrets-public-cert.pem`).
+
 ### Retrieving/Decoding a Secret
 
 In k9s or:

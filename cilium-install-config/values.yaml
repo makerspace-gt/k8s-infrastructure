@@ -2,6 +2,18 @@
 kubeProxyReplacement: true
 ipam:
   mode: kubernetes
+
+# LAN reachability for LoadBalancer Services. l2announcements makes Cilium answer
+# ARP for LB-IPAM IPs (see infrastructure/networking/cilium/{lb-ippool,l2-announcement-policy}.yaml);
+# externalIPs handles Services with an externalIPs field. L2 announcements renew
+# leader-election leases frequently, so bump the k8s client rate limit per Cilium docs.
+l2announcements:
+  enabled: true
+externalIPs:
+  enabled: true
+k8sClientRateLimit:
+  qps: 10
+  burst: 20
 securityContext:
   capabilities:
     ciliumAgent:

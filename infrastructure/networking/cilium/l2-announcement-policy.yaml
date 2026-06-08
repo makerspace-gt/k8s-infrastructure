@@ -1,0 +1,20 @@
+# Makes the LB-IPAM addresses reachable on the LAN. Without this, a Service gets
+# an EXTERNAL-IP but nothing ARPs for it, so it's unreachable. One node (elected
+# leader) answers ARP for each announced IP and fails over if it dies.
+#
+# interfaces: only real ethernet NICs (towers' eno1, the laptop's USB NIC enpXXX) —
+# all start with "en". Excludes cilium_host/cilium_wg0/lxc*/lo, which must NOT
+# announce. nodeSelector: all nodes are control planes, so this matches all three.
+apiVersion: cilium.io/v2alpha1
+kind: CiliumL2AnnouncementPolicy
+metadata:
+  name: lan-l2-announce
+spec:
+  loadBalancerIPs: true
+  externalIPs: true
+  interfaces:
+    - ^en[0-9a-z]+$
+  nodeSelector:
+    matchExpressions:
+      - key: node-role.kubernetes.io/control-plane
+        operator: Exists

@@ -20,6 +20,10 @@ spec:
   values:
     service:
       type: LoadBalancer
+      # Pin Traefik to .202 from the Cilium LB pool (.201–.210). DNS for
+      # *.makerspace-gt.de points here. See infrastructure/networking/cilium/lb-ippool.yaml.
+      annotations:
+        io.cilium/lb-ipam-ips: "192.168.0.202"
     ports:
       web:
         port: 80

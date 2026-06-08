@@ -1,6 +1,8 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
+  - lb-ippool.yaml
+  - l2-announcement-policy.yaml
   - cilium-connectivity-test-namespace.yaml
   - hubble-ingress.yaml
   - hubble-ui-sealed-secret.yaml
