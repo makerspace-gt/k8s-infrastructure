@@ -8,8 +8,11 @@ metadata:
     release: kube-prometheus-stack
 subsets:
   - addresses:
-      # Control plane node IP — update on new cluster bootstrap
-      - ip: 192.168.0.22
+      # All control plane node IPs — update on new cluster bootstrap.
+      # Talos exposes etcd metrics on :2381 on each CP node.
+      - ip: 192.168.0.68   # towercp01
+      - ip: 192.168.0.157  # towercp02
+      - ip: 192.168.0.21   # laptopcp03
     ports:
       - name: http-metrics
         port: 2381
