@@ -48,6 +48,10 @@ spec:
             - netbox.makerspace.local
           secretName: netbox-tls
     housekeeping:
+      # Disabled: NetBox's built-in scheduler (rqworker) handles housekeeping, and
+      # the command itself prints that this CronJob is redundant + to be removed. It
+      # only existed to occasionally fail and pin KubeJobFailed in Discord.
+      enabled: false
       resources:
         requests:
           cpu: 50m
