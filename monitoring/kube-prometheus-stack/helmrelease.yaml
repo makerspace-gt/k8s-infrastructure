@@ -20,6 +20,15 @@ spec:
     crds: CreateReplace
     timeout: 10m
   values:
+    # No kube-proxy runs (Talos proxy.disabled + Cilium kubeProxyReplacement),
+    # so drop its scrape job + KubeProxyDown rule — both fire false otherwise.
+    kubeProxy:
+      enabled: false
+    defaultRules:
+      disabled:
+        # Noisy in a homelab: fires whenever a container with a low CPU limit
+        # gets throttled, which is constant and not actionable here.
+        CPUThrottlingHigh: true
     prometheus:
       prometheusSpec:
         retention: 14d

@@ -8,6 +8,15 @@ metadata:
 spec:
   route:
     receiver: discord
+    # Only warning/critical reach Discord. Anything else (info, etc.) matches no
+    # child route and falls back to the parent "null" receiver (defined in the
+    # kube-prometheus-stack HelmRelease inline config) — i.e. suppressed.
+    # The chart sets alertmanagerConfigMatcherStrategy.type=None, so no namespace
+    # matcher is auto-injected and this applies cluster-wide.
+    matchers:
+      - name: severity
+        matchType: =~
+        value: warning|critical
     groupBy: ['namespace', 'alertname']
     groupWait: 30s
     groupInterval: 5m
@@ -19,3 +28,23 @@ spec:
             name: alertmanager-discord-webhook
             key: webhook-url
           sendResolved: true
+          # Default Discord formatting omits the labels, so an alert like
+          # etcdMembersDown arrives with no host/IP. Surface the identifying
+          # labels (instance/node/namespace/pod) when present.
+          # NOTE: aggregating rules (etcdMembersDown sum by job) have no instance
+          # label to show — fix the scrape target instead (etcd-endpoints.yaml).
+          title: '[{{ .Status | toUpper }}] {{ .CommonLabels.alertname }} ({{ .Alerts.Firing | len }} firing)'
+          message: |
+            {{ range .Alerts -}}
+            **{{ .Labels.severity | toUpper }}** {{ .Annotations.summary }}
+            {{ with .Annotations.description }}{{ . }}
+            {{ end -}}
+            {{ with .Labels.instance }}• instance: `{{ . }}`
+            {{ end -}}
+            {{ with .Labels.node }}• node: `{{ . }}`
+            {{ end -}}
+            {{ with .Labels.namespace }}• namespace: `{{ . }}`
+            {{ end -}}
+            {{ with .Labels.pod }}• pod: `{{ . }}`
+            {{ end }}
+            {{ end }}
