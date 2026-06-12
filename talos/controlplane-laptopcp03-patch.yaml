@@ -36,6 +36,15 @@ cluster:
   etcd:
     extraArgs:
       listen-metrics-urls: http://0.0.0.0:2381
+  # kube-controller-manager (:10257) and kube-scheduler (:10259) bind to localhost
+  # by default, so the kube-prometheus-stack ServiceMonitors get "connection refused"
+  # and fire false TargetDown alerts. Bind on all interfaces so node-IP scrapes work.
+  controllerManager:
+    extraArgs:
+      bind-address: 0.0.0.0
+  scheduler:
+    extraArgs:
+      bind-address: 0.0.0.0
   network:
     cni:
       name: none
