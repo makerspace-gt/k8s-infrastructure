@@ -52,7 +52,7 @@ cluster:
     disabled: true
 ---
 # Explicit hostname via the HostnameConfig DOCUMENT (not machine.network.hostname).
-# auto: "off" avoids the auto-name ghost-node failure mode. See docs/setup.md.
+# auto: "off" avoids the auto-name ghost-node failure mode. See docs/cluster-bootstrap.md.
 apiVersion: v1alpha1
 kind: HostnameConfig
 auto: "off"

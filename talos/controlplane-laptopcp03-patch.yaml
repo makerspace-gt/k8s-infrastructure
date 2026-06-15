@@ -52,7 +52,7 @@ cluster:
     disabled: true
 ---
 # Explicit hostname via the HostnameConfig DOCUMENT. Renamed worker01 -> laptopcp03
-# to reflect its new control-plane role. See docs/setup.md.
+# to reflect its new control-plane role. See docs/cluster-bootstrap.md.
 apiVersion: v1alpha1
 kind: HostnameConfig
 auto: "off"
@@ -61,7 +61,7 @@ hostname: laptopcp03
 # Single-disk node: OS + Longhorn share the one 512 GB NVMe, so EPHEMERAL must be
 # capped or it fills the disk and leaves no room for the user volume (etcd data also
 # lives on EPHEMERAL — 100 GiB is ample for etcd + images + ephemeral). Layout is
-# applied only at first provision. See docs/setup.md "Single-disk node".
+# applied only at first provision. See docs/cluster-bootstrap.md "Single-disk node".
 apiVersion: v1alpha1
 kind: VolumeConfig
 name: EPHEMERAL

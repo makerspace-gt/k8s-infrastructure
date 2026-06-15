@@ -60,7 +60,7 @@ cluster:
 # Explicit hostname via the HostnameConfig DOCUMENT — NOT machine.network.hostname,
 # which conflicts with the gen-default HostnameConfig ("static hostname is already
 # set in v1alpha1 config" + aborts the whole apply). auto: "off" overrides the
-# default auto: stable that ghosted the node on a DHCP outage. See docs/setup.md.
+# default auto: stable that ghosted the node on a DHCP outage. See docs/cluster-bootstrap.md.
 apiVersion: v1alpha1
 kind: HostnameConfig
 auto: "off"
