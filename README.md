@@ -1,23 +1,63 @@
 # Makerspace GT Infrastructure
 
-GitOps repository for managing the Makerspace GT Kubernetes infrastructure using FluxCD on Talos Linux.
+GitOps repository for managing the Makerspace GT Kubernetes infrastructure using FluxCD on Talos Linux. Single bare-metal cluster (3 control planes, all also scheduling workloads), Longhorn storage, Cilium networking.
 
-- [docs/setup.md](docs/setup.md) — cluster bootstrap (Talos image, schematic, install flow)
-- [docs/setup-guide.md](docs/setup-guide.md) — local CLI tool install for Arch and Fedora
-- [docs/procedures.md](docs/procedures.md) — common operational procedures (sealed secrets, ingress, etc.)
-- [NEXT-STEPS.md](NEXT-STEPS.md) — working punch list for the bare-metal rebuild
+## Docs
 
-## Accessing the apps
+- [docs/cluster-bootstrap.md](docs/cluster-bootstrap.md) — Talos cluster bootstrap (image, schematic, install flow)
+- [docs/local-tools.md](docs/local-tools.md) — local CLI tool install for Arch and Fedora
+- [docs/procedures.md](docs/procedures.md) — operational procedures (sealed secrets, ingress, etcd metrics)
+- [talos/schematics.md](talos/schematics.md) — Talos Image Factory schematic registry (extensions + kernel args)
 
-Services are reachable via public DNS at `*.makerspace-gt.de`, served by Traefik with TLS issued by Let's Encrypt.
+## Accessing the services
 
-## Later / roadmap
+**Currently an internal test cluster, single physical location.** There is one on-site
+operator; all other members and the makerspace office are on different networks, so
+on-LAN access is not the access path for them.
 
-Operational follow-ups, not blocking day-to-day use:
+- Services are exposed via Traefik on `*.makerspace.local`, with TLS from the internal
+  CA (`cluster-ca-issuer`). On-LAN only today.
+- **Tailscale access is the near-term plan** so members reach services remotely over the
+  tailnet (MagicDNS `*.ts.net`), without public exposure.
+- **Public exposure is future**: edge firewall + public DNS (`makerspace-gt.de`) + Let's
+  Encrypt certs. Not set up yet.
 
-- **Cilium LoadBalancer IP pool + L2 announcement** — removed during simplification; without it Traefik's `LoadBalancer` service has no external IP. Re-add `CiliumLoadBalancerIPPool` (`192.168.0.201–210`) + `CiliumL2AnnouncementPolicy`, and re-enable `l2announcements`/`externalIPs` in `cilium-install-config/values.yaml` (Traefik target `.202`). Needed before apps are reachable on the LAN.
-- **Traefik ServiceMonitor** — the chart's inline ServiceMonitor is disabled (it hard-fails without the Prometheus operator CRD, which kube-prometheus-stack provides *after* traefik). Re-add a standalone `ServiceMonitor` in `monitoring/kube-prometheus-stack-config/` (CRD present there) with the label kube-prometheus-stack's `serviceMonitorSelector` expects.
-- **kubelet-csr-approver** — kubelets use `rotate-server-certificates`, so each node's `kubernetes.io/kubelet-serving` CSR must be approved by hand (it recurs on reboots/cert rotation; see `docs/setup.md` step 4). Deploy [kubelet-csr-approver](https://github.com/postfinance/kubelet-csr-approver) to auto-approve them with node-name/IP checks.
-- **Longhorn upgrade 1.9.0 → 1.12.0** — pinned at 1.9.0 because Renovate jumped it 3 minors at once (illegal; the pre-upgrade hook fails). Must be done **manually, one minor at a time** (1.9 → 1.10 → 1.11 → 1.12), waiting for healthy between each — see `docs/setup.md` "Upgrading Longhorn". Renovate is pinned to patch-only for Longhorn; ignore any minor/major Longhorn entry it shows on the dependency dashboard (it would re-propose the skip).
-- **Control-plane API VIP (HA endpoint)** — with 3 control planes, etcd/cluster *state* is HA, but kubeconfig/talosconfig still point at a single CP (`192.168.0.68`), so API *access* breaks if that node dies. Add a Talos shared **VIP** (`machine.network.interfaces[].vip.ip`, a free LAN IP outside the DHCP/Cilium ranges) across all CPs, add it to the cert SANs, and regen with the VIP as the cluster endpoint + re-apply all CPs. Then point kubeconfig/talosconfig at the VIP.
-- **GPU enablement (towercp02, GTX 1080 Ti)** — install NVIDIA Talos system extensions (nonfree-kmod-nvidia + nvidia-container-toolkit) on towercp02's schematic, deploy the NVIDIA device plugin, and use a node label/RuntimeClass so GPU workloads land there.
+## Roadmap / Todos
+
+Rough priority order. Phase 1 finishes the basic setup; Phase 2 is the access/RBAC build-out.
+
+**Phase 1 — finish basic setup**
+
+- [ ] **Longhorn 1.9 → 1.12**, one minor at a time (1.9→1.10→1.11→1.12), waiting for
+      healthy between each. Renovate is pinned patch-only for Longhorn; ignore minor/major
+      entries it shows. See `docs/cluster-bootstrap.md` "Upgrading Longhorn".
+- [ ] **Refresh `docs/cluster-bootstrap.md`** to the real 3-CP topology (currently stale
+      2-node text + old IPs).
+
+**Phase 2 — access & multi-user**
+
+- [ ] **Tailscale access** — Tailscale K8s operator + MagicDNS so members reach services
+      over the tailnet. Decide L2/LB-IPPool re-add vs Tailscale-only. The one hardcoded LAN
+      IP (`infrastructure/networking/traefik/helmrelease.yaml` → `.202`) is resolved here.
+- [ ] **RBAC** — roles for admins / normal members so members can deploy their own apps.
+- [ ] **Public exposure + TLS cutover** — edge firewall + public DNS `makerspace-gt.de` +
+      Let's Encrypt; flip ingress issuer from `cluster-ca-issuer` to the ACME issuer.
+- [ ] **Distributed nodes across members** — feasibility discussion (etcd/Longhorn locality
+      vs WAN). Unique makerspace constraints; needs a dedicated design session.
+
+**Later / hardening**
+
+- [ ] **Re-enable Kyverno** — policies still in `policies/` (not wired to Flux); install
+      Kyverno + restore the Kyverno/Trivy CI jobs.
+- [ ] **Default-deny network policy** — `CiliumClusterwideNetworkPolicy`; roll out with
+      Hubble in audit/observe mode first (currently per-namespace opt-in, several namespaces open).
+- [ ] **Control-plane API VIP** — kubeconfig/talosconfig point at a single CP (`192.168.0.68`);
+      add a Talos shared VIP across all CPs + cert SANs so API access survives that node dying.
+- [ ] **kubelet-csr-approver** — auto-approve `kubernetes.io/kubelet-serving` CSRs (recurs on
+      reboot/rotation; see `docs/cluster-bootstrap.md` step 4).
+- [ ] **Traefik ServiceMonitor** — re-add a standalone ServiceMonitor in
+      `monitoring/kube-prometheus-stack-config/` (chart's inline one hard-fails pre-CRD).
+- [ ] **GPU enablement (towercp02, GTX 1080 Ti)** — NVIDIA Talos extensions + device plugin +
+      RuntimeClass/node label.
+- [ ] **Backups** — Longhorn backup-to-S3; pick a target.
+- [ ] **Apps to (re)add** — Authelia, CryptPad, Postiz, Zammad rework (CNPG wiring).
