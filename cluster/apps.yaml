@@ -64,20 +64,6 @@ spec:
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: stirling-pdf
-  namespace: flux-system
-spec:
-  suspend: false
-  interval: 5m
-  path: ./apps/stirling-pdf
-  prune: true
-  sourceRef:
-    kind: GitRepository
-    name: flux-system
----
-apiVersion: kustomize.toolkit.fluxcd.io/v1
-kind: Kustomization
-metadata:
   name: netbox
   namespace: flux-system
 spec:
