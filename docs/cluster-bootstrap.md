@@ -1,6 +1,6 @@
 # Cluster Setup Guide
 
-Bare-metal bring-up for the 2-node home cluster: **1 control plane (tower, `192.168.0.68`) + 1 worker (laptop, TBD)**. Bring nodes up **one at a time**, and **always `--dry-run` before a real apply**.
+Bare-metal bring-up for the 3-node cluster: **3 control planes, all also scheduling workloads (no dedicated workers)** — `towercp01` (`192.168.0.68`), `towercp02` (`192.168.0.157`), `laptopcp03` (`192.168.0.21`). Bring nodes up **one at a time**, and **always `--dry-run` before a real apply**.
 
 ## Talos Image
 
@@ -36,14 +36,32 @@ talosctl get disks --insecure --nodes <node-ip>
 talosctl get disk <id> --insecure --nodes <node-ip> -o yaml   # full spec incl. wwid
 ```
 
-**Tower (CP)** — confirmed:
-- OS: 80 GB Intel SSD, `install.diskSelector.wwid: naa.5001517959454aa6`
-- Longhorn data: 2 TB aacraid array. It exposes **no WWID/serial**, so it's selected by `disk.transport == "aacraid"` (unique in the box). This lives as a `UserVolumeConfig` document (second doc) inside `controlplane-patch.yaml`, mounted at `/var/mnt/longhorn`.
+Each node's disks/NICs live in its own patch (`controlplane-patch.yaml` = towercp01,
+`controlplane-towercp02-patch.yaml`, `controlplane-laptopcp03-patch.yaml`).
 
-**Laptop (worker)** — confirmed:
-- OS **and** Longhorn share the single 512 GB NVMe, `install.diskSelector.wwid: eui.ace42e00053e630c2ee4ac0000000001`.
-- Single disk ⇒ EPHEMERAL must be capped so a user volume fits (see **Single-disk node** under Gotchas). EPHEMERAL is capped at 100 GiB; the `UserVolumeConfig` (`grow: true`, pinned by the same WWID) carves `/var/mnt/longhorn` from the ~400 GB remainder. All in `worker-01-patch.yaml`.
-- NIC is a **USB ethernet adapter** (UGREEN AX88179A on the USB-C port), not `eth0` — see **USB NIC** under Gotchas.
+**towercp01** (`192.168.0.68`) — Intel Xeon, the weakest box (carries a
+`workload: avoid:PreferNoSchedule` taint so regular pods avoid it):
+- OS: 80 GB Intel SSD, `install.diskSelector.wwid: naa.5001517959454aa6`.
+- Longhorn data: 2 TB aacraid array. It exposes **no WWID/serial**, so it's selected by
+  `disk.transport == "aacraid"` (the only aacraid disk in the box), as a `UserVolumeConfig`
+  mounted at `/var/mnt/longhorn`. Separate disk from the OS → no EPHEMERAL cap needed.
+- NIC: onboard `eth0` (hardcoded — stable here, unlike the other two).
+
+**towercp02** (`192.168.0.157`) — has the GTX 1080 Ti (future GPU node):
+- OS: first 1 TB NVMe, `wwid: eui.0000000624042128caf25b03100005b3`.
+- Longhorn data: second 1 TB NVMe, `wwid: eui.0000000624042128caf25b038a000392`. Two
+  **identical** Lexar NM710 disks ⇒ `/dev/nvmeXn1` order is not stable, WWID is mandatory.
+  Separate disk → no EPHEMERAL cap.
+- NIC: onboard `eno1`, selected by `deviceSelector: { physical: true }`.
+
+**laptopcp03** (`192.168.0.21`) — ex-worker, converted worker → control plane:
+- OS **and** Longhorn share the single 512 GB NVMe, `wwid: eui.ace42e00053e630c2ee4ac0000000001`.
+- Single disk ⇒ EPHEMERAL must be capped so a user volume fits (see **Single-disk node**
+  under Gotchas). EPHEMERAL is capped at 100 GiB; the `UserVolumeConfig` (`grow: true`,
+  pinned by the same WWID) carves `/var/mnt/longhorn` from the remainder.
+- NIC: **USB ethernet adapter** (AX88179A on the USB-C port), not `eth0`, selected by
+  `deviceSelector` — the bus-path name is unstable. This link now carries an etcd member;
+  keep it on the reliable USB-C port. See **USB NIC** under Gotchas.
 
 ### Reused disks with old data
 
@@ -77,24 +95,49 @@ the config means a forgotten `-n` could reboot/reset the wrong node — or all o
 
 ## Bring-up
 
-### 1. Generate everything in one shot
+### 1. Generate each node's config
 
-The patches are baked in at generation time via `--config-patch-*`, so there's no
-separate patch step. `controlplane-patch.yaml` is a multi-doc file (machine patch
-+ Longhorn `UserVolumeConfig`); both get folded into `controlplane.yaml`. The worker
-is left untouched by the CP patch.
+Each node has its own multi-doc patch — machine patch + `HostnameConfig` + Longhorn
+`UserVolumeConfig` (plus a capped `EPHEMERAL` `VolumeConfig` on the single-disk laptop) —
+folded in at generation time via `--config-patch-control-plane`, so there's no separate
+patch step:
+
+| Node | Patch | Generated config |
+|------|-------|------------------|
+| towercp01 | `controlplane-patch.yaml` | `controlplane.yaml` |
+| towercp02 | `controlplane-towercp02-patch.yaml` | `controlplane-towercp02.yaml` |
+| laptopcp03 | `controlplane-laptopcp03-patch.yaml` | `controlplane-laptopcp03.yaml` |
+
+Secrets (and `talosconfig`) are generated **once** and shared by all three nodes — all
+three configs share the same PKI/etcd trust:
 
 ```bash
 cd talos
-talosctl gen secrets -o secrets.yaml          # CRITICAL, gitignored — back this up
+talosctl gen secrets -o secrets.yaml          # ONCE — CRITICAL, gitignored, back this up
 talosctl gen config makerspace-gt https://192.168.0.68:6443 \
-  --with-secrets secrets.yaml --force \
-  --config-patch-control-plane @controlplane-patch.yaml \
-  --config-patch-worker @worker-01-patch.yaml
-# → ready-to-apply controlplane.yaml, worker.yaml, talosconfig
+  --with-secrets secrets.yaml --output-types talosconfig --output talosconfig
+
+# One control-plane config per node, each with its own patch:
+for node in controlplane controlplane-towercp02 controlplane-laptopcp03; do
+  talosctl gen config makerspace-gt https://192.168.0.68:6443 \
+    --with-secrets secrets.yaml --force \
+    --config-patch-control-plane @${node}-patch.yaml \
+    --output-types controlplane --output ${node}.yaml
+done
 ```
 
+The endpoint is always towercp01 (`192.168.0.68`) — see **talosctl / kubectl access**.
+
 ### 2. Dry-run, then apply (node in maintenance mode → `--insecure`)
+
+Start with the **first** control plane (towercp01, `.68`); the other two join in step 6.
+Each node takes its own config against its own IP:
+
+| Node | Config | IP |
+|------|--------|----|
+| towercp01 | `controlplane.yaml` | 192.168.0.68 |
+| towercp02 | `controlplane-towercp02.yaml` | 192.168.0.157 |
+| laptopcp03 | `controlplane-laptopcp03.yaml` | 192.168.0.21 |
 
 ```bash
 # ALWAYS dry-run first — prints the diff, changes nothing
@@ -138,11 +181,16 @@ kubectl get nodes                          # Ready
 talosctl -n 192.168.0.68 health
 ```
 
-### 6. Add the worker
+### 6. Join the other two control planes
 
-Move the ethernet to the laptop, identify its disks (step **Disks**), fill the real WWID into `worker-01-patch.yaml` and add its `UserVolumeConfig` document, regenerate (step 1), then dry-run + apply (step 2) against `192.168.0.<laptop>`. No second `bootstrap` — the node joins automatically once Cilium is running. **Approve its kubelet serving CSR (step 4).**
+With towercp01 up and Cilium running, bring up **towercp02** (`.157`) then **laptopcp03**
+(`.21`), one at a time. For each: confirm its disks/WWIDs (step **Disks**) are filled into
+its patch, generate its config (step 1), then dry-run + apply (step 2) against its IP.
+**No second `bootstrap`** — each node joins etcd automatically once it's up. **Approve each
+node's kubelet serving CSR (step 4).** laptopcp03 is the converted ex-worker (single disk →
+EPHEMERAL cap; USB NIC → keep it on the USB-C port).
 
-After both nodes are up, bootstrap Flux (see `docs/procedures.md`). Restore the old sealed-secrets controller key before infra reconciles, or the 7 SealedSecrets won't decrypt.
+After all three nodes are up, bootstrap Flux (see `docs/procedures.md`). Restore the old sealed-secrets controller key before infra reconciles, or the 7 SealedSecrets won't decrypt.
 
 ## Upgrading Talos
 
@@ -248,7 +296,7 @@ Hard-won during the bare-metal bring-up. Read this before touching Talos config 
 - **`apply-config` validates the entire config atomically.** One bad field (e.g. the hostname conflict above) aborts the *whole* apply — including unrelated documents like `UserVolumeConfig` — before any diff is shown.
 - **Applying a config that omits a `UserVolumeConfig` destroys that user volume.** Talos user volumes are declarative; if the doc isn't in the applied config, Talos tears the volume down (unmounts `/var/mnt/longhorn`), which faults every Longhorn volume on it. Always apply the full `controlplane.yaml` that includes the `UserVolumeConfig`.
 - **Recovering a Longhorn disk after the volume was torn down:** re-apply the config (volume returns), then if `nodes.longhorn.io` shows `DiskFilesystemChanged` (fresh filesystem UUID ≠ recorded), re-adopt the disk (remove/re-add it in `spec.disks` of `kubectl -n longhorn-system edit nodes.longhorn.io <node>`) and delete the empty faulted PVCs so apps recreate them.
-- **USB ethernet adapter, not `eth0`.** The laptop worker's NIC is a USB dongle; Talos names it from the USB bus path (e.g. `enp58s0u1u1u3`), and that name **changes** when you swap the adapter or move ports. Don't hardcode an interface name — select the single physical NIC:
+- **USB ethernet adapter, not `eth0`.** laptopcp03's NIC is a USB dongle; Talos names it from the USB bus path (e.g. `enp58s0u1u1u3`), and that name **changes** when you swap the adapter or move ports. Don't hardcode an interface name — select the single physical NIC:
   ```yaml
   machine:
     network:
@@ -279,7 +327,7 @@ Hard-won during the bare-metal bring-up. Read this before touching Talos config 
 
 ### Flux
 
-- **Never put custom resources in the same Kustomization as the Helm chart that provides their CRDs.** On a fresh cluster the CRD doesn't exist at apply time, the CR fails the dry-run (`no matches for kind "X"`), and because apply is atomic it *also* blocks the HelmRelease → permanent deadlock. Split the CRs into their own Kustomization with `dependsOn` the chart's. Done here for `cert-manager-issuers`, `traefik-config`, `kube-prometheus-stack-config` (and the pre-existing `etcd-metrics`).
+- **Never put custom resources in the same Kustomization as the Helm chart that provides their CRDs.** On a fresh cluster the CRD doesn't exist at apply time, the CR fails the dry-run (`no matches for kind "X"`), and because apply is atomic it *also* blocks the HelmRelease → permanent deadlock. Split the CRs into their own Kustomization with `dependsOn` the chart's. Done here for `cert-manager-issuers`, `traefik-config`, `kube-prometheus-stack-config`.
 - **A chart that renders a `ServiceMonitor` can hard-fail if the Prometheus-operator CRD is absent** (`You have to deploy monitoring.coreos.com/v1 first`). If that chart is a dependency *of* kube-prometheus-stack, disable its inline ServiceMonitor and add a standalone one in `kube-prometheus-stack-config`.
 - **`flux reconcile` "hanging" = the CLI is waiting for `Ready=True`, not the work hanging.** With `wait: true` it blocks on resource health (up to the timeout). When stuck, read the controller logs (`kubectl -n flux-system logs deploy/kustomize-controller|helm-controller | grep <name>`) — the real error lives there, not in the Kustomization status.
 - **Parent vs child:** reconciling `flux-system` (or the Git source) only re-applies the *Kustomization objects*. To re-apply a component's resources, reconcile **that** Kustomization (`flux reconcile kustomization <name> --with-source`).

@@ -11,7 +11,7 @@ UKI embeds the cmdline, so `machine.install.extraKernelArgs` is ignored on v1.10
 
 ## `cc6abef19f4a24ca6c2fdf9e51fbc66a5c43350670f0660c77a6909d0c0c6479` — install (current)
 
-Referenced by `controlplane*-patch.yaml` and `worker.yaml`. All three nodes run this
+Referenced by all three `controlplane*-patch.yaml` files. All three nodes run this
 schematic.
 
 - **Factory:** <https://factory.talos.dev/?arch=amd64&platform=metal&schematic-id=cc6abef19f4a24ca6c2fdf9e51fbc66a5c43350670f0660c77a6909d0c0c6479&secureboot=undefined&target=metal&version=1.13.3>

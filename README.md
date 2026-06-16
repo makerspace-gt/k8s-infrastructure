@@ -31,8 +31,9 @@ Rough priority order. Phase 1 finishes the basic setup; Phase 2 is the access/RB
 - [x] **Longhorn 1.9 → 1.12** — done 2026-06-16: on 1.12.0, all volume engines rolled, auto
       engine-upgrade enabled. Renovate stays patch-only for Longhorn; ignore minor/major
       entries it shows. See `docs/cluster-bootstrap.md` "Upgrading Longhorn".
-- [ ] **Refresh `docs/cluster-bootstrap.md`** to the real 3-CP topology (currently stale
-      2-node text + old IPs).
+- [x] **Refresh `docs/cluster-bootstrap.md`** to the real 3-CP topology — done 2026-06-16:
+      per-node disks/NICs (towercp01/02 + laptopcp03), per-node patch→config generation,
+      join-the-other-CPs flow; dropped the stale 1-CP-plus-worker text.
 
 **Phase 2 — access & multi-user**
 
