@@ -27,8 +27,9 @@ spec:
     # at /var/mnt/longhorn (see talos/controlplane-patch.yaml).
     defaultSettings:
       defaultDataPath: /var/mnt/longhorn
-      # 2-node start: one replica per node. Raise to 3 when the 3rd machine joins.
-      defaultReplicaCount: 2
+      # 3-node cluster: one replica per node for full HA. NEW volumes only — existing
+      # volumes keep their replica count until raised per-volume (UI / spec.numberOfReplicas).
+      defaultReplicaCount: 3
       # Auto-roll volume engines to the default image after a manager upgrade.
       # Without this, engines silently lag the manager.
       # N = concurrent engine upgrades per node.
@@ -36,4 +37,4 @@ spec:
     persistence:
       # Make Longhorn the cluster-wide default StorageClass (replaces ceph-block).
       defaultClass: true
-      defaultClassReplicaCount: 2
+      defaultClassReplicaCount: 3
