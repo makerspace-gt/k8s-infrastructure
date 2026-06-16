@@ -29,6 +29,10 @@ spec:
       defaultDataPath: /var/mnt/longhorn
       # 2-node start: one replica per node. Raise to 3 when the 3rd machine joins.
       defaultReplicaCount: 2
+      # Auto-roll volume engines to the default image after a manager upgrade.
+      # Without this, engines silently lag the manager.
+      # N = concurrent engine upgrades per node.
+      concurrentAutomaticEngineUpgradePerNodeLimit: 3
     persistence:
       # Make Longhorn the cluster-wide default StorageClass (replaces ceph-block).
       defaultClass: true
