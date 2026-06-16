@@ -5,4 +5,7 @@ metadata:
   namespace: sealed-secrets
 spec:
   interval: 24h
-  url: https://bitnami-labs.github.io/sealed-secrets
+  # Chart relocated from the bitnami-labs org to bitnami (bitnami-labs.github.io
+  # 404s as of 2026-06). This is the first-party sealed-secrets chart, NOT the
+  # sunset Bitnami commercial catalog — it stays maintained here.
+  url: https://bitnami.github.io/sealed-secrets
