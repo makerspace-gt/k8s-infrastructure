@@ -28,8 +28,8 @@ Rough priority order. Phase 1 finishes the basic setup; Phase 2 is the access/RB
 
 **Phase 1 — finish basic setup**
 
-- [ ] **Longhorn 1.9 → 1.12**, one minor at a time (1.9→1.10→1.11→1.12), waiting for
-      healthy between each. Renovate is pinned patch-only for Longhorn; ignore minor/major
+- [x] **Longhorn 1.9 → 1.12** — done 2026-06-16: on 1.12.0, all volume engines rolled, auto
+      engine-upgrade enabled. Renovate stays patch-only for Longhorn; ignore minor/major
       entries it shows. See `docs/cluster-bootstrap.md` "Upgrading Longhorn".
 - [ ] **Refresh `docs/cluster-bootstrap.md`** to the real 3-CP topology (currently stale
       2-node text + old IPs).
@@ -40,6 +40,9 @@ Rough priority order. Phase 1 finishes the basic setup; Phase 2 is the access/RB
       over the tailnet. Decide L2/LB-IPPool re-add vs Tailscale-only. The one hardcoded LAN
       IP (`infrastructure/networking/traefik/helmrelease.yaml` → `.202`) is resolved here.
 - [ ] **RBAC** — roles for admins / normal members so members can deploy their own apps.
+      Note: `Ingress`/`IngressRoute` create rights = power to publish *any* service, and many
+      in-cluster UIs (e.g. Longhorn) ship with no auth — route creation must be admin-gated or
+      policy-enforced (Kyverno requiring an auth middleware), not granted to members.
 - [ ] **Public exposure + TLS cutover** — edge firewall + public DNS `makerspace-gt.de` +
       Let's Encrypt; flip ingress issuer from `cluster-ca-issuer` to the ACME issuer.
 - [ ] **Distributed nodes across members** — feasibility discussion (etcd/Longhorn locality

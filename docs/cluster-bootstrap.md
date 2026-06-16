@@ -182,6 +182,49 @@ succeeds. Note the `longhorn` Kustomization `dependsOn snapshot-controller`, so
 snapshot-controller must reach the current Git revision first; reconcile it
 (`flux reconcile kustomization snapshot-controller --with-source`) if it lags.
 
+**Engines don't auto-roll by default.** The manager upgrades live, but each volume's
+*engine* stays on the old image until upgraded. We set
+`concurrentAutomaticEngineUpgradePerNodeLimit: 3` in the helmrelease values so engines
+self-roll to the default after every manager bump. Confirm convergence with:
+
+```
+kubectl -n longhorn-system get volumes.longhorn.io \
+  -o jsonpath='{range .items[*]}{.status.currentImage}{"\n"}{end}' | sort | uniq -c
+```
+
+until every volume's `currentImage` is the new version. Don't start the next minor
+until all engines have rolled (Longhorn supports only one minor of manager/engine skew).
+
+> The UI accepts a *lower* engine version without warning, but the controller silently
+> no-ops the downgrade (stuck "upgrading" spinner). Always pick a version ≥ `currentImage`;
+> to cancel a bad request, patch `spec.image` back to the running image.
+
+### One-time 1.9 → 1.10 CRD failure (Flux server-side apply)
+
+The 1.9 → 1.10 hop failed the Helm upgrade at the CRD apply with
+`spec.conversion.strategy: Required value` / `webhookClientConfig: Forbidden`. Cause:
+Flux 2.8's helm-controller uses Helm-v4 server-side apply and had co-grabbed ownership
+of the CRD `spec.conversion` block that longhorn-manager injects at runtime (the
+caBundle), so its apply dropped `strategy: Webhook` → invalid CRD. One-time fix:
+
+```
+# 1. apply the target CRDs out-of-band, forcing field-ownership conflicts
+helm template longhorn longhorn/longhorn --version <X.Y.Z> -n longhorn-system \
+  | yq 'select(.kind=="CustomResourceDefinition")' > /tmp/lh-crds.yaml
+kubectl apply --server-side --force-conflicts -f /tmp/lh-crds.yaml
+# 2. reset stale ownership on the CRDs helm-controller wrongly co-owns
+for c in backingimages backuptargets engineimages nodes volumes; do
+  kubectl patch crd $c.longhorn.io --type=merge -p '{"metadata":{"managedFields":[{}]}}'
+done
+# 3. retry the release
+flux reconcile helmrelease longhorn --force -n longhorn-system
+```
+
+A one-time SSA-migration artifact — 1.10→1.11→1.12 applied cleanly afterward. Also note:
+1.9 → 1.10 first requires migrating CRD storage versions `v1beta1` → `v1beta2` (per the
+Longhorn 1.10 important-notes) — run it if any CRD still lists `v1beta1` in
+`status.storedVersions`.
+
 ## Security Notes
 
 - `talos/secrets.yaml` — **CRITICAL** — all cluster CAs/keys. Gitignored. Back it up.
