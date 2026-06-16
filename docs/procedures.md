@@ -132,14 +132,32 @@ cluster:
       listen-metrics-urls: http://0.0.0.0:2381
 ```
 
-**Apply and reboot:**
+**Apply and reboot** (per node — the setting lives in each CP's patch):
 ```bash
-talosctl apply-config --file talos/controlplane-01.yaml --nodes <cp-ip> --mode staged
+talosctl apply-config --file talos/controlplane.yaml --nodes <cp-ip> --mode staged
 talosctl reboot --nodes <cp-ip> --wait
 ```
 
 **Verify:** `curl <cp-ip>:2381/metrics`
 
 > **Security note:** Port 2381 listens on `0.0.0.0`, so it's reachable from the local network. Acceptable here; if exposing more broadly, restrict via Talos `networkRules` or Cilium host firewall.
+
+**Prometheus scraping.** etcd runs *outside* Kubernetes (a Talos-managed process, not a
+pod), so kube-prometheus-stack's default `kubeEtcd` Service — which has a
+`component=etcd` selector — gets **empty** Endpoints from the endpoint-controller (no
+matching pods) and scrapes nothing. A hand-written `Endpoints` of the same name does not
+help: the controller owns it and keeps blanking it. The working wiring is the chart's
+external-etcd path — set `kubeEtcd.endpoints` (all CP IPs) in
+`monitoring/kube-prometheus-stack/helmrelease.yaml`, which renders a **selector-less**
+Service plus a static `Endpoints`:
+
+```yaml
+kubeEtcd:
+  enabled: true
+  service: { enabled: true, port: 2381, targetPort: 2381 }
+  endpoints: [192.168.0.68, 192.168.0.157, 192.168.0.21]
+```
+
+Verify: `up{job="kube-etcd"}` should show one `up` series per CP in Prometheus.
 
 **Warning:** The baseline is a blind whitelist — `detect-secrets` cannot distinguish encrypted data from plaintext passwords. When updating the baseline, review what was flagged before accepting it. Use `detect-secrets audit .secrets.baseline` to interactively review each entry. Never blindly run `scan --baseline` after adding non-sealed-secret files.

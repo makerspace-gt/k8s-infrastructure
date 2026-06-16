@@ -24,6 +24,22 @@ spec:
     # so drop its scrape job + KubeProxyDown rule — both fire false otherwise.
     kubeProxy:
       enabled: false
+    # Talos etcd runs OUTSIDE Kubernetes (not a pod), so the default selector
+    # service (component=etcd) gets empty Endpoints from the endpoint-controller
+    # and scrapes nothing. Providing `endpoints` makes the chart render a
+    # selector-LESS Service + a static Endpoints with these IPs, which nothing
+    # clobbers. Metrics are on :2381 (cluster.etcd listen-metrics-urls in the CP
+    # patch). Replaces the old manual etcd-endpoints.yaml Kustomization.
+    kubeEtcd:
+      enabled: true
+      service:
+        enabled: true
+        port: 2381
+        targetPort: 2381
+      endpoints:
+        - 192.168.0.68   # towercp01
+        - 192.168.0.157  # towercp02
+        - 192.168.0.21   # laptopcp03
     defaultRules:
       disabled:
         # Noisy in a homelab: fires whenever a container with a low CPU limit
