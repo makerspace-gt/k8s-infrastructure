@@ -8,18 +8,18 @@
   "minimumReleaseAge": "3 days",
   "internalChecksFilter": "strict",
   "flux": {
-    "fileMatch": [
-      "(^|/).*\\.ya?ml$"
+    "managerFilePatterns": [
+      "/(^|/).*\\.ya?ml$/"
     ]
   },
   "helm-values": {
-    "fileMatch": [
-      "(^|/).*\\.ya?ml$"
+    "managerFilePatterns": [
+      "/(^|/).*\\.ya?ml$/"
     ]
   },
   "kubernetes": {
-    "fileMatch": [
-      "(^|/).*\\.ya?ml$"
+    "managerFilePatterns": [
+      "/(^|/).*\\.ya?ml$/"
     ]
   },
   "schedule": [
