@@ -18,6 +18,8 @@ spec:
   upgrade:
     timeout: 10m
   values:
+    persistence:
+      accessMode: ReadWriteMany
     postgresql:
       enabled: false
     externalDatabase:
