@@ -1,8 +1,9 @@
-# Level-triggered stall detector across ALL Flux resources (every Kustomization AND
-# HelmRelease, cluster-wide) — the backbone that makes a silent multi-day not-ready
-# (like the 10-day sealed-secrets HelmRepository freeze) impossible to miss.
-# Routes through Alertmanager -> Discord via the warning severity (see
-# alertmanager-config.yaml: only warning|critical reach Discord).
+# Level-triggered stall detector across all Flux resources (every Kustomization,
+# HelmRelease, GitRepository, HelmRepository, HelmChart). Readiness comes from
+# kube-state-metrics Custom Resource State (gotk_resource_info), configured in the
+# kube-prometheus-stack HelmRelease values — newer Flux controllers no longer emit
+# gotk_reconcile_condition. Routes to Discord via the warning severity (Alertmanager
+# only forwards warning|critical).
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
@@ -16,22 +17,18 @@ spec:
     - name: flux.rules
       rules:
         - alert: FluxReconciliationFailure
-          # Ready=False sustained for >30m. The "+ Deleted*2 == 1" term excludes
-          # resources mid-deletion (those sum to 3, not 1). The scrape renames the
-          # metric's own namespace label to `exported_namespace` (pod namespace wins
-          # the `namespace` label). 30m avoids flapping on normal multi-minute
-          # reconciles / Helm install timeouts — tune lower for faster paging.
-          expr: |
-            max(gotk_reconcile_condition{type="Ready", status="False"}) by (exported_namespace, name, kind)
-            + on(exported_namespace, name, kind)
-            (max(gotk_reconcile_condition{type="Deleted", status="True"}) by (exported_namespace, name, kind)) * 2
-            == 1
+          # ready!="True" (not just ="False") so it also catches resources wedged in
+          # Unknown/Progressing — the exact state the sealed-secrets stall sat in for
+          # days. suspended!="true" excludes intentionally suspended resources. All the
+          # configured kinds always carry a Ready condition, so this never matches an
+          # empty-ready series. 30m avoids flapping on normal multi-minute reconciles.
+          expr: gotk_resource_info{ready!="True", suspended!="true"} == 1
           for: 30m
           labels:
             severity: warning
           annotations:
-            summary: "Flux {{ $labels.kind }} {{ $labels.exported_namespace }}/{{ $labels.name }} failing >30m"
+            summary: "Flux {{ $labels.customresource_kind }} {{ $labels.exported_namespace }}/{{ $labels.name }} not ready >30m"
             description: >-
-              {{ $labels.kind }} {{ $labels.exported_namespace }}/{{ $labels.name }}
-              has had Ready=False for over 30 minutes — reconciliation is stuck.
-              Investigate with: flux get {{ $labels.kind | toLower }} -A
+              {{ $labels.customresource_kind }} {{ $labels.exported_namespace }}/{{ $labels.name }}
+              has had Ready!=True for over 30 minutes — reconciliation is stuck.
+              Investigate with: flux get {{ $labels.customresource_kind | toLower }} -A
