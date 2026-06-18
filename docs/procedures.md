@@ -160,4 +160,46 @@ kubeEtcd:
 
 Verify: `up{job="kube-etcd"}` should show one `up` series per CP in Prometheus.
 
+## Storage Access Modes (RWO vs RWX)
+
+Choosing the wrong access mode for an app's PVC causes a `Multi-Attach` deadlock: an RWO
+(ReadWriteOnce) volume attaches to **one node at a time**, so the moment a second pod that
+needs it lands on a *different* node — a rolling update, a reschedule, or a second
+Deployment sharing the same PVC — it can never attach and the new pod hangs in `Init`
+forever. This is not configurable via the StorageClass: `accessMode` is requested
+**per-PVC** by the chart/manifest, and a StorageClass cannot force or override it. So it is
+always a per-workload decision. **RWX is not a safe blanket default** — it is served by a
+per-volume Longhorn NFS share-manager pod (extra failure surface, slower than block), and
+it is *actively wrong* for databases.
+
+Pick the access mode by what owns the volume:
+
+| Volume belongs to… | Access mode |
+|---|---|
+| A database / self-replicating workload (CNPG Postgres, valkey, anything using StatefulSet `volumeClaimTemplates`) | **RWO** — each replica has its own volume, no sharing. **Never RWX** (NFS + concurrent writers = corruption; these engines assume exclusive block storage). |
+| One volume mounted by **multiple pods at once** — multiple Deployments sharing it (e.g. NetBox `web` + `worker`, WordPress, Vikunja media) or a multi-replica Deployment | **RWX** (`ReadWriteMany`) |
+| A single-replica **Deployment** whose PVC outlives rollouts and you've hit multi-attach on a node move | **RWX** if you might ever scale out, otherwise `strategy: Recreate` (old pod dies before the new one starts — no NFS overhead) |
+
+Set it in the HelmRelease values, e.g. `persistence.accessMode: ReadWriteMany` (Longhorn
+is RWX-capable, so no StorageClass change is needed).
+
+**Converting an existing RWO PVC to RWX.** `accessMode` is **immutable on a bound PVC**, so
+Flux/Helm cannot change it in place — the PVC must be recreated, which **destroys its data**.
+Only do this on empty/disposable volumes; otherwise back up (or `velero`/Longhorn-snapshot)
+first and restore after. With the RWX value already committed and reconciled (so the
+recreated PVC comes back RWX):
+
+```bash
+# 1. Release the volume — removes the pods holding it (old + any stuck Init pods)
+kubectl scale deploy <app> [<app>-worker ...] -n <ns> --replicas=0
+# 2. Delete the RWO PVC (Longhorn reclaims the backing volume; reclaim policy is Delete)
+kubectl delete pvc <pvc-name> -n <ns>
+# 3. Let Helm recreate it as RWX and scale the Deployments back itself
+flux reconcile helmrelease <app> -n <ns> --with-source
+```
+
+Then verify a `share-manager-pvc-...` pod reaches Running in `longhorn-system` and the app
+pods leave `Init`. If a pod sticks on mount, check its events for an **NFS** failure — the
+one Talos-specific spot to watch on a cluster's first RWX volume.
+
 **Warning:** The baseline is a blind whitelist — `detect-secrets` cannot distinguish encrypted data from plaintext passwords. When updating the baseline, review what was flagged before accepting it. Use `detect-secrets audit .secrets.baseline` to interactively review each entry. Never blindly run `scan --baseline` after adding non-sealed-secret files.
