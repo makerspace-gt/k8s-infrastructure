@@ -1,0 +1,22 @@
+apiVersion: notification.toolkit.fluxcd.io/v1beta3
+kind: Alert
+metadata:
+  name: flux-system
+  namespace: flux-system
+spec:
+  providerRef:
+    name: discord
+  # Only failures. Set to "info" temporarily if you also want success/recovery pings.
+  eventSeverity: error
+  # eventSources CANNOT wildcard namespaces — an omitted namespace defaults to this
+  # Alert's namespace (flux-system). The cluster-wide objects that actually live in
+  # flux-system are the Kustomizations and the Git source, so this Alert covers those
+  # (a failing HelmRelease/HelmRepository in an app namespace surfaces here too IF its
+  # owning Kustomization uses wait:true — most do). Comprehensive HelmRelease coverage
+  # across all namespaces comes from the Prometheus gotk_reconcile_condition rule
+  # (monitoring/kube-prometheus-stack-config/flux-prometheusrule.yaml).
+  eventSources:
+    - kind: Kustomization
+      name: "*"
+    - kind: GitRepository
+      name: "*"

@@ -1,0 +1,20 @@
+# Scrape the Flux controllers so their gotk_* metrics reach Prometheus. They expose
+# Prometheus metrics on the `http-prom` port (8080) and all carry the label
+# app.kubernetes.io/part-of: flux. flux-system already has an `allow-scraping`
+# NetworkPolicy permitting monitoring ingress.
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: flux-system
+  namespace: flux-system
+  labels:
+    app.kubernetes.io/part-of: flux
+spec:
+  namespaceSelector:
+    matchNames:
+      - flux-system
+  selector:
+    matchLabels:
+      app.kubernetes.io/part-of: flux
+  podMetricsEndpoints:
+    - port: http-prom

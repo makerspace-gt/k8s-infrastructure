@@ -1,0 +1,37 @@
+# Level-triggered stall detector across ALL Flux resources (every Kustomization AND
+# HelmRelease, cluster-wide) — the backbone that makes a silent multi-day not-ready
+# (like the 10-day sealed-secrets HelmRepository freeze) impossible to miss.
+# Routes through Alertmanager -> Discord via the warning severity (see
+# alertmanager-config.yaml: only warning|critical reach Discord).
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: flux-reconciliation
+  namespace: monitoring
+  labels:
+    # The operator's ruleSelector matches on the release label by default.
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: flux.rules
+      rules:
+        - alert: FluxReconciliationFailure
+          # Ready=False sustained for >30m. The "+ Deleted*2 == 1" term excludes
+          # resources mid-deletion (those sum to 3, not 1). The scrape renames the
+          # metric's own namespace label to `exported_namespace` (pod namespace wins
+          # the `namespace` label). 30m avoids flapping on normal multi-minute
+          # reconciles / Helm install timeouts — tune lower for faster paging.
+          expr: |
+            max(gotk_reconcile_condition{type="Ready", status="False"}) by (exported_namespace, name, kind)
+            + on(exported_namespace, name, kind)
+            (max(gotk_reconcile_condition{type="Deleted", status="True"}) by (exported_namespace, name, kind)) * 2
+            == 1
+          for: 30m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Flux {{ $labels.kind }} {{ $labels.exported_namespace }}/{{ $labels.name }} failing >30m"
+            description: >-
+              {{ $labels.kind }} {{ $labels.exported_namespace }}/{{ $labels.name }}
+              has had Ready=False for over 30 minutes — reconciliation is stuck.
+              Investigate with: flux get {{ $labels.kind | lower }} -A

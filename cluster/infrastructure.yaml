@@ -12,6 +12,24 @@ spec:
     name: flux-system
   wait: true
 ---
+# Flux -> Discord notifications: Provider + Alert on Kustomization/GitRepository
+# reconciliation failures. dependsOn sealed-secrets for the webhook secret.
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: flux-notifications
+  namespace: flux-system
+spec:
+  interval: 10m
+  dependsOn:
+    - name: sealed-secrets
+  path: ./infrastructure/controllers/flux-notifications
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  wait: true
+---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
