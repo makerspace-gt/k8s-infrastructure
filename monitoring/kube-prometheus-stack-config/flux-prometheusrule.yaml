@@ -34,4 +34,4 @@ spec:
             description: >-
               {{ $labels.kind }} {{ $labels.exported_namespace }}/{{ $labels.name }}
               has had Ready=False for over 30 minutes — reconciliation is stuck.
-              Investigate with: flux get {{ $labels.kind | lower }} -A
+              Investigate with: flux get {{ $labels.kind | toLower }} -A
