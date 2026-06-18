@@ -35,11 +35,11 @@
       "automerge": true
     },
     {
-      "description": "Major updates require manual approval",
+      "description": "Major updates: open a PR so it surfaces as a GitHub notification (GitHub does NOT notify on Dependency Dashboard issue-body edits), but never auto-merge — review every major by hand.",
       "matchUpdateTypes": [
         "major"
       ],
-      "dependencyDashboardApproval": true
+      "automerge": false
     },
     {
       "description": "Longhorn: never auto-bump minor/major. Longhorn forbids skipping minor versions, so upgrades must be done one minor at a time by hand (see docs/cluster-bootstrap.md). Patch bumps within the deployed minor stay auto-merged.",
