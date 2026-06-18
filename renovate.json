@@ -5,6 +5,8 @@
   ],
   "platformAutomerge": true,
   "ignoreTests": true,
+  "minimumReleaseAge": "3 days",
+  "internalChecksFilter": "strict",
   "flux": {
     "fileMatch": [
       "(^|/).*\\.ya?ml$"
