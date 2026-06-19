@@ -1,0 +1,21 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: mariadb-operator-crds
+  namespace: mariadb-operator
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: mariadb-operator-crds
+      version: "26.6.0"
+      sourceRef:
+        kind: HelmRepository
+        name: mariadb-operator
+      interval: 12h
+  install:
+    crds: Create
+    timeout: 10m
+  upgrade:
+    crds: CreateReplace
+    timeout: 10m
