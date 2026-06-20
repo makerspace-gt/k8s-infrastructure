@@ -15,3 +15,11 @@ spec:
         - matchLabels:
             k8s:io.kubernetes.pod.namespace: traefik
             k8s:app.kubernetes.io/name: traefik
+    # Allow mariadb-operator to reach the DB to bootstrap/manage it (3306)
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: mariadb-operator
+      toPorts:
+        - ports:
+            - port: "3306"
+              protocol: TCP
