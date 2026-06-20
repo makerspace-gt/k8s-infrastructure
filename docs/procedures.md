@@ -217,3 +217,22 @@ pods leave `Init`. If a pod sticks on mount, check its events for an **NFS** fai
 one Talos-specific spot to watch on a cluster's first RWX volume.
 
 **Warning:** The baseline is a blind whitelist — `detect-secrets` cannot distinguish encrypted data from plaintext passwords. When updating the baseline, review what was flagged before accepting it. Use `detect-secrets audit .secrets.baseline` to interactively review each entry. Never blindly run `scan --baseline` after adding non-sealed-secret files.
+
+---
+
+## MariaDB for an App (mariadb-operator)
+
+MariaDB-backed apps (WordPress, etc.) use **mariadb-operator** (the MariaDB analogue of CNPG) in
+`infrastructure/databases/mariadb-operator/`. CRDs ship as a separate chart installed first; the
+webhook cert uses the operator's built-in controller, not cert-manager.
+
+Provision a DB with one `MariaDB` CR — inline `database` + `username` + `passwordSecretKeyRef` +
+`rootPasswordSecretKeyRef` make the operator create the database, user, and grant. Watch for:
+
+- The operator **auto-creates a ClusterIP Service** named after the CR on :3306 — point the app at
+  that name and share the same sealed secret (no `Connection` CRD needed).
+- **NetworkPolicy:** a blanket-ingress namespace also selects the DB pod and silently drops the
+  operator's connection, so the DB/user never get created. Allow the `mariadb-operator` namespace
+  in on 3306. Signature: `MariaDB` CR `READY=True` but child `Database`/`User` show `i/o timeout`
+  (timeout = policy drop, not a dead DB).
+- TLS is enabled but **not enforced** — plaintext clients connect fine.
