@@ -2,10 +2,10 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - namespace.yaml
-  - helmrepository.yaml
-  - wordpress-config-sealed-secret.yaml
-  - mysql-sealed-secret.yaml
-  - helmrelease.yaml
   - network-policy.yaml
   - mariadb.yaml
   - mariadb-secret.yaml
+  - wordpress-pvc.yaml
+  - wordpress-service.yaml
+  - wordpress-ingress.yaml
+  - wordpress-deployment.yaml
