@@ -24,26 +24,16 @@ on-LAN access is not the access path for them.
 
 ## Roadmap / Todos
 
-Rough priority order. Phase 1 finishes the basic setup; Phase 2 is the access/RBAC build-out.
-
-**Phase 1 — finish basic setup**
-
-- [x] **Longhorn 1.9 → 1.12** — done 2026-06-16: on 1.12.0, all volume engines rolled, auto
-      engine-upgrade enabled. Renovate stays patch-only for Longhorn; ignore minor/major
-      entries it shows. See `docs/cluster-bootstrap.md` "Upgrading Longhorn".
-- [x] **Refresh `docs/cluster-bootstrap.md`** to the real 3-CP topology — done 2026-06-16:
-      per-node disks/NICs (towercp01/02 + laptopcp03), per-node patch→config generation,
-      join-the-other-CPs flow; dropped the stale 1-CP-plus-worker text.
+Pending work, rough priority. Detailed rationale lives in `docs/` + project notes.
 
 **Phase 2 — access & multi-user**
 
-- [ ] **Tailscale access** — Tailscale K8s operator + MagicDNS so members reach services
-      over the tailnet. Decide L2/LB-IPPool re-add vs Tailscale-only. The one hardcoded LAN
-      IP (`infrastructure/networking/traefik/helmrelease.yaml` → `.202`) is resolved here.
-- [ ] **RBAC** — roles for admins / normal members so members can deploy their own apps.
-      Note: `Ingress`/`IngressRoute` create rights = power to publish *any* service, and many
-      in-cluster UIs (e.g. Longhorn) ship with no auth — route creation must be admin-gated or
-      policy-enforced (Kyverno requiring an auth middleware), not granted to members.
+- [ ] **Tailscale access (in progress)** — operator live; apps exposed via per-app Tailscale
+      Ingress (recipe in `docs/procedures.md`). Per-app config still owed (allowed-hosts /
+      root-url / public-url). Optional: kube-apiserver proxy for remote `kubectl`.
+- [ ] **Forward-auth SSO** (Authelia / authentik / oauth2-proxy) — before public exposure;
+      tailnet identity does NOT protect the public Traefik path.
+- [ ] **RBAC** — admin/member roles; gate route-creation (unauth UIs like Longhorn).
 - [ ] **Public exposure + TLS cutover** — edge firewall + public DNS `makerspace-gt.de` +
       Let's Encrypt; flip ingress issuer from `cluster-ca-issuer` to the ACME issuer.
 - [ ] **Distributed nodes across members** — feasibility discussion (etcd/Longhorn locality
@@ -51,6 +41,7 @@ Rough priority order. Phase 1 finishes the basic setup; Phase 2 is the access/RB
 
 **Later / hardening**
 
+- [ ] **Git PR workflow + protected `main`** — deferred while solo (CI gate ready).
 - [ ] **Re-enable Kyverno** — policies still in `policies/` (not wired to Flux); install
       Kyverno + restore the Kyverno/Trivy CI jobs.
 - [ ] **Default-deny network policy** — `CiliumClusterwideNetworkPolicy`; roll out with

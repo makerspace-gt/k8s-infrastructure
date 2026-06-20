@@ -236,3 +236,39 @@ Provision a DB with one `MariaDB` CR — inline `database` + `username` + `passw
   in on 3306. Signature: `MariaDB` CR `READY=True` but child `Database`/`User` show `i/o timeout`
   (timeout = policy drop, not a dead DB).
 - TLS is enabled but **not enforced** — plaintext clients connect fine.
+
+## Exposing an App over Tailscale (private)
+
+The Tailscale operator (`infrastructure/networking/tailscale-operator/`) exposes a Service to the
+**tailnet** (not the public internet — this is Tailscale *Serve*, tailnet-only; *Funnel* would be
+public). Each exposure runs a small proxy pod in the `tailscale` namespace that forwards to the
+app's ClusterIP, and the device gets a MagicDNS name + an auto-provisioned Let's Encrypt cert.
+
+Per-app recipe — an `Ingress` in the app's namespace:
+
+```yaml
+spec:
+  ingressClassName: tailscale
+  defaultBackend:
+    service: { name: <app>, port: { number: <port> } }
+  tls:
+    - hosts: ["<name>"]      # → <name>.<tailnet>.ts.net, cert auto-provisioned
+```
+
+Two gotchas:
+
+- **NetworkPolicy must admit the `tailscale` namespace** on the app's port — the proxy pods live
+  there, so a blanket-ingress policy drops them (symptom: page won't load, `nc` from the
+  `tailscale` ns times out). Same shape as the mariadb-operator rule.
+- **Tailscale terminates TLS and forwards plain HTTP**, so apps that build absolute URLs need to
+  trust the forwarded proto or they redirect-loop. WordPress example: in `WORDPRESS_CONFIG_EXTRA`,
+  `if (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '')==='https') $_SERVER['HTTPS']='on';` plus fixed
+  `WP_HOME`/`WP_SITEURL`.
+
+**Auth:** tailnet identity + ACLs gate the *Tailscale* plane only. Services also intended to be
+**public** (via Traefik, once the cluster has a public IP) have no tailnet gate on that path —
+keep their real auth (Traefik `basicAuth`, app login, or a forward-auth SSO). Don't treat the
+tailnet as the security boundary for anything that will be publicly reachable.
+
+`<name>.<tailnet>.ts.net` resolves and routes **only on devices logged into the tailnet** (MagicDNS
++ CGNAT `100.x` over WireGuard). A device without Tailscale gets nothing — that's by design.
