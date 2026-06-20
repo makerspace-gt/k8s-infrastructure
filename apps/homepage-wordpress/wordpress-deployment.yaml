@@ -49,6 +49,16 @@ spec:
               value: wordpress
             - name: WORDPRESS_DB_NAME
               value: wordpress
+            - name: WORDPRESS_CONFIG_EXTRA
+              value: |
+                define('WP_HOME',
+                'https://homepage.zebra-alewife.ts.net');
+                    define('WP_SITEURL',
+                'https://homepage.zebra-alewife.ts.net');
+                    if (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') ===
+                'https') {
+                        $_SERVER['HTTPS'] = 'on';
+                    }
           ports:
             - containerPort: 80
               name: wordpress

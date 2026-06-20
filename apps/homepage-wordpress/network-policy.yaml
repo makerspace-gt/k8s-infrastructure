@@ -23,3 +23,10 @@ spec:
         - ports:
             - port: "3306"
               protocol: TCP
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: tailscale
+      toPorts:
+        - ports:
+            - port: "80"
+              protocol: TCP
