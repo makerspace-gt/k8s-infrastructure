@@ -1,0 +1,15 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: hubble-ts
+  namespace: kube-system
+spec:
+  ingressClassName: tailscale
+  defaultBackend:
+    service:
+      name: hubble-ui
+      port:
+        number: 80
+  tls:
+    - hosts:
+        - hubble           # → hubble.zebra-alewife.ts.net

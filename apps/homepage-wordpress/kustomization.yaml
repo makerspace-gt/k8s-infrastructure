@@ -7,6 +7,5 @@ resources:
   - mariadb-secret.yaml
   - wordpress-pvc.yaml
   - wordpress-service.yaml
-  - wordpress-ingress.yaml
   - wordpress-deployment.yaml
   - wordpress-tailscale-ingress.yaml

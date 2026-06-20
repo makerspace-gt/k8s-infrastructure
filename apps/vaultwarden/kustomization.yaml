@@ -7,5 +7,5 @@ resources:
   - admin-sealed-secret.yaml
   - deployment.yaml
   - service.yaml
-  - ingress.yaml
   - network-policy.yaml
+  - vaultwarden-ts-ingress.yaml

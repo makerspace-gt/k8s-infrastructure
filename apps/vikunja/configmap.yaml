@@ -4,5 +4,5 @@ metadata:
   name: vikunja-config
   namespace: vikunja
 data:
-  public_url: "http://vikunja.makerspace.local"
+  public_url: "https://vikunja.zebra-alewife.ts.net"
   timezone: "Europe/Berlin"

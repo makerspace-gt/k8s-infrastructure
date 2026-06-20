@@ -4,5 +4,5 @@ metadata:
   name: vaultwarden-config
   namespace: vaultwarden
 data:
-  domain: "https://vault.makerspace.local"
+  domain: "https://vault.zebra-alewife.ts.net"
   signups_allowed: "false"

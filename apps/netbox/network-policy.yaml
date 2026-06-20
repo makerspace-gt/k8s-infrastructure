@@ -10,11 +10,6 @@ spec:
     - fromEndpoints:
         - matchLabels:
             k8s:io.kubernetes.pod.namespace: netbox
-    # Allow Traefik to reach the netbox web pod
-    - fromEndpoints:
-        - matchLabels:
-            k8s:io.kubernetes.pod.namespace: traefik
-            k8s:app.kubernetes.io/name: traefik
     # Allow Prometheus to scrape metrics
     - fromEndpoints:
         - matchLabels:
@@ -26,3 +21,11 @@ spec:
     - fromEndpoints:
         - matchLabels:
             k8s:io.kubernetes.pod.namespace: cnpg-system
+    # Allow the Tailscale Ingress proxy (tailscale namespace) to reach the app
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: tailscale
+      toPorts:
+        - ports:
+            - port: "80"
+              protocol: TCP

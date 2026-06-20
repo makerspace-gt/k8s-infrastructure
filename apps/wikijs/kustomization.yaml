@@ -5,5 +5,5 @@ resources:
   - postgres-cluster.yaml
   - deployment.yaml
   - service.yaml
-  - wikijs-ingress.yaml
   - network-policy.yaml
+  - wikijs-ts-ingress.yaml

@@ -10,6 +10,7 @@ resources:
   - helmrelease.yaml
   - grafana-sealed-secret.yaml
   - alertmanager-discord-sealed-secret.yaml
+  - grafana-ts-ingress.yaml
 configMapGenerator:
   - name: grafana-dashboard-traefik-17346
     files:

@@ -18,6 +18,8 @@ spec:
   upgrade:
     timeout: 10m
   values:
+    allowedHosts:
+      - netbox.zebra-alewife.ts.net
     persistence:
       accessMode: ReadWriteMany
     postgresql:
@@ -36,19 +38,6 @@ spec:
       limits:
         cpu: 1000m
         memory: 1Gi
-    ingress:
-      enabled: true
-      className: traefik
-      annotations:
-        cert-manager.io/cluster-issuer: cluster-ca-issuer
-      hosts:
-        - host: netbox.makerspace.local
-          paths:
-            - /
-      tls:
-        - hosts:
-            - netbox.makerspace.local
-          secretName: netbox-tls
     housekeeping:
       # Disabled: NetBox's built-in scheduler (rqworker) handles housekeeping, and
       # the command itself prints that this CronJob is redundant + to be removed. It

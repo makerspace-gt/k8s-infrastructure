@@ -7,5 +7,5 @@ resources:
   - postgres-cluster.yaml
   - deployment.yaml
   - service.yaml
-  - vikunja-ingress.yaml
   - network-policy.yaml
+  - vikunja-ts-ingress.yaml

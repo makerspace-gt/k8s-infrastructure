@@ -8,10 +8,10 @@ spec:
     matchLabels:
       app: vaultwarden
   ingress:
+    # Allow the Tailscale Ingress proxy (tailscale namespace) to reach the app
     - fromEndpoints:
         - matchLabels:
-            k8s:io.kubernetes.pod.namespace: traefik
-            k8s:app.kubernetes.io/name: traefik
+            k8s:io.kubernetes.pod.namespace: tailscale
       toPorts:
         - ports:
             - port: "80"

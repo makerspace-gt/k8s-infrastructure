@@ -37,9 +37,9 @@ spec:
         port: 2381
         targetPort: 2381
       endpoints:
-        - 192.168.0.68   # towercp01
-        - 192.168.0.157  # towercp02
-        - 192.168.0.21   # laptopcp03
+        - 192.168.0.68 # towercp01
+        - 192.168.0.157 # towercp02
+        - 192.168.0.21 # laptopcp03
     defaultRules:
       # The kube-apiserver SLO rules compute increase() over 30d and burn-rate over 3d
       # across the high-cardinality apiserver_request histogram — they time out evaluating
@@ -75,21 +75,12 @@ spec:
             cpu: 500m
             memory: 1Gi
     grafana:
+      env:
+        GF_SERVER_ROOT_URL: "https://grafana.zebra-alewife.ts.net"
       admin:
         existingSecret: grafana-admin-credentials
         userKey: admin-user
         passwordKey: admin-password
-      ingress:
-        enabled: true
-        ingressClassName: traefik
-        annotations:
-          cert-manager.io/cluster-issuer: cluster-ca-issuer
-        hosts:
-          - grafana.makerspace.local
-        tls:
-          - hosts:
-              - grafana.makerspace.local
-            secretName: grafana-tls
       additionalDataSources:
         - name: Loki
           type: loki

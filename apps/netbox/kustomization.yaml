@@ -6,3 +6,4 @@ resources:
   - helmrelease.yaml
   - postgres-cluster.yaml
   - network-policy.yaml
+  - netbox-ts-ingress.yaml

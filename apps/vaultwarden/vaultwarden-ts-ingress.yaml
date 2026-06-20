@@ -1,0 +1,15 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: vaultwarden-ts
+  namespace: vaultwarden
+spec:
+  ingressClassName: tailscale
+  defaultBackend:
+    service:
+      name: vaultwarden
+      port:
+        number: 80
+  tls:
+    - hosts:
+        - vault            # → vault.zebra-alewife.ts.net
