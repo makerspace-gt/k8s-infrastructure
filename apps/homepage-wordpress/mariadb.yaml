@@ -5,11 +5,11 @@ metadata:
   namespace: homepage-wordpress
 spec:
   replicas: 1
-  rootPasswordSecretRef:
+  rootPasswordSecretKeyRef:
     name: wordpress-db-credentials
     key: root-password
   username: wordpress
-  passwordSecretRef:
+  passwordSecretKeyRef:
     name: wordpress-db-credentials
     key: password
   database: wordpress
