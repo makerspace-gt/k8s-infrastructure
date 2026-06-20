@@ -7,3 +7,5 @@ resources:
   - mysql-sealed-secret.yaml
   - helmrelease.yaml
   - network-policy.yaml
+  - mariadb.yaml
+  - mariadb-secret.yaml

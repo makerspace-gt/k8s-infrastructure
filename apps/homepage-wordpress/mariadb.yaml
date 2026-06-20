@@ -1,0 +1,18 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: MariaDB
+metadata:
+  name: mariadb-database
+  namespace: homepage-wordpress
+spec:
+  replicas: 1
+  rootPasswordSecretRef:
+    name: wordpress-db-credentials
+    key: root-password
+  username: wordpress
+  passwordSecretRef:
+    name: wordpress-db-credentials
+    key: password
+  database: wordpress
+  storage:
+    size: 8Gi
+    storageClassName: longhorn

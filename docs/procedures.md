@@ -6,24 +6,37 @@ All secrets in this repo are encrypted using [Sealed Secrets](https://github.com
 
 ### Creating a Sealed Secret
 
+Pipe the dry-run secret straight into `kubeseal` — the plaintext lives only in the pipe
+between the two commands and never touches disk, so there's no temp file to forget to
+delete:
+
 ```bash
-# 1. Create a regular Kubernetes secret (dry-run, not applied)
 kubectl create secret generic my-secret \
   --namespace=<namespace> \
   --from-literal=key=value \
-  --dry-run=client -o yaml > secret.yaml
+  --dry-run=client -o yaml \
+| kubeseal \
+    --cert cluster/certs/sealed-secrets-public-cert.pem \
+    --controller-name=sealed-secrets \
+    --controller-namespace=sealed-secrets \
+    --format yaml > sealed-secret.yaml
 
-# 2. Seal it using the cluster's public cert
-kubeseal \
-  --cert cluster/certs/sealed-secrets-public-cert.pem \
-  --controller-name=sealed-secrets \
-  --controller-namespace=sealed-secrets \
-  --format yaml < secret.yaml > sealed-secret.yaml
+# Then commit sealed-secret.yaml (encrypted data is safe to commit).
+```
 
-# 3. Delete the unencrypted secret
-rm secret.yaml
+For secrets with a generated random value you also need to store elsewhere (e.g. a DB
+password going into Vaultwarden), capture it in a shell variable first so you can read it
+back without it ever hitting a file:
 
-# 4. Commit sealed-secret.yaml (encrypted data is safe to commit)
+```bash
+PW=$(openssl rand -base64 24)   # copy $PW into Vaultwarden now
+kubectl create secret generic my-secret \
+  --namespace=<namespace> \
+  --from-literal=password="$PW" \
+  --dry-run=client -o yaml \
+| kubeseal --cert cluster/certs/sealed-secrets-public-cert.pem \
+    --controller-name=sealed-secrets --controller-namespace=sealed-secrets \
+    --format yaml > sealed-secret.yaml
 ```
 
 ### Creating a Basic Auth Sealed Secret (for Traefik)
@@ -34,13 +47,14 @@ Traefik's `basicAuth` middleware expects a secret with an `users` key containing
 # 1. Generate htpasswd entry
 `htpasswd -nb username <enter, paste password>`
 
-# 2. Create secret with the htpasswd output
+# 2. Create the secret and pipe straight into kubeseal (see above — no temp file)
 kubectl create secret generic <name> \
   --namespace=<namespace> \
   --from-literal=users='<htpasswd-output>' \
-  --dry-run=client -o yaml > secret.yaml
-
-# 3. Seal and clean up as above
+  --dry-run=client -o yaml \
+| kubeseal --cert cluster/certs/sealed-secrets-public-cert.pem \
+    --controller-name=sealed-secrets --controller-namespace=sealed-secrets \
+    --format yaml > sealed-secret.yaml
 ```
 
 ### Restoring the controller key (all SealedSecrets fail to decrypt)
