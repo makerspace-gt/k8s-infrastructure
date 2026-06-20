@@ -9,3 +9,4 @@ resources:
   - wordpress-service.yaml
   - wordpress-ingress.yaml
   - wordpress-deployment.yaml
+  - wordpress-tailscale-ingress.yaml
