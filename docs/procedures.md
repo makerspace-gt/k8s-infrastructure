@@ -257,9 +257,11 @@ spec:
 
 Two gotchas:
 
-- **NetworkPolicy must admit the `tailscale` namespace** on the app's port — the proxy pods live
-  there, so a blanket-ingress policy drops them (symptom: page won't load, `nc` from the
-  `tailscale` ns times out). Same shape as the mariadb-operator rule.
+- **NetworkPolicy must admit the `tailscale` namespace** on the app's **container port** (the
+  pod's targetPort, *not* the Service port — Cilium matches the post-DNAT pod port; e.g. netbox
+  Service 80 → container 8080 needs `port: "8080"`). The proxy pods live in `tailscale`, so a
+  blanket-ingress policy drops them (symptom: page won't load, `nc` from the `tailscale` ns
+  times out / connection refused). Same shape as the mariadb-operator rule.
 - **Tailscale terminates TLS and forwards plain HTTP**, so apps that build absolute URLs need to
   trust the forwarded proto or they redirect-loop. WordPress example: in `WORDPRESS_CONFIG_EXTRA`,
   `if (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '')==='https') $_SERVER['HTTPS']='on';` plus fixed
