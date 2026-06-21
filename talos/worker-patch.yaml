@@ -1,0 +1,68 @@
+machine:
+  install:
+    # OS on the 256 GB SATA SSD (sdb). This drive exposes no `serial` attribute; its
+    # unit-unique ID lives inside the WWID, which has padding spaces that are fragile
+    # to match literally ("t10.ATA   HFS256G32MND-2200A   EI5BN01551190BA2U").
+    # diskSelector fields are glob-matched, so pin by the WWID's unique tail — stable,
+    # never /dev/sdX. Verify: talosctl -n 192.168.0.185 get disk sdb --insecure -o yaml
+    diskSelector:
+      wwid: "*EI5BN01551190BA2U"
+    image: factory.talos.dev/metal-installer/cc6abef19f4a24ca6c2fdf9e51fbc66a5c43350670f0660c77a6909d0c0c6479:v1.13.3
+  network:
+    # Single onboard NIC selected by attribute (stable across reboots). If this box
+    # has more than one physical NIC, pin the right one by hardwareAddr or busPath.
+    interfaces:
+      - deviceSelector:
+          physical: true
+        dhcp: true
+  time:
+    servers:
+      - time.cloudflare.com
+  kubelet:
+    # rotate-server-certificates makes the kubelet submit a kubelet-serving CSR that
+    # is NOT auto-approved — approve it after the node registers (see bootstrap doc).
+    extraArgs:
+      rotate-server-certificates: true
+    nodeIP:
+      validSubnets:
+        - 192.168.0.0/24
+    extraMounts:
+      - destination: /var/mnt/longhorn
+        type: bind
+        source: /var/mnt/longhorn
+        options:
+          - bind
+          - rshared
+          - rw
+cluster:
+  # Match the cluster's networking: Cilium provides CNI out-of-band and replaces
+  # kube-proxy, so Talos manages neither. Cluster-wide manifests are applied by the
+  # control plane at bootstrap (not by workers), so this is mostly for consistency
+  # with the CP configs — but it removes any ambiguity about what the node expects.
+  network:
+    cni:
+      name: none
+  proxy:
+    disabled: true
+---
+# Explicit hostname via the HostnameConfig DOCUMENT (never machine.network.hostname).
+# auto:"off" so a DHCP outage can't spawn a ghost node. Rename to taste before applying.
+apiVersion: v1alpha1
+kind: HostnameConfig
+auto: "off"
+hostname: worker01
+---
+# Longhorn data on the dedicated 1 TB SATA HDD (sdc), a SEPARATE disk from the OS, so
+# NO EPHEMERAL cap is needed (EPHEMERAL may use the SSD freely, like towercp01/02). A
+# clean WWID is available here, so pin by WWID. grow:true provisions last and claims
+# the rest of the disk.
+apiVersion: v1alpha1
+kind: UserVolumeConfig
+name: longhorn
+provisioning:
+  diskSelector:
+    match: disk.wwid == "naa.5000039fe7c34787"
+  minSize: 50GiB
+  grow: true
+filesystem:
+  type: xfs

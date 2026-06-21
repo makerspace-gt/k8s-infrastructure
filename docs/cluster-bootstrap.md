@@ -83,12 +83,19 @@ disk is empty and the user volume provisions automatically.
 ## talosctl / kubectl access
 
 `.envrc` (direnv) sets repo-local `TALOSCONFIG` and `KUBECONFIG` — run `direnv allow`
-once; no merging into `~/.talos` or `~/.kube`. Set only the **endpoint** in the
-talosconfig, never a node:
+once; no merging into `~/.talos` or `~/.kube`. Set **all three control planes** as Talos
+API endpoints (never the worker, never a node) so `talosctl` still reaches the cluster if
+one CP — especially the weak `towercp01` — is down; it tries endpoints in turn, then
+proxies to the `-n` target:
 
 ```bash
-talosctl config endpoint 192.168.0.68
+talosctl config endpoint 192.168.0.68 192.168.0.157 192.168.0.21
 ```
+
+This is the **Talos API** endpoint list in the local talosconfig — distinct from the
+**Kubernetes** API endpoint (`https://192.168.0.68:6443`) baked into every machine config,
+which is still a single IP / SPOF (a VIP or LB for it is a future item). During first
+bring-up only `towercp01` exists, so start with that one and add the other two once up.
 
 **Always pass `-n <ip>` explicitly** on every `talosctl` command. A node baked into
 the config means a forgotten `-n` could reboot/reset the wrong node — or all of them.
@@ -191,6 +198,51 @@ node's kubelet serving CSR (step 4).** laptopcp03 is the converted ex-worker (si
 EPHEMERAL cap; USB NIC → keep it on the USB-C port).
 
 After all three nodes are up, bootstrap Flux (see `docs/procedures.md`). Restore the old sealed-secrets controller key before infra reconciles, or the 7 SealedSecrets won't decrypt.
+
+## Joining an additional node (worker)
+
+Adding compute later is simpler than the initial bring-up — **no `bootstrap`, no etcd**.
+**Prefer a worker:** workers don't join etcd, so they don't touch quorum; a 4th *control
+plane* would make etcd a 4-member cluster that still tolerates only one failure (an
+even-membered quorum buys nothing). The worker config is generated from `secrets.yaml` +
+a committed **`worker-patch.yaml`** (same pattern as the CP patches). For a second worker,
+copy it to a per-node patch with its own `hostname` + disk selectors.
+
+1. **Identify disks in maintenance mode** and pin by stable ID (see **Disks**):
+   ```bash
+   talosctl -n <node-ip> get disks --insecure
+   talosctl -n <node-ip> get disk <id> --insecure -o yaml   # full spec
+   ```
+   Fill `install.diskSelector` (OS) and the `longhorn` `UserVolumeConfig` (data) in the
+   patch. **`diskSelector` fields are glob-matched** — if a disk exposes no `serial` and
+   its `wwid` carries embedded padding spaces (some SATA SSDs do), match the WWID's unique
+   tail: `wwid: "*<unit-id>"`. Separate OS/data disks ⇒ **no EPHEMERAL cap** (unlike the
+   single-disk laptop).
+
+2. **Generate, dry-run, apply** (node in maintenance mode → `--insecure`):
+   ```bash
+   cd talos
+   talosctl gen config makerspace-gt https://192.168.0.68:6443 \
+     --with-secrets secrets.yaml --force \
+     --config-patch-worker @worker-patch.yaml \
+     --output-types worker --output worker.yaml
+   talosctl apply-config --insecure --nodes <node-ip> --file worker.yaml --dry-run  # always first
+   talosctl apply-config --insecure --nodes <node-ip> --file worker.yaml
+   ```
+   Installs to the OS disk and reboots into Talos. **No `bootstrap`** — the node joins on
+   its own. The patch sets `cluster.network.cni.name: none` + `proxy.disabled: true` to
+   match the Cilium / no-kube-proxy cluster; `gen` won't add these for a worker on its own.
+
+3. **Approve the kubelet-serving CSR** (step 4 above) — same as any node.
+
+4. **Cilium auto-schedules** its agent on the new node; it stays `NotReady` (agent
+   `Init:0/5`) for a minute, then goes `Ready`. **Longhorn auto-discovers**
+   `/var/mnt/longhorn` and registers the node + disk
+   (`kubectl -n longhorn-system get nodes.longhorn.io <node>`). Optional role label:
+   `kubectl label node <node> node-role.kubernetes.io/worker=`.
+
+Verify: `kubectl get nodes -o wide` (Ready), `talosctl -n <node-ip> get extensions`
+(`iscsi-tools` + `util-linux-tools` present for Longhorn), `talosctl -n 192.168.0.68 health`.
 
 ## Upgrading Talos
 
