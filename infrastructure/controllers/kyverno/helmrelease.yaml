@@ -18,12 +18,13 @@ spec:
   upgrade:
     crds: CreateReplace
   values:
-    # Single-replica controllers: this is a 3-node test cluster, not HA. The
-    # policies run in Audit (see policies/), so a brief admission-webhook gap
-    # during a controller restart can't block cluster operations. Revisit
-    # replicas/HA + webhook failurePolicy before flipping any policy to Enforce.
+    # The policies now Enforce on app namespaces (see policies/), so the admission
+    # webhook is in the request path: run 2 admission replicas so a single-pod
+    # restart doesn't block app-pod admission (default failurePolicy is Fail). The
+    # other controllers stay single-replica — if they lag, reports/cleanup are
+    # delayed but nothing is blocked.
     admissionController:
-      replicas: 1
+      replicas: 2
     backgroundController:
       replicas: 1
     reportsController:

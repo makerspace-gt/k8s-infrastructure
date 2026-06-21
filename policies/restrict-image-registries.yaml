@@ -18,11 +18,33 @@ spec:
               kinds:
                 - Pod
       validate:
-        # Audit-first rollout: report violations via PolicyReports, don't block.
-        # Flip to Enforce (and add system-namespace excludes) once reports are clean.
+        # Enforce everywhere by default (new namespaces are governed automatically);
+        # keep platform/system namespaces in Audit — we don't author those pod specs.
+        # To graduate a platform namespace to Enforce later, drop it from this list.
         # Note: short image names (e.g. "nginx:1.25") have no registry prefix and
-        # will be flagged — expected; the goal is fully-qualified registries.
-        failureAction: Audit
+        # are rejected — by design; the goal is fully-qualified registries.
+        failureAction: Enforce
+        failureActionOverrides:
+          - action: Audit
+            namespaces:
+              - kube-system
+              - kube-node-lease
+              - kube-public
+              - default
+              - flux-system
+              - kyverno
+              - cilium-secrets
+              - "cilium-test*"
+              - longhorn-system
+              - cnpg-system
+              - cert-manager
+              - sealed-secrets
+              - mariadb-operator
+              - traefik
+              - tailscale
+              - monitoring
+              - loki
+              - alloy
         message: "Images must come from approved registries: ghcr.io, docker.io, quay.io, registry.k8s.io."
         pattern:
           spec:
