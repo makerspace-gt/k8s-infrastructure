@@ -7,7 +7,8 @@ metadata:
     policies.kyverno.io/severity: high
     policies.kyverno.io/description: Only allow images from approved registries
 spec:
-  validationFailureAction: Enforce
+  # Match Pod only; Kyverno autogen expands the rule to Deployment/StatefulSet/
+  # DaemonSet/Job/CronJob automatically.
   background: true
   rules:
     - name: validate-registries
@@ -16,16 +17,18 @@ spec:
           - resources:
               kinds:
                 - Pod
-                - Deployment
-                - StatefulSet
-                - DaemonSet
       validate:
-        message: "Images must come from approved registries: ghcr.io, docker.io, quay.io, registry.k8s.io"
+        # Audit-first rollout: report violations via PolicyReports, don't block.
+        # Flip to Enforce (and add system-namespace excludes) once reports are clean.
+        # Note: short image names (e.g. "nginx:1.25") have no registry prefix and
+        # will be flagged — expected; the goal is fully-qualified registries.
+        failureAction: Audit
+        message: "Images must come from approved registries: ghcr.io, docker.io, quay.io, registry.k8s.io."
         pattern:
           spec:
+            containers:
+              - image: "ghcr.io/* | docker.io/* | quay.io/* | registry.k8s.io/*"
+            =(initContainers):
+              - image: "ghcr.io/* | docker.io/* | quay.io/* | registry.k8s.io/*"
             =(ephemeralContainers):
               - image: "ghcr.io/* | docker.io/* | quay.io/* | registry.k8s.io/*"
-                =(initContainers):
-              - image: "ghcr.io/* | docker.io/* | quay.io/* | registry.k8s.io/*"
-                containers:
-                  - image: "ghcr.io/* | docker.io/* | quay.io/* | registry.k8s.io/*"

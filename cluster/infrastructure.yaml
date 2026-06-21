@@ -172,3 +172,37 @@ spec:
     kind: GitRepository
     name: flux-system
   wait: true
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: kyverno
+  namespace: flux-system
+spec:
+  interval: 10m
+  path: ./infrastructure/controllers/kyverno
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  wait: true
+---
+# ClusterPolicies are split from the Kyverno chart: they use the kyverno.io CRDs
+# the chart provides, so they can't share a Kustomization (the CR dry-run fails
+# before the chart installs the CRD). dependsOn kyverno + wait. Policies run in
+# Audit mode — see policies/ — so they report violations without blocking.
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: kyverno-policies
+  namespace: flux-system
+spec:
+  interval: 10m
+  dependsOn:
+    - name: kyverno
+  path: ./policies
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  wait: true

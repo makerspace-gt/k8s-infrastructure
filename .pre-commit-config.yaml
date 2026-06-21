@@ -29,13 +29,15 @@ repos:
         exclude: ^(talos/|cluster/flux-system/)
         args: ["-c", ".yamllint"]
 
-  # Kubernetes manifest validation with kubeconform
+  # Manifest validation: kustomize build -> kubeconform + kyverno policy
+  # pre-flight, via the same script CI runs (scripts/validate.sh), so local and
+  # CI never drift. Builds whole kustomizations, so it runs on the full repo
+  # rather than per-file. Requires kustomize, kubeconform, kyverno on PATH.
   - repo: local
     hooks:
-      - id: kubeconform
-        name: Validate Kubernetes manifests
-        entry: kubeconform -strict -ignore-missing-schemas
+      - id: validate-manifests
+        name: Validate Kubernetes manifests (kustomize/kubeconform/kyverno)
+        entry: scripts/validate.sh
         language: system
-        files: \.(yaml|yml)$
-        exclude: ^(cilium-install-config/|talos/|cluster/flux-system/|\.pre-commit-config\.yaml|\.yamllint|\.github/)
-        pass_filenames: true
+        pass_filenames: false
+        always_run: true

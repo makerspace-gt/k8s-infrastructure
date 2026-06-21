@@ -7,7 +7,8 @@ metadata:
     policies.kyverno.io/severity: medium
     policies.kyverno.io/description: Images should use specific tags, not 'latest'
 spec:
-  validationFailureAction: Enforce
+  # Match Pod only; Kyverno autogen expands the rule to Deployment/StatefulSet/
+  # DaemonSet/Job/CronJob automatically.
   background: true
   rules:
     - name: require-image-tag
@@ -15,18 +16,17 @@ spec:
         any:
           - resources:
               kinds:
-                - Deployment
-                - StatefulSet
-                - DaemonSet
+                - Pod
       validate:
-        message: "Images must not use 'latest' tag. Use specific version tags."
+        # Audit-first rollout: report violations via PolicyReports, don't block.
+        # Flip to Enforce (and add system-namespace excludes) once reports are clean.
+        failureAction: Audit
+        message: "Images must not use the 'latest' tag. Use a specific version tag."
         pattern:
           spec:
-            template:
-              spec:
-                =(ephemeralContainers):
-                  - image: "!*:latest"
-                =(initContainers):
-                  - image: "!*:latest"
-                containers:
-                  - image: "!*:latest"
+            containers:
+              - image: "!*:latest"
+            =(initContainers):
+              - image: "!*:latest"
+            =(ephemeralContainers):
+              - image: "!*:latest"

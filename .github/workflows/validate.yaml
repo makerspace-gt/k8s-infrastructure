@@ -37,16 +37,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
+      - name: Setup kustomize
+        uses: imranismail/setup-kustomize@v3
+
       - name: Setup kubeconform
         uses: bmuschko/setup-kubeconform@v1
 
-      - name: Validate manifests apps
-        run: kubeconform -summary -output pretty -strict -ignore-missing-schemas ./apps
-      - name: Validate manifests cluster
-        run: kubeconform -summary -output pretty -strict -ignore-missing-schemas ./cluster
-      - name: Validate manifests infrastructure
-        run: kubeconform -summary -output pretty -strict -ignore-missing-schemas ./infrastructure
-      - name: Validate manifests policies
-        run: kubeconform -summary -output pretty -strict -ignore-missing-schemas ./policies
-      - name: Validate manifests monitoring
-        run: kubeconform -summary -output pretty -strict -ignore-missing-schemas -ignore-filename-pattern 'dashboards/.*\.json' ./monitoring
+      - name: Setup kyverno CLI
+        uses: kyverno/action-install-cli@v0.2.0
+
+      # Runs the exact same checks as the local pre-commit hook (scripts/validate.sh):
+      # kustomize build -> kubeconform per kustomization, then kyverno policy pre-flight.
+      - name: Validate manifests
+        run: ./scripts/validate.sh

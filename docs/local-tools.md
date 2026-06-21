@@ -11,7 +11,7 @@ Most tools are in the official repos or AUR (install via your AUR helper of choi
 sudo pacman -S kubectl helm k9s kustomize kubectx direnv yamllint python python-pip nodejs npm
 
 # AUR
-paru -S kubeseal flux-bin talosctl-bin cilium-cli-bin kubeconform-bin
+paru -S kubeseal flux-bin talosctl-bin cilium-cli-bin kubeconform-bin kyverno-git
 ```
 
 ## Fedora
@@ -32,6 +32,7 @@ curl -s https://fluxcd.io/install.sh | sudo bash
 #   cilium-cli  — https://github.com/cilium/cilium-cli/releases
 #   kubectx     — https://github.com/ahmetb/kubectx (kubectx + kubens scripts)
 #   kubeconform — https://github.com/yannh/kubeconform/releases
+#   kyverno     — https://github.com/kyverno/kyverno/releases (kyverno CLI)
 ```
 
 ## All distros — language toolchains
@@ -49,7 +50,7 @@ npm install -g @anthropic-ai/claude-code
 In the repo root:
 
 ```bash
-pre-commit install      # installs git hooks for yamllint + detect-secrets
+pre-commit install      # git hooks: yamllint, detect-secrets, + full manifest validation
 direnv allow            # if any .envrc is added later
 ```
 
@@ -60,14 +61,15 @@ direnv allow            # if any .envrc is added later
 | `kubectl` | Talking to the cluster |
 | `helm` | Inspecting Helm charts; not used to deploy (Flux does that) |
 | `flux` | Reconciling, suspending, debugging Flux Kustomizations / HelmReleases |
-| `kustomize` | Previewing rendered manifests (`kubectl kustomize <path>`) |
+| `kustomize` | Previewing rendered manifests; `kustomize build` in validation (mirrors CI) |
 | `talosctl` | Talos node admin (config apply, upgrade, etcd, logs) |
 | `cilium` | Installing Cilium (out-of-band, not via Flux), `cilium status` |
 | `kubeseal` | Encrypting secrets against the cluster's sealed-secrets public key |
 | `k9s` | TUI for browsing cluster state |
 | `kubectx` / `kubens` | Switch contexts and namespaces |
 | `kubeconform` | Schema-validate manifests locally (mirrors CI) |
+| `kyverno` | Kyverno CLI; `kyverno apply` pre-flights manifests against `policies/` (mirrors CI) |
 | `yamllint` | YAML linting (mirrors CI) |
-| `pre-commit` | Runs yamllint + detect-secrets on commit |
+| `pre-commit` | Runs yamllint + detect-secrets + `scripts/validate.sh` on commit |
 | `detect-secrets` | Catches accidental secrets in commits |
 | `direnv` | Auto-loads per-directory env vars |

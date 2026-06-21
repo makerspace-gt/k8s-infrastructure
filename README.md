@@ -38,8 +38,10 @@ Pending work, rough priority. Detailed rationale lives in `docs/` + project note
 **Later / hardening**
 
 - [ ] **Git PR workflow + protected `main`** — deferred while solo (CI gate ready).
-- [ ] **Re-enable Kyverno** — policies still in `policies/` (not wired to Flux); install
-      Kyverno + restore the Kyverno/Trivy CI jobs.
+- [ ] **Kyverno: Audit → Enforce** — Kyverno installed and the 3 policies wired to Flux in
+      **Audit** mode; review PolicyReports, fix violations (add resource limits, qualify image
+      registries), exclude system namespaces, then flip `validate.failureAction` to Enforce
+      (per-namespace first). Still pending: restore the **Trivy** image-scan CI job.
 - [ ] **Default-deny network policy** — `CiliumClusterwideNetworkPolicy`; roll out with
       Hubble in audit/observe mode first (currently per-namespace opt-in, several namespaces open).
 - [ ] **Control-plane API VIP** — kubeconfig/talosconfig point at a single CP (`192.168.0.68`);

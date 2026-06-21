@@ -7,7 +7,8 @@ metadata:
     policies.kyverno.io/severity: high
     policies.kyverno.io/description: All containers must have CPU and memory limits set
 spec:
-  validationFailureAction: Enforce
+  # Match Pod only; Kyverno autogen expands the rule to Deployment/StatefulSet/
+  # DaemonSet/Job/CronJob automatically.
   background: true
   rules:
     - name: validate-resources
@@ -15,18 +16,16 @@ spec:
         any:
           - resources:
               kinds:
-                - Deployment
-                - StatefulSet
-                - DaemonSet
+                - Pod
       validate:
-        message: "All containers must have CPU and memory limits defined"
+        # Audit-first rollout: report violations via PolicyReports, don't block.
+        # Flip to Enforce (and add system-namespace excludes) once reports are clean.
+        failureAction: Audit
+        message: "All containers must define CPU and memory limits."
         pattern:
           spec:
-            template:
-              spec:
-                containers:
-                  - name: "*"
-                    resources:
-                      limits:
-                        memory: "?*"
-                        cpu: "?*"
+            containers:
+              - resources:
+                  limits:
+                    memory: "?*"
+                    cpu: "?*"

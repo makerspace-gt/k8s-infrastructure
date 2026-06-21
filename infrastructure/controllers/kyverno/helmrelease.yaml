@@ -1,0 +1,32 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: kyverno
+  namespace: kyverno
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: kyverno
+      version: "3.8.1"
+      sourceRef:
+        kind: HelmRepository
+        name: kyverno
+      interval: 12h
+  install:
+    crds: Create
+  upgrade:
+    crds: CreateReplace
+  values:
+    # Single-replica controllers: this is a 3-node test cluster, not HA. The
+    # policies run in Audit (see policies/), so a brief admission-webhook gap
+    # during a controller restart can't block cluster operations. Revisit
+    # replicas/HA + webhook failurePolicy before flipping any policy to Enforce.
+    admissionController:
+      replicas: 1
+    backgroundController:
+      replicas: 1
+    reportsController:
+      replicas: 1
+    cleanupController:
+      replicas: 1
