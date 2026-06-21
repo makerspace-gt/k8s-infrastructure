@@ -28,12 +28,8 @@ Pending work, rough priority. Detailed rationale lives in `docs/` + project note
 
 **Phase 2 — access & multi-user**
 
-- [ ] **Tailscale access (in progress)** — operator live; apps exposed via per-app Tailscale
-      Ingress (recipe in `docs/procedures.md`). Per-app config still owed (allowed-hosts /
-      root-url / public-url). Optional: kube-apiserver proxy for remote `kubectl`.
 - [ ] **Forward-auth SSO** (Authelia / authentik / oauth2-proxy) — before public exposure;
       tailnet identity does NOT protect the public Traefik path.
-- [ ] **RBAC** — admin/member roles; gate route-creation (unauth UIs like Longhorn).
 - [ ] **Public exposure + TLS cutover** — edge firewall + public DNS `makerspace-gt.de` +
       Let's Encrypt; flip ingress issuer from `cluster-ca-issuer` to the ACME issuer.
 - [ ] **Distributed nodes across members** — feasibility discussion (etcd/Longhorn locality
