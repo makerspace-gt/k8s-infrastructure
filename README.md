@@ -1,6 +1,6 @@
 # Makerspace GT Infrastructure
 
-GitOps repository for managing the Makerspace GT Kubernetes infrastructure using FluxCD on Talos Linux. Single bare-metal cluster (3 control planes, all also scheduling workloads), Longhorn storage, Cilium networking.
+GitOps repository for managing the Makerspace GT Kubernetes infrastructure using FluxCD on Talos Linux. Single bare-metal cluster (3 control planes that also schedule workloads + 1 worker), Longhorn storage, Cilium networking.
 
 ## Docs
 
@@ -38,10 +38,9 @@ Pending work, rough priority. Detailed rationale lives in `docs/` + project note
 **Later / hardening**
 
 - [ ] **Git PR workflow + protected `main`** — deferred while solo (CI gate ready).
-- [ ] **Kyverno: Audit → Enforce** — Kyverno installed and the 3 policies wired to Flux in
-      **Audit** mode; review PolicyReports, fix violations (add resource limits, qualify image
-      registries), exclude system namespaces, then flip `validate.failureAction` to Enforce
-      (per-namespace first). Still pending: restore the **Trivy** image-scan CI job.
+- [ ] **Trivy image-scan CI job** — restore the image vulnerability scan (dropped with the
+      old Kyverno setup; Kyverno Audit→Enforce itself is now done — enforcing on app
+      namespaces, audit on platform/system via `failureActionOverrides`).
 - [ ] **Default-deny network policy** — `CiliumClusterwideNetworkPolicy`; roll out with
       Hubble in audit/observe mode first (currently per-namespace opt-in, several namespaces open).
 - [ ] **Control-plane API VIP** — kubeconfig/talosconfig point at a single CP (`192.168.0.68`);
