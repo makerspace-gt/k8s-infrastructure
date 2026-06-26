@@ -22,6 +22,18 @@ spec:
       - netbox.zebra-alewife.ts.net
     persistence:
       accessMode: ReadWriteMany
+    # valkey: pin to a specific tag from an approved registry. The chart defaults to
+    # registry-1.docker.io/bitnami/valkey:latest, which Kyverno (Enforce on this ns)
+    # blocks on both no-latest-tag and restrict-image-registries. Bitnami stripped
+    # versioned tags from docker.io/bitnami in Aug 2025; the last frozen versioned
+    # image now lives under bitnamilegacy. TEMPORARY bridge — to be replaced by a
+    # maintained upstream valkey/valkey image (see roadmap). Renovate cannot bump
+    # this (bitnamilegacy is frozen).
+    valkey:
+      image:
+        registry: docker.io
+        repository: bitnamilegacy/valkey
+        tag: 8.1.3-debian-12-r3
     postgresql:
       enabled: false
     externalDatabase:
