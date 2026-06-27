@@ -7,6 +7,17 @@ spec:
   instances: 2
   storage:
     size: 5Gi
+  # Required by Kyverno require-resource-limits (Enforce on app namespaces): without
+  # limits the postgres pod is denied admission, which blocked the second instance
+  # from ever being created (cluster stuck at 1/2, "Waiting for the instances to
+  # become active") and would block the primary too on any recreation.
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: "1"
+      memory: 1Gi
   bootstrap:
     initdb:
       database: vikunja
