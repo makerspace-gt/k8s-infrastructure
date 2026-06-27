@@ -29,3 +29,25 @@ spec:
         - ports:
             - port: "3456"
               protocol: TCP
+  # Adding an egress block turns this into default-deny egress for all pods in the
+  # namespace. The rules below are the complete set observed via Hubble (app pod ->
+  # DB + DNS; CNPG db pod -> kube-apiserver + DNS). No external/world egress exists.
+  egress:
+    # DNS resolution — every pod needs this
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: kube-system
+            k8s:k8s-app: kube-dns
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: UDP
+            - port: "53"
+              protocol: TCP
+    # Intra-namespace (vikunja app -> cnpg db on 5432, plus any db<->db)
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: vikunja
+    # CloudNativePG instance manager -> kube-apiserver (failover/reconciliation)
+    - toEntities:
+        - kube-apiserver
