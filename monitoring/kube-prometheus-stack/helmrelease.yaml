@@ -130,6 +130,10 @@ spec:
               - source.toolkit.fluxcd.io
             resources: ["*"]
             verbs: ["list", "watch"]
+          - apiGroups:
+              - postgresql.cnpg.io
+            resources: ["clusters"]
+            verbs: ["list", "watch"]
       customResourceState:
         enabled: true
         config:
@@ -223,3 +227,30 @@ spec:
                       exported_namespace: [metadata, namespace]
                       ready: [status, conditions, "[type=Ready]", status]
                       suspended: [spec, suspend]
+              # CNPG Cluster ready-vs-desired instances. A degraded cluster (e.g. 1/2)
+              # has no missing-pod to trip KubePodNotReady and isn't a StatefulSet, so
+              # nothing else covers it — the cnpg-cluster PrometheusRule alerts on this.
+              - groupVersionKind:
+                  group: postgresql.cnpg.io
+                  version: v1
+                  kind: Cluster
+                metricNamePrefix: cnpg_cluster
+                metrics:
+                  - name: "ready_instances"
+                    help: "Number of ready instances in the CNPG cluster."
+                    each:
+                      type: Gauge
+                      gauge:
+                        path: [status, readyInstances]
+                    labelsFromPath:
+                      exported_namespace: [metadata, namespace]
+                      cluster: [metadata, name]
+                  - name: "desired_instances"
+                    help: "Desired number of instances in the CNPG cluster."
+                    each:
+                      type: Gauge
+                      gauge:
+                        path: [spec, instances]
+                    labelsFromPath:
+                      exported_namespace: [metadata, namespace]
+                      cluster: [metadata, name]

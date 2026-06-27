@@ -6,3 +6,4 @@ resources:
   - flux-podmonitor.yaml
   - flux-prometheusrule.yaml
   - csr-prometheusrule.yaml
+  - cnpg-cluster-prometheusrule.yaml

@@ -1,0 +1,36 @@
+# Alerts when a CloudNativePG Cluster has fewer ready instances than desired for
+# >15m. This gap was real: all three app databases silently ran 1/2 (HA lost,
+# replica pod blocked by Kyverno Enforce for missing resource limits) with nothing
+# firing — a degraded CNPG cluster has no missing-pod to trip KubePodNotReady and
+# isn't a StatefulSet, so KubeStatefulSetReplicasMismatch doesn't apply either.
+# Metrics come from kube-state-metrics Custom Resource State (cnpg_cluster_* in the
+# chart values + rbac.extraRules for postgresql.cnpg.io). The 15m `for` rides out
+# the brief 1/2 dip during normal CNPG rolling updates. Routes to Discord (warning).
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: cnpg-cluster
+  namespace: monitoring
+  labels:
+    # The operator's ruleSelector matches on the release label by default.
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: cnpg.rules
+      rules:
+        - alert: CNPGClusterDegraded
+          expr: |
+            cnpg_cluster_ready_instances < cnpg_cluster_desired_instances
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "CNPG cluster {{ $labels.exported_namespace }}/{{ $labels.cluster }} degraded ({{ $value }} ready)"
+            description: >-
+              CloudNativePG cluster {{ $labels.exported_namespace }}/{{ $labels.cluster }} has
+              only {{ $value }} ready instance(s), fewer than desired, for over 15 minutes —
+              high-availability is lost and the cluster is one failure from an outage. Check:
+              kubectl -n {{ $labels.exported_namespace }} get cluster {{ $labels.cluster }};
+              kubectl -n {{ $labels.exported_namespace }} get pods -l cnpg.io/cluster.
+              A common cause here is the replica pod being denied admission (e.g. Kyverno
+              require-resource-limits) — look for FailedCreate events.
