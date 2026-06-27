@@ -25,3 +25,25 @@ spec:
         - ports:
             - port: "80"
               protocol: TCP
+  # Adding an egress block turns this into default-deny egress for all pods in the
+  # namespace. Internal-only by choice: wordpress -> mariadb:3306 (intra-ns) + DNS.
+  # External egress is intentionally blocked — WP update checks / external plugin
+  # fetches fail silently; core+plugins are managed via the container image (GitOps),
+  # not WP's in-dashboard updater. No apiserver rule needed (the mariadb pod makes no
+  # API calls; the operator reaches in from its own namespace).
+  egress:
+    # DNS resolution — every pod needs this
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: kube-system
+            k8s:k8s-app: kube-dns
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: UDP
+            - port: "53"
+              protocol: TCP
+    # Intra-namespace (wordpress -> mariadb on 3306)
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: homepage-wordpress
