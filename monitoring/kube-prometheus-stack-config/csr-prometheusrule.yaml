@@ -1,0 +1,43 @@
+# Detects CertificateSigningRequests left unapproved for >10m. There is no
+# auto-approver by design — kubelet-serving CSRs (kubernetes.io/kubelet-serving)
+# are approved by hand. The risk this guards against is the kubelet's ~yearly
+# serving-cert rotation silently submitting a CSR nobody notices: until it's
+# approved, kubectl logs/exec, metrics-server and Prometheus kubelet scraping all
+# fail with "tls: internal error". Node joins also produce these, but they're
+# approved promptly during the join procedure, so 10m avoids flapping.
+# kube-state-metrics already collects certificatesigningrequests (default resource
+# set). Routes to Discord via warning severity (Alertmanager forwards warning|critical).
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: csr-pending
+  namespace: monitoring
+  labels:
+    # The operator's ruleSelector matches on the release label by default.
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: csr.rules
+      rules:
+        - alert: CSRPending
+          # A CSR whose "approved" condition never went true, excluding any that
+          # were explicitly denied. Client-kubelet CSRs are auto-approved by the
+          # controller-manager, so anything lingering here is almost always a
+          # kubelet-serving CSR awaiting manual approval.
+          expr: |
+            kube_certificatesigningrequest_condition{condition="approved", status="true"} == 0
+            unless on (certificatesigningrequest)
+            kube_certificatesigningrequest_condition{condition="denied", status="true"} == 1
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "CSR {{ $labels.certificatesigningrequest }} pending approval >10m"
+            description: >-
+              CertificateSigningRequest {{ $labels.certificatesigningrequest }} has been
+              unapproved for over 10 minutes. With no auto-approver this is most likely a
+              kubelet-serving CSR (node join or ~yearly cert rotation); until it is approved,
+              kubectl logs/exec and kubelet metric scraping fail with "tls: internal error".
+              Approve with:
+              kubectl get csr --field-selector spec.signerName=kubernetes.io/kubelet-serving
+              -o name | xargs -r kubectl certificate approve
