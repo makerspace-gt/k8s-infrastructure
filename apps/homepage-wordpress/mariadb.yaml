@@ -5,6 +5,21 @@ metadata:
   namespace: homepage-wordpress
 spec:
   replicas: 1
+  # Fully-qualified + pinned: the mariadb-operator otherwise defaults to the bare
+  # "mariadb:11.8.8", which the Kyverno restrict-image-registries policy (Enforce on
+  # this app namespace) rejects because the string lacks an approved registry prefix —
+  # that blocked the DB pod's recreation and took the homepage down. Pinning here also
+  # insulates us from future operator-default image changes.
+  image: docker.io/library/mariadb:11.8.8
+  # require-resource-limits (Enforce on app namespaces) needs cpu+memory limits on the
+  # mariadb container; spec.resources propagates to it.
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: "1"
+      memory: 1Gi
   rootPasswordSecretKeyRef:
     name: wordpress-db-credentials
     key: root-password
