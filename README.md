@@ -45,8 +45,6 @@ Pending work, rough priority. Detailed rationale lives in `docs/` + project note
       Hubble in audit/observe mode first (currently per-namespace opt-in, several namespaces open).
 - [ ] **Control-plane API VIP** — kubeconfig/talosconfig point at a single CP (`192.168.0.68`);
       add a Talos shared VIP across all CPs + cert SANs so API access survives that node dying.
-- [ ] **kubelet-csr-approver** — auto-approve `kubernetes.io/kubelet-serving` CSRs (recurs on
-      reboot/rotation; see `docs/cluster-bootstrap.md` step 4).
 - [ ] **Traefik ServiceMonitor** — re-add a standalone ServiceMonitor in
       `monitoring/kube-prometheus-stack-config/` (chart's inline one hard-fails pre-CRD).
 - [ ] **GPU enablement (towercp02, GTX 1080 Ti)** — NVIDIA Talos extensions + device plugin +

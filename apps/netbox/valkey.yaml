@@ -1,0 +1,98 @@
+# Self-managed Valkey for NetBox: tasks broker (RQ) + cache only — no source of
+# truth lives here (Postgres/CNPG holds all persistent state), so this runs as a
+# disposable in-memory cache. Replaces the chart's bundled Bitnami valkey subchart,
+# which after Aug 2025 only ships a rolling `latest` on docker.io/bitnami (blocked by
+# the Kyverno no-latest-tag + restrict-image-registries policies that Enforce on this
+# namespace). The upstream docker.io/valkey/valkey image is pinned + Renovate-trackable.
+#
+# Persistence is fully disabled (--save "" --appendonly no): a fresh start is always
+# safe, and it avoids the RDB/AOF forward-incompatibility that crash-looped the pinned
+# Bitnami image after a version skew.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: netbox-valkey
+  namespace: netbox
+  labels:
+    app.kubernetes.io/name: valkey
+    app.kubernetes.io/instance: netbox
+spec:
+  replicas: 1
+  # Cache is in-memory only; never run two and never roll over an old pod (would
+  # briefly double-serve a partial cache). Recreate keeps it simple.
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: valkey
+      app.kubernetes.io/instance: netbox
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: valkey
+        app.kubernetes.io/instance: netbox
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 999
+        runAsGroup: 999
+        fsGroup: 999
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: valkey
+          image: docker.io/valkey/valkey:8.1.8-alpine
+          args:
+            - --save
+            - ""
+            - --appendonly
+            - "no"
+          ports:
+            - name: valkey
+              containerPort: 6379
+          resources:
+            requests:
+              cpu: 25m
+              memory: 64Mi
+            limits:
+              cpu: 250m
+              memory: 256Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          livenessProbe:
+            tcpSocket:
+              port: valkey
+            initialDelaySeconds: 5
+            periodSeconds: 15
+          readinessProbe:
+            exec:
+              command: ["valkey-cli", "ping"]
+            initialDelaySeconds: 2
+            periodSeconds: 10
+          volumeMounts:
+            - name: data
+              mountPath: /data
+      volumes:
+        - name: data
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: netbox-valkey
+  namespace: netbox
+  labels:
+    app.kubernetes.io/name: valkey
+    app.kubernetes.io/instance: netbox
+spec:
+  selector:
+    app.kubernetes.io/name: valkey
+    app.kubernetes.io/instance: netbox
+  ports:
+    - name: valkey
+      port: 6379
+      targetPort: valkey
