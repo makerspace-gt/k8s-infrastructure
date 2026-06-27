@@ -316,3 +316,20 @@ for it in json.load(sys.stdin)['items']:
 
 Old scaled-to-0 ReplicaSets from deploy history may show image-registry fails harmlessly (only a
 rollback risk). Live pods/Deployments/Clusters in Enforce namespaces are the real latent outages.
+
+## kube-state-metrics Custom Resource State changes need a KSM restart
+
+CR metrics (`gotk_*` for Flux, `cnpg_cluster_*` for CNPG) come from kube-state-metrics
+`customResourceState` config, mounted into the KSM pod from a ConfigMap. The chart does **not**
+checksum-annotate the pod template, so editing the config in
+`monitoring/kube-prometheus-stack/helmrelease.yaml` updates the ConfigMap but leaves the running
+KSM pod on the **old** config — new metrics silently never appear. After such a change:
+
+```bash
+kubectl -n monitoring rollout restart deploy/kube-prometheus-stack-kube-state-metrics
+# verify: pod registers the family, e.g.
+kubectl -n monitoring logs deploy/kube-prometheus-stack-kube-state-metrics | grep familyNames
+```
+
+Adding a new CR kind also needs a matching `kube-state-metrics.rbac.extraRules` entry (list/watch),
+or KSM logs `forbidden` and exposes nothing for it.

@@ -51,11 +51,6 @@ Pending work, rough priority. Detailed rationale lives in `docs/` + project note
       add a Talos shared VIP across all CPs + cert SANs so API access survives that node dying.
 - [ ] **Traefik ServiceMonitor** — re-add a standalone ServiceMonitor in
       `monitoring/kube-prometheus-stack-config/` (chart's inline one hard-fails pre-CRD).
-- [ ] **Alert on CNPG `Cluster` not-ready** — all three app databases silently ran degraded
-      (1/2 instances; the replica pod was blocked by Kyverno Enforce for missing resource
-      limits) with no alert firing. Add a PrometheusRule on the CNPG readiness metric so a
-      degraded/Ready=False cluster can't hide again. Related: the Kyverno-Enforce-blocks-
-      operator-pods gotcha (bare images / missing limits) — see docs.
 - [ ] **GPU enablement (towercp02, GTX 1080 Ti)** — NVIDIA Talos extensions + device plugin +
       RuntimeClass/node label.
 - [ ] **Backups** — Longhorn backup-to-S3; pick a target.
