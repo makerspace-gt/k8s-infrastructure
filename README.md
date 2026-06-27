@@ -42,18 +42,20 @@ Pending work, rough priority. Detailed rationale lives in `docs/` + project note
       old Kyverno setup; Kyverno Audit→Enforce itself is now done — enforcing on app
       namespaces, audit on platform/system via `failureActionOverrides`).
 - [ ] **Default-deny network policy** — `CiliumClusterwideNetworkPolicy`; roll out with
-      Hubble in audit/observe mode first. In progress: per-app egress lockdown via Hubble
-      observe (vikunja done as pilot; wikijs/vaultwarden/netbox/wordpress next), then platform
-      namespaces, then the cluster-wide deny backstop.
+      Hubble in audit/observe mode first. App-namespace egress lockdown DONE (all 5 apps:
+      vikunja, wikijs, vaultwarden, netbox, homepage-wordpress — each default-deny egress
+      allowing only DNS + intra-ns + apiserver as needed). Next: platform namespaces
+      (monitoring scrapes everything; longhorn/cnpg/flux/traefik/cert-manager), then the
+      cluster-wide deny backstop + a shared DNS-allow.
 - [ ] **Control-plane API VIP** — kubeconfig/talosconfig point at a single CP (`192.168.0.68`);
       add a Talos shared VIP across all CPs + cert SANs so API access survives that node dying.
 - [ ] **Traefik ServiceMonitor** — re-add a standalone ServiceMonitor in
       `monitoring/kube-prometheus-stack-config/` (chart's inline one hard-fails pre-CRD).
-- [ ] **Fix `vikunja-db` CNPG cluster** — `Ready=False`, wants 2 instances but only
-      `vikunja-db-2` runs; `vikunja-db-1` PVC is bound yet its pod is never created (likely
-      stale Longhorn replica). Usual fix: delete the db-1 PVC so CNPG rebuilds from the primary.
-- [ ] **Alert on CNPG `Cluster` not-ready** — a `Cluster` stuck `Ready=False` (e.g. vikunja-db)
-      currently slips past all alerts; add a PrometheusRule on the CNPG readiness metric.
+- [ ] **Alert on CNPG `Cluster` not-ready** — all three app databases silently ran degraded
+      (1/2 instances; the replica pod was blocked by Kyverno Enforce for missing resource
+      limits) with no alert firing. Add a PrometheusRule on the CNPG readiness metric so a
+      degraded/Ready=False cluster can't hide again. Related: the Kyverno-Enforce-blocks-
+      operator-pods gotcha (bare images / missing limits) — see docs.
 - [ ] **GPU enablement (towercp02, GTX 1080 Ti)** — NVIDIA Talos extensions + device plugin +
       RuntimeClass/node label.
 - [ ] **Backups** — Longhorn backup-to-S3; pick a target.

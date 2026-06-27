@@ -274,3 +274,45 @@ tailnet as the security boundary for anything that will be publicly reachable.
 
 `<name>.<tailnet>.ts.net` resolves and routes **only on devices logged into the tailnet** (MagicDNS
 + CGNAT `100.x` over WireGuard). A device without Tailscale gets nothing — that's by design.
+
+## Kyverno Enforce + operator-managed pods (silent-outage trap)
+
+Kyverno policies (`policies/`) run `failureAction: Enforce` on app namespaces (platform/system
+namespaces stay `Audit` via `failureActionOverrides`). The trap: an **operator's CR passes
+admission, but the pod the operator later generates is denied** — so the resource just never
+appears, and the app degrades silently (no crash on the operator, nothing obvious in events
+unless you look for `FailedCreate`).
+
+Two policies cause this with operator defaults:
+
+- **`restrict-image-registries`** matches the literal image string prefix. A **bare image** like
+  `mariadb:11.8.8` (no `docker.io/` prefix) is rejected even though it resolves to Docker Hub.
+  Operators that default to bare images trip this. *Incident:* a mariadb-operator bump defaulted
+  the MariaDB image to bare `mariadb:11.8.8` → the DB pod was denied → WordPress crashlooped for
+  ~2 days.
+- **`require-resource-limits`** needs `limits.cpu` + `limits.memory` on every container in
+  `spec.containers`. Operator CRs that don't set resources produce limitless pods. *Incident:*
+  none of the three CNPG `Cluster`s set `spec.resources` → each cluster's **second instance** was
+  denied, so all three ran `1/2` (HA silently lost) and would have lost the primary too on any
+  recreation.
+
+**Fix at the source** — set a fully-qualified, pinned image and resource limits in the operator CR
+(e.g. CNPG `Cluster.spec.resources`; MariaDB `spec.image` + `spec.resources`). Pinning the image
+also insulates against future operator-default changes.
+
+**Detection** — Kyverno's background scan flags *currently-running* resources that would fail on
+recreation. Sweep for them (app/Enforce namespaces matter most; the resource is in `.scope`):
+
+```bash
+kubectl get policyreport -A -o json | python3 -c "
+import json,sys
+for it in json.load(sys.stdin)['items']:
+    sc=it.get('scope') or {}
+    for r in it.get('results',[]):
+        if r.get('result')=='fail':
+            print(it['metadata']['namespace'], f\"{sc.get('kind')}/{sc.get('name')}\", r.get('policy'))
+" | sort -u
+```
+
+Old scaled-to-0 ReplicaSets from deploy history may show image-registry fails harmlessly (only a
+rollback risk). Live pods/Deployments/Clusters in Enforce namespaces are the real latent outages.
