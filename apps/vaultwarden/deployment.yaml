@@ -43,6 +43,11 @@ spec:
                 secretKeyRef:
                   name: vaultwarden-admin-token
                   key: admin-token
+            - name: DISABLE_ICON_DOWNLOAD
+              valueFrom:
+                configMapKeyRef:
+                  name: vaultwarden-config
+                  key: disable_icon_download
           volumeMounts:
             - name: data
               mountPath: /data

@@ -16,3 +16,17 @@ spec:
         - ports:
             - port: "80"
               protocol: TCP
+  # Default-deny egress. With DISABLE_ICON_DOWNLOAD=true vaultwarden makes no
+  # outbound calls (SQLite-backed; no DB, SMTP, push, or HIBP), so DNS is the only
+  # allow — kept as a defensive baseline even though it's rarely used.
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: kube-system
+            k8s:k8s-app: kube-dns
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: UDP
+            - port: "53"
+              protocol: TCP

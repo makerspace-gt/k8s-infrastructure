@@ -6,3 +6,7 @@ metadata:
 data:
   domain: "https://vault.zebra-alewife.ts.net"
   signups_allowed: "false"
+  # Disable server-side favicon fetching: keeps vaultwarden from making outbound
+  # calls to arbitrary sites (security hardening for a vault + supports DNS-only
+  # egress policy). Clients show generic icons instead of site favicons.
+  disable_icon_download: "true"
