@@ -29,3 +29,29 @@ spec:
         - ports:
             - port: "8080"
               protocol: TCP
+  # Adding an egress block turns this into default-deny egress for all pods in the
+  # namespace. Observed via Hubble + confirmed by config (no RELEASE_CHECK_URL, SMTP,
+  # or webhooks): web/worker -> valkey:6379 + db:5432 (intra-ns), CNPG db -> apiserver,
+  # DNS. No external/world egress.
+  egress:
+    # DNS resolution — every pod needs this
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: kube-system
+            k8s:k8s-app: kube-dns
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: UDP
+            - port: "53"
+              protocol: TCP
+    # Intra-namespace (web/worker -> valkey:6379 + cnpg db:5432, plus any db<->db)
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: netbox
+    # CloudNativePG instance manager -> apiserver. Both entities: remote control-plane
+    # apiserver IPs = kube-apiserver entity; the local-node apiserver (when the Service
+    # routes there) = host entity.
+    - toEntities:
+        - kube-apiserver
+        - host
