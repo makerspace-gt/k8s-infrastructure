@@ -48,6 +48,10 @@ spec:
     - toEndpoints:
         - matchLabels:
             k8s:io.kubernetes.pod.namespace: vikunja
-    # CloudNativePG instance manager -> kube-apiserver (failover/reconciliation)
+    # CloudNativePG instance manager -> apiserver (failover/reconciliation). Both
+    # entities are needed: remote control-plane apiserver IPs resolve to the
+    # kube-apiserver entity, but when the kubernetes Service routes the connection to
+    # the apiserver on the pod's OWN node, Cilium classifies it as the host entity.
     - toEntities:
         - kube-apiserver
+        - host

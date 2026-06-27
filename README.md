@@ -42,11 +42,18 @@ Pending work, rough priority. Detailed rationale lives in `docs/` + project note
       old Kyverno setup; Kyverno Audit→Enforce itself is now done — enforcing on app
       namespaces, audit on platform/system via `failureActionOverrides`).
 - [ ] **Default-deny network policy** — `CiliumClusterwideNetworkPolicy`; roll out with
-      Hubble in audit/observe mode first (currently per-namespace opt-in, several namespaces open).
+      Hubble in audit/observe mode first. In progress: per-app egress lockdown via Hubble
+      observe (vikunja done as pilot; wikijs/vaultwarden/netbox/wordpress next), then platform
+      namespaces, then the cluster-wide deny backstop.
 - [ ] **Control-plane API VIP** — kubeconfig/talosconfig point at a single CP (`192.168.0.68`);
       add a Talos shared VIP across all CPs + cert SANs so API access survives that node dying.
 - [ ] **Traefik ServiceMonitor** — re-add a standalone ServiceMonitor in
       `monitoring/kube-prometheus-stack-config/` (chart's inline one hard-fails pre-CRD).
+- [ ] **Fix `vikunja-db` CNPG cluster** — `Ready=False`, wants 2 instances but only
+      `vikunja-db-2` runs; `vikunja-db-1` PVC is bound yet its pod is never created (likely
+      stale Longhorn replica). Usual fix: delete the db-1 PVC so CNPG rebuilds from the primary.
+- [ ] **Alert on CNPG `Cluster` not-ready** — a `Cluster` stuck `Ready=False` (e.g. vikunja-db)
+      currently slips past all alerts; add a PrometheusRule on the CNPG readiness metric.
 - [ ] **GPU enablement (towercp02, GTX 1080 Ti)** — NVIDIA Talos extensions + device plugin +
       RuntimeClass/node label.
 - [ ] **Backups** — Longhorn backup-to-S3; pick a target.

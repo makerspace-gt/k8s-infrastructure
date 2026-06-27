@@ -29,3 +29,29 @@ spec:
         - ports:
             - port: "3000"
               protocol: TCP
+  # Adding an egress block turns this into default-deny egress for all pods in the
+  # namespace. Observed via Hubble: app -> DB (intra-ns) + DNS; CNPG db pod -> apiserver.
+  # No external/world egress.
+  egress:
+    # DNS resolution — every pod needs this
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: kube-system
+            k8s:k8s-app: kube-dns
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: UDP
+            - port: "53"
+              protocol: TCP
+    # Intra-namespace (wikijs app -> cnpg db on 5432, plus any db<->db)
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: wikijs
+    # CloudNativePG instance manager -> apiserver. Both entities are needed: remote
+    # control-plane apiserver IPs resolve to the kube-apiserver entity, but when the
+    # kubernetes Service routes to the apiserver on the pod's OWN node, Cilium
+    # classifies it as the host entity.
+    - toEntities:
+        - kube-apiserver
+        - host
