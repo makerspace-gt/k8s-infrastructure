@@ -1,0 +1,21 @@
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: kyverno-default-deny
+  namespace: kyverno
+spec:
+  endpointSelector: {}
+  # Coarse "trusted-but-contained" platform policy: allow all in-cluster traffic,
+  # deny egress to the internet (world). Kyverno's controllers only talk to the
+  # apiserver (admission/background/cleanup/reports) and receive admission webhook
+  # calls from it — all in-cluster. We use no image-verification (cosign) policies,
+  # so Kyverno never reaches external registries → no world egress.
+  #
+  # The `cluster` entity subsumes DNS, kube-apiserver, host/remote-node, and every
+  # namespace, so no separate DNS/apiserver/intra-ns rules are needed.
+  ingress:
+    - fromEntities:
+        - cluster
+  egress:
+    - toEntities:
+        - cluster

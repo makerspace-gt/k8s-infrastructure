@@ -1,0 +1,20 @@
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: mariadb-operator-default-deny
+  namespace: mariadb-operator
+spec:
+  endpointSelector: {}
+  # Coarse "trusted-but-contained" platform policy: allow all in-cluster traffic,
+  # deny egress to the internet (world). The operator + cert-controller + webhook
+  # only talk to the apiserver and the MariaDB instances they manage, and receive
+  # admission webhook calls from the apiserver — all in-cluster, no external egress.
+  #
+  # The `cluster` entity subsumes DNS, kube-apiserver, host/remote-node, and every
+  # namespace, so no separate DNS/apiserver/intra-ns rules are needed.
+  ingress:
+    - fromEntities:
+        - cluster
+  egress:
+    - toEntities:
+        - cluster
