@@ -1,0 +1,22 @@
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: sealed-secrets-default-deny
+  namespace: sealed-secrets
+spec:
+  endpointSelector: {}
+  # Coarse "trusted-but-contained" policy for a platform namespace: allow all
+  # in-cluster traffic, deny egress to the internet (world). The controller only
+  # watches SealedSecrets + writes Secrets via the apiserver and exposes metrics
+  # for Prometheus — all in-cluster, no external egress.
+  #
+  # The `cluster` entity subsumes DNS (kube-dns), the kube-apiserver,
+  # host/remote-node, and every other namespace, so no separate DNS/apiserver/
+  # intra-ns rules are needed (unlike the fine-grained app policies). `world` is
+  # intentionally omitted → internet egress is denied.
+  ingress:
+    - fromEntities:
+        - cluster
+  egress:
+    - toEntities:
+        - cluster

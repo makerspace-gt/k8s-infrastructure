@@ -4,3 +4,4 @@ resources:
   - sealed-secret.yaml
   - provider.yaml
   - alert.yaml
+  - network-policy.yaml

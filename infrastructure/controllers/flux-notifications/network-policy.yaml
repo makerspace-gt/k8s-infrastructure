@@ -1,0 +1,33 @@
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: flux-system-default-deny
+  namespace: flux-system
+spec:
+  endpointSelector: {}
+  # Coarse "trusted-but-contained" policy for a platform namespace: allow all
+  # in-cluster traffic plus the specific outbound internet flows Flux needs.
+  #
+  # The `cluster` entity subsumes DNS, the kube-apiserver (the controllers
+  # reconcile everything through it), host/remote-node, and all namespaces — so no
+  # separate DNS/apiserver/intra-ns rules are needed.
+  ingress:
+    - fromEntities:
+        - cluster
+  egress:
+    # All in-cluster destinations (apiserver, DNS, cross-namespace).
+    - toEntities:
+        - cluster
+    # Internet egress, restricted to the protocols Flux actually uses. Verified
+    # via Hubble (source-controller -> 140.82.121.4:22; -> *:443 Helm CDNs):
+    #   :22  git over SSH  — source-controller -> github.com (ssh://git@github.com)
+    #   :443 HTTPS         — source/helm-controller -> Helm repos & OCI registries;
+    #                        notification-controller -> Discord webhook
+    - toEntities:
+        - world
+      toPorts:
+        - ports:
+            - port: "22"
+              protocol: TCP
+            - port: "443"
+              protocol: TCP
