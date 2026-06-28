@@ -3,3 +3,17 @@ kind: Kustomization
 resources:
   - gotk-components.yaml
   - gotk-sync.yaml
+# Remove Flux's default permissive "allow-egress" NetworkPolicy. It is podSelector:{}
+# with egress:[{}] = allow-all egress (incl. the internet/world), which UNIONs with
+# (and defeats) the deny-world CiliumNetworkPolicy in flux-notifications/. Network
+# policies are additive, so the restrictive CNP only takes effect once this allow-all
+# is gone. allow-scraping/allow-webhooks are ingress-only and kept. Patches in this
+# file are preserved across `flux bootstrap`.
+patches:
+  - patch: |-
+      $patch: delete
+      apiVersion: networking.k8s.io/v1
+      kind: NetworkPolicy
+      metadata:
+        name: allow-egress
+        namespace: flux-system
