@@ -333,3 +333,66 @@ kubectl -n monitoring logs deploy/kube-prometheus-stack-kube-state-metrics | gre
 
 Adding a new CR kind also needs a matching `kube-state-metrics.rbac.extraRules` entry (list/watch),
 or KSM logs `forbidden` and exposes nothing for it.
+
+## Default-deny network policy — platform namespaces
+
+App namespaces use fine-grained CNPs (`apps/<app>/network-policy.yaml`). Platform/infra
+namespaces are trusted and single-tenant, so they use a **coarse "contained" pattern** instead
+(fewer rules, matches best practice): allow *all* in-cluster traffic, deny the internet, then
+punch a narrow `world` hole only where the component genuinely needs it.
+
+```yaml
+spec:
+  endpointSelector: {}
+  ingress:
+    - fromEntities: [cluster]      # all in-cluster (subsumes Prometheus scrape, intra-ns, ...)
+  egress:
+    - toEntities: [cluster]        # all in-cluster (subsumes DNS, kube-apiserver, host, cross-ns)
+    # optional, only if the component talks to the internet:
+    - toEntities: [world]
+      toPorts: [{ports: [{port: "443", protocol: TCP}]}]
+```
+
+**Entity cheat-sheet** (verified against the realized BPF policy, Cilium 1.19.x):
+`cluster` = everything *inside* the cluster — all local pods + `host` + `remote-node` +
+`kube-apiserver` + `init`/`health`/`unmanaged`/`ingress`. It does **NOT** include `world`.
+`world` = everything outside (the internet). `all` = `cluster ∪ world` (true allow-all).
+So `toEntities: [cluster]` is exactly "trusted but contained": internal allowed, internet denied.
+
+### Gotcha: Flux's bootstrap NetworkPolicies defeat a deny-world CNP in flux-system
+
+`flux bootstrap` installs three *native* `NetworkPolicy` objects in flux-system:
+`allow-scraping` + `allow-webhooks` (ingress-only, harmless) and **`allow-egress`**
+(`podSelector:{}`, `egress:[{}]` = **allow-all egress, world included**). Network policies are
+**additive (a union of allows — no "deny wins")**, so this allow-all unions with any restrictive
+CNP and the net egress stays wide open. A deny-world CNP in flux-system is a silent no-op until
+`allow-egress` is removed.
+
+Fix (durable, survives re-bootstrap) — `$patch: delete` it in `cluster/flux-system/kustomization.yaml`:
+
+```yaml
+patches:
+  - patch: |-
+      $patch: delete
+      apiVersion: networking.k8s.io/v1
+      kind: NetworkPolicy
+      metadata: {name: allow-egress, namespace: flux-system}
+```
+
+(Equivalent: re-bootstrap with `--network-policy=false`, which drops all three.)
+
+### Verifying containment — do NOT trust "no DROPPED"
+
+Absence of `DROPPED` in Hubble does **not** prove egress is contained — it's equally consistent
+with an allow-all policy unioned in. Check the **realized datapath policy** instead:
+
+```bash
+AGENT=$(kubectl get pod -n kube-system -l k8s-app=cilium --field-selector spec.nodeName=<node> -o jsonpath='{.items[0].metadata.name}')
+EID=$(kubectl exec -n kube-system "$AGENT" -c cilium-agent -- cilium-dbg endpoint list -o json | jq -r '.[]|select((.status."external-identifiers"."pod-name"//"")|test("^<ns>/<pod-prefix>")).id')
+kubectl exec -n kube-system "$AGENT" -c cilium-agent -- cilium-dbg bpf policy get "$EID" | awk 'NR==1||$2=="Egress"'
+```
+
+Contained = entries for specific in-cluster identities (+ any explicit `reserved:world <port>/TCP`),
+and **no** bare `Allow Egress ANY ANY` row (that row is the allow-all catch-all). To see which rule
+produced a given entry, use `cilium-dbg endpoint get <EID> -o json` and read
+`.status.policy.realized.l4.egress[].derived-from-rules`.

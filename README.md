@@ -42,11 +42,14 @@ Pending work, rough priority. Detailed rationale lives in `docs/` + project note
       old Kyverno setup; Kyverno Audit→Enforce itself is now done — enforcing on app
       namespaces, audit on platform/system via `failureActionOverrides`).
 - [ ] **Default-deny network policy** — `CiliumClusterwideNetworkPolicy`; roll out with
-      Hubble in audit/observe mode first. App-namespace egress lockdown DONE (all 5 apps:
-      vikunja, wikijs, vaultwarden, netbox, homepage-wordpress — each default-deny egress
-      allowing only DNS + intra-ns + apiserver as needed). Next: platform namespaces
-      (monitoring scrapes everything; longhorn/cnpg/flux/traefik/cert-manager), then the
-      cluster-wide deny backstop + a shared DNS-allow.
+      Hubble first. Stage 1 (apps) DONE — all 5 apps default-deny egress (DNS + intra-ns +
+      apiserver as needed). Stage 2 (platform namespaces) IN PROGRESS, using a coarse
+      "trusted-but-contained" pattern: `toEntities: [cluster]` (allow all in-cluster) + deny
+      world, punching a narrow `world` hole only where needed — see `docs/procedures.md`.
+      Done: sealed-secrets (deny-world), flux-system (world only :22/:443; required deleting
+      Flux's default allow-all `allow-egress`). Remaining: kyverno, mariadb-operator,
+      snapshot-controller, cert-manager, cnpg-system, alloy, loki, tailscale, monitoring,
+      traefik, longhorn-system (leave kube-system open). Then the cluster-wide deny backstop.
 - [ ] **Control-plane API VIP** — kubeconfig/talosconfig point at a single CP (`192.168.0.68`);
       add a Talos shared VIP across all CPs + cert SANs so API access survives that node dying.
 - [ ] **Traefik ServiceMonitor** — re-add a standalone ServiceMonitor in
