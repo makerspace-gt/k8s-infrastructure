@@ -5,4 +5,10 @@ metadata:
   namespace: netbox
 spec:
   interval: 12h
-  url: https://netbox-community.github.io/netbox-chart
+  # NetBox moved chart hosting off GitHub Pages: the old
+  # netbox-community.github.io/netbox-chart now 301-redirects to
+  # http://charts.netbox.oss.netboxlabs.com (plaintext :80). Point straight at the
+  # new host over HTTPS so source-controller stays on :443 — the flux-system
+  # default-deny CNP only allows world egress on :22/:443, so the :80 redirect
+  # target times out. Chart .tgz URLs in this index resolve to github.com (:443).
+  url: https://charts.netbox.oss.netboxlabs.com

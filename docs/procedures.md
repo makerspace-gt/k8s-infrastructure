@@ -396,3 +396,29 @@ Contained = entries for specific in-cluster identities (+ any explicit `reserved
 and **no** bare `Allow Egress ANY ANY` row (that row is the allow-all catch-all). To see which rule
 produced a given entry, use `cilium-dbg endpoint get <EID> -o json` and read
 `.status.policy.realized.l4.egress[].derived-from-rules`.
+
+### Gotcha: a world `:443`-only egress breaks HelmRepositories that redirect to `:80`
+
+flux-system's deny-world CNP only allows world egress on `:22` (git SSH) and `:443` (HTTPS/OCI).
+That silently breaks any `HelmRepository` whose index fetch leaves :443 — most commonly a vendor
+that **moves chart hosting and 301-redirects the old URL to a plaintext `http://` (`:80`) host**.
+source-controller follows the redirect, the `:80` dial is dropped by the policy, and you get:
+
+```
+failed to fetch Helm repository index: Get "http://<newhost>/index.yaml": dial tcp <ip>:80: i/o timeout
+```
+
+The Kustomization and HelmRelease stay `Ready` (last good artifact is cached) — only the
+**HelmRepository** goes `Ready=False`, so it's easy to miss. `FluxReconciliationFailure` catches it
+after 30m. This bit us when NetBox moved off GitHub Pages (`netbox-community.github.io/netbox-chart`
+→ `http://charts.netbox.oss.netboxlabs.com`).
+
+**Fix: point the `HelmRepository` URL straight at the new host over HTTPS** (don't punch a plaintext
+`:80` world hole). Verify first that the new host serves `https://.../index.yaml` *and* that the
+chart `.tgz` `urls:` inside that index are also `https`/`:443`:
+
+```bash
+kubectl get helmrepository -A   # spot Ready=False
+curl -sSI https://<newhost>/index.yaml          # expect 200 text/yaml
+curl -s  https://<newhost>/index.yaml | grep urls: -A1   # .tgz must be https
+```
