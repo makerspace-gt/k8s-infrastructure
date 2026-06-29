@@ -1,0 +1,23 @@
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: loki-default-deny
+  namespace: loki
+spec:
+  endpointSelector: {}
+  # Coarse "trusted-but-contained" platform policy: allow all in-cluster traffic,
+  # deny egress to the internet (world). Loki uses `filesystem` storage (no external
+  # object store), receives pushes from Alloy and serves queries to Grafana — all
+  # in-cluster. The canary also runs purely in-cluster.
+  #
+  # NOTE: if storage is ever switched to external S3/GCS/Azure object storage, add an
+  # egress hole: `toEntities: [world]` on :443.
+  #
+  # The `cluster` entity subsumes DNS, kube-apiserver, host/remote-node, and every
+  # namespace, so no separate DNS/apiserver/intra-ns rules are needed.
+  ingress:
+    - fromEntities:
+        - cluster
+  egress:
+    - toEntities:
+        - cluster

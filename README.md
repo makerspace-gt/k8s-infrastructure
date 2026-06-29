@@ -46,10 +46,10 @@ Pending work, rough priority. Detailed rationale lives in `docs/` + project note
       apiserver as needed). Stage 2 (platform namespaces) IN PROGRESS, using a coarse
       "trusted-but-contained" pattern: `toEntities: [cluster]` (allow all in-cluster) + deny
       world, punching a narrow `world` hole only where needed — see `docs/procedures.md`.
-      Done: sealed-secrets (deny-world), flux-system (world only :22/:443; required deleting
-      Flux's default allow-all `allow-egress`). Remaining: kyverno, mariadb-operator,
-      snapshot-controller, cert-manager, cnpg-system, alloy, loki, tailscale, monitoring,
-      traefik, longhorn-system (leave kube-system open). Then the cluster-wide deny backstop.
+      Done: sealed-secrets, kyverno, mariadb-operator, cert-manager, cnpg-system, alloy,
+      loki (all deny-world); flux-system (world only :22/:443; required deleting Flux's
+      default allow-all `allow-egress`). Remaining: tailscale, monitoring, traefik,
+      longhorn-system (leave kube-system open). Then the cluster-wide deny backstop.
 - [ ] **Control-plane API VIP** — kubeconfig/talosconfig point at a single CP (`192.168.0.68`);
       add a Talos shared VIP across all CPs + cert SANs so API access survives that node dying.
 - [ ] **Traefik ServiceMonitor** — re-add a standalone ServiceMonitor in

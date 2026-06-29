@@ -1,0 +1,20 @@
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: alloy-default-deny
+  namespace: alloy
+spec:
+  endpointSelector: {}
+  # Coarse "trusted-but-contained" platform policy: allow all in-cluster traffic,
+  # deny egress to the internet (world). Alloy is a DaemonSet log collector: it reads
+  # pod logs via the in-cluster apiserver and ships them to Loki at
+  # http://loki-gateway.loki.svc.cluster.local — all in-cluster, no external egress.
+  #
+  # The `cluster` entity subsumes DNS, kube-apiserver, host/remote-node, and every
+  # namespace, so no separate DNS/apiserver/intra-ns rules are needed.
+  ingress:
+    - fromEntities:
+        - cluster
+  egress:
+    - toEntities:
+        - cluster

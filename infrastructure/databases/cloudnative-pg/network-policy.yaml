@@ -1,0 +1,24 @@
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: cloudnative-pg-default-deny
+  namespace: cnpg-system
+spec:
+  endpointSelector: {}
+  # Coarse "trusted-but-contained" platform policy: allow all in-cluster traffic,
+  # deny egress to the internet (world). The CNPG operator only talks to the
+  # apiserver and the PostgreSQL clusters it manages (in app namespaces), and
+  # receives admission/conversion webhook calls from the apiserver — all in-cluster.
+  #
+  # NOTE: Barman/S3 backups would be run by the *PostgreSQL instance pods* (in their
+  # own app namespaces), not by this operator, so S3 egress belongs on those pods'
+  # policies — not here. The operator itself needs no world egress.
+  #
+  # The `cluster` entity subsumes DNS, kube-apiserver, host/remote-node, and every
+  # namespace, so no separate DNS/apiserver/intra-ns rules are needed.
+  ingress:
+    - fromEntities:
+        - cluster
+  egress:
+    - toEntities:
+        - cluster
