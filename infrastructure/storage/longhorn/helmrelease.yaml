@@ -26,6 +26,12 @@ spec:
     # Data lives on the dedicated 2 TB array, mounted by Talos UserVolumeConfig
     # at /var/mnt/longhorn (see talos/controlplane-patch.yaml).
     defaultSettings:
+      # Disable the phone-home upgrade checker (defaults on). It periodically calls
+      # longhorn-upgrade-responder.longhorn.io:443 for version checks + usage telemetry.
+      # Renovate already tracks Longhorn versions (pinned patch-only), so it's redundant —
+      # and the network-policy.yaml here denies world egress, which would otherwise turn
+      # these calls into recurring dial-timeout log noise.
+      upgradeChecker: false
       defaultDataPath: /var/mnt/longhorn
       # 3-node cluster: one replica per node for full HA. NEW volumes only — existing
       # volumes keep their replica count until raised per-volume (UI / spec.numberOfReplicas).
