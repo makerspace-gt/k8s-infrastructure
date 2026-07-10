@@ -8,7 +8,7 @@ spec:
   chart:
     spec:
       chart: netbox
-      version: "8.3.31"
+      version: "8.3.32"
       sourceRef:
         kind: HelmRepository
         name: netbox-community
