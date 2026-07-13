@@ -17,7 +17,7 @@ spec:
         app: wordpress
     spec:
       containers:
-        - image: docker.io/library/wordpress:7.0.0-apache
+        - image: docker.io/library/wordpress:7.0.1-apache
           name: wordpress
           resources:
             requests:
