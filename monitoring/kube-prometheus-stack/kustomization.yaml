@@ -11,6 +11,7 @@ resources:
   - grafana-sealed-secret.yaml
   - alertmanager-discord-sealed-secret.yaml
   - grafana-ts-ingress.yaml
+  - network-policy.yaml
 configMapGenerator:
   - name: grafana-dashboard-traefik-17346
     files:

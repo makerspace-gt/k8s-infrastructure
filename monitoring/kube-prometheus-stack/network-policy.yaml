@@ -1,0 +1,32 @@
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: monitoring-default-deny
+  namespace: monitoring
+spec:
+  endpointSelector: {}
+  # Coarse "trusted-but-contained" policy for the monitoring namespace
+  # (kube-prometheus-stack: Prometheus, Alertmanager, Grafana, operator,
+  # kube-state-metrics). Allow all in-cluster traffic + the one outbound
+  # internet flow this namespace needs.
+  #
+  # The `cluster` entity subsumes DNS, kube-apiserver, host/remote-node and every
+  # namespace — so Prometheus scraping all in-cluster targets (pods on remote-node
+  # IPs, kubelet/etcd on host) and the Tailscale proxies (tailscale ns) reaching
+  # Grafana/Alertmanager are all already covered.
+  #
+  # World egress restricted to :443 — Alertmanager -> Discord webhook (verified:
+  # ~3k successful Discord notifications over 14d). Also covers Grafana's
+  # grafana.com version/plugin checks. Prometheus itself scrapes only in-cluster.
+  ingress:
+    - fromEntities:
+        - cluster
+  egress:
+    - toEntities:
+        - cluster
+    - toEntities:
+        - world
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
