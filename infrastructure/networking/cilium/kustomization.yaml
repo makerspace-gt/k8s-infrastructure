@@ -3,3 +3,4 @@ kind: Kustomization
 resources:
   - cilium-connectivity-test-namespace.yaml
   - hubble-ts-ingress.yaml
+  - default-deny-backstop.yaml
