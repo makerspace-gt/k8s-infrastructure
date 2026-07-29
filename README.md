@@ -41,7 +41,7 @@ Pending work, rough priority. Detailed rationale lives in `docs/` + project note
 - [ ] **Trivy image-scan CI job** — restore the image vulnerability scan (dropped with the
       old Kyverno setup; Kyverno Audit→Enforce itself is now done — enforcing on app
       namespaces, audit on platform/system via `failureActionOverrides`).
-- [ ] **Default-deny network policy** — `CiliumClusterwideNetworkPolicy`; roll out with
+- [x] **Default-deny network policy** — `CiliumClusterwideNetworkPolicy`; roll out with
       Hubble first. Stage 1 (apps) DONE — all 5 apps default-deny egress (DNS + intra-ns +
       apiserver as needed). **Stage 2 (platform namespaces) DONE**, using a coarse
       "trusted-but-contained" pattern: `toEntities: [cluster]` (allow all in-cluster) + deny
@@ -54,8 +54,11 @@ Pending work, rough priority. Detailed rationale lives in `docs/` + project note
       ingress controller, so it needs world *ingress* (LAN clients today via the LB IP,
       public later); the coarse cluster-only template doesn't fit. Revisit when we design
       ingress policy alongside public exposure + forward-auth. Leave kube-system open.
-      **Next: Stage 3** — the cluster-wide deny backstop (`CiliumClusterwideNetworkPolicy`),
-      audit-first.
+      **Stage 3 DONE** — cluster-wide `default-deny-backstop` CCNP (excludes
+      kube-system/traefik/cilium-test; `enableDefaultDeny` both directions + shared
+      DNS-allow). Applied directly, NOT via Cilium audit mode (that flag is global and
+      would've un-enforced Stage 1/2). Rollout complete except traefik's own policy,
+      folded into the public-exposure item above.
 - [ ] **Control-plane API VIP** — DEFERRED to the cluster redesign (VMs etc.); endpoint
       topology changes then, so hold. Findings (2026-07 investigation): in-cluster comms are
       already HA via Talos **KubePrism** (`localhost:7445` → all CPs), and `talosconfig` already
