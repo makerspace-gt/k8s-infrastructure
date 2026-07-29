@@ -43,19 +43,27 @@ Pending work, rough priority. Detailed rationale lives in `docs/` + project note
       namespaces, audit on platform/system via `failureActionOverrides`).
 - [ ] **Default-deny network policy** — `CiliumClusterwideNetworkPolicy`; roll out with
       Hubble first. Stage 1 (apps) DONE — all 5 apps default-deny egress (DNS + intra-ns +
-      apiserver as needed). Stage 2 (platform namespaces) IN PROGRESS, using a coarse
+      apiserver as needed). **Stage 2 (platform namespaces) DONE**, using a coarse
       "trusted-but-contained" pattern: `toEntities: [cluster]` (allow all in-cluster) + deny
       world, punching a narrow `world` hole only where needed — see `docs/procedures.md`.
       Done: sealed-secrets, kyverno, mariadb-operator, cert-manager, cnpg-system, alloy,
-      loki, longhorn-system (all deny-world); flux-system (world only :22/:443; required
-      deleting Flux's default allow-all `allow-egress`). longhorn-system also disabled the
-      phone-home upgrade checker. Remaining: tailscale, monitoring (both need a narrow
-      `world` hole). **traefik deferred** — it's the ingress controller, so it needs world
-      *ingress* (LAN clients today via the LB IP, public later); the coarse cluster-only
-      template doesn't fit. Revisit when we design ingress policy alongside public exposure
-      + forward-auth. Leave kube-system open. Then the cluster-wide deny backstop.
-- [ ] **Control-plane API VIP** — kubeconfig/talosconfig point at a single CP (`192.168.0.68`);
-      add a Talos shared VIP across all CPs + cert SANs so API access survives that node dying.
+      loki, longhorn-system (all deny-world); flux-system (world :22/:443; required
+      deleting Flux's default allow-all `allow-egress`); monitoring (world :443 —
+      Alertmanager→Discord); tailscale (world :443 — control + DERP relays). longhorn-system
+      also disabled the phone-home upgrade checker. **traefik still deferred** — it's the
+      ingress controller, so it needs world *ingress* (LAN clients today via the LB IP,
+      public later); the coarse cluster-only template doesn't fit. Revisit when we design
+      ingress policy alongside public exposure + forward-auth. Leave kube-system open.
+      **Next: Stage 3** — the cluster-wide deny backstop (`CiliumClusterwideNetworkPolicy`),
+      audit-first.
+- [ ] **Control-plane API VIP** — DEFERRED to the cluster redesign (VMs etc.); endpoint
+      topology changes then, so hold. Findings (2026-07 investigation): in-cluster comms are
+      already HA via Talos **KubePrism** (`localhost:7445` → all CPs), and `talosconfig` already
+      lists all 3 CP IPs. So the only SPOF is the `kubeconfig` server (`https://192.168.0.68:6443`,
+      towercp01), and only for *external* clients (local kubectl; future Tailscale/public API).
+      Plan when revisited: Talos L2 VIP (etcd leader-elected) across all CPs + add VIP to
+      `cluster.apiServer.certSANs`; keep the VIP OUT of `talosconfig`. Does NOT fix etcd quorum
+      loss (2-of-3 CPs down) — that's node reliability, a separate concern.
 - [ ] **Traefik ServiceMonitor** — re-add a standalone ServiceMonitor in
       `monitoring/kube-prometheus-stack-config/` (chart's inline one hard-fails pre-CRD).
 - [ ] **GPU enablement (towercp02, GTX 1080 Ti)** — NVIDIA Talos extensions + device plugin +

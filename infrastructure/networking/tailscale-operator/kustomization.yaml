@@ -5,3 +5,4 @@ resources:
   - helmrepository.yaml
   - helmrelease.yaml
   - oauth-sealed-secret.yaml
+  - network-policy.yaml

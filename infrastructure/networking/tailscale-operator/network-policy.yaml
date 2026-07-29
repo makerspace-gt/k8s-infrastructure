@@ -1,0 +1,34 @@
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: tailscale-default-deny
+  namespace: tailscale
+spec:
+  endpointSelector: {}
+  # Coarse "trusted-but-contained" policy for the tailscale namespace (operator +
+  # the per-service `ts-*` ingress proxies). Allow all in-cluster traffic + the
+  # outbound internet flow the proxies need.
+  #
+  # The `cluster` entity subsumes DNS, kube-apiserver (operator reconcile), and all
+  # namespaces — so the proxies forwarding tailnet requests to their backend
+  # Services (grafana.monitoring, netbox.netbox, ...) are already covered. Inbound
+  # tailnet traffic arrives as conntrack replies on the proxies' own outbound DERP
+  # connections, so no world *ingress* rule is needed.
+  #
+  # World egress restricted to :443 — Tailscale control plane + DERP relays. The
+  # proxies run in userspace/DERP-relay mode: Hubble showed ALL world egress is
+  # :443/TCP (control + DERP), with NO UDP (no :3478 STUN, no :41641 direct). If
+  # direct connections are ever enabled, Hubble will surface :3478/UDP DROPs — add
+  # the UDP hole then.
+  ingress:
+    - fromEntities:
+        - cluster
+  egress:
+    - toEntities:
+        - cluster
+    - toEntities:
+        - world
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
