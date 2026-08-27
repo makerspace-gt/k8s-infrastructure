@@ -10,7 +10,7 @@ spec:
   # this app namespace) rejects because the string lacks an approved registry prefix —
   # that blocked the DB pod's recreation and took the homepage down. Pinning here also
   # insulates us from future operator-default image changes.
-  image: docker.io/library/mariadb:12.3.2
+  image: docker.io/library/mariadb:12.3.3
   # require-resource-limits (Enforce on app namespaces) needs cpu+memory limits on the
   # mariadb container; spec.resources propagates to it.
   resources:
