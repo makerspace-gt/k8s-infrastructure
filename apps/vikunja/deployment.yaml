@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: vikunja
-          image: docker.io/vikunja/vikunja:2.7.0
+          image: docker.io/vikunja/vikunja:2.7.1
           ports:
             - containerPort: 3456
           resources:
